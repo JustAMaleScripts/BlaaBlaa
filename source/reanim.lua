@@ -382,6 +382,7 @@ do
 	end)
 	pcall(makefolder, "UhhhhhhReanim/Assets")
 	pcall(makefolder, "UhhhhhhReanim/Modules")
+	pcall(makefolder, "UhhhhhhReanim/Muzik")
 	pcall(makefolder, "UhhhhhhReanim/BuiltinModules")
 	pcall(makefolder, "UhhhhhhReanim/Content")
 	pcall(makefolder, "UhhhhhhReanim/Content/Anims")
@@ -637,32 +638,46 @@ UISound.Music.PlaybackSpeed = 1
 
 local MusicPlayer = {}
 MusicPlayer.Database = {
-	{"dm_afterburner.ft2.mp3", "Dubmood - Afterburner"},
-	{"dm_robotadventure.ft2.mp3", "Dubmood & Zabutom - Robot Adventure Remix"},
-	{"4m_brokenheart.ft2.mp3", "4-Mat - <3 Broken Heart <3"},
-	{"fr_brokenheart.ft2.mp3", "Hoster's FR - Alternate Broken Heart"},
-	{"dm_change.ft2.mp3", "Dubmood - Change (Radio Edit)"},
-	{math.random() < 0.5 and "dm_deadscene2024.ft2.mp3" or "dm_deadscene2024alt.ft2.mp3", "Dubmood - The Scene is Dead 2024"},
-	{"dm_e1m777.ft2.mp3", "Dubmood & MBR - E1M777"},
-	{"dm_haze.ft2.mp3", "Dubmood - Haze (Keygen 13 Edit)"},
-	{"dm_haze2.ft2.mp3", "Dubmood - Haze Keygen 2"},
-	{"dm_iostesso.ft2.mp3", "Dubmood - Io Stesso"},
-	{"dm_keygen3.ft2.mp3", "Dubmood - Keygen 3"},
-	{"dm_keygen8.ft2.mp3", "Dubmood - Keygen 8"},
-	{"dm_keygen18.ft2.mp3", "Dubmood - Keygen 18"}, -- intro music
-	{"dm_keygen19.ft2.mp3", "Dubmood - Keygen 19"},
-	{"dm_keygen20.ft2.mp3", "Dubmood - Keygen 20"},
-	{"dm_keygen21alt.ft2.mp3", "Dubmood - Keygen 21"},
-	{"dm_keygen21.ft2.mp3", "Dubmood - Keygen 21 (Installer Edit)"},
-	{"dm_keygen22.ft2.mp3", "Dubmood - Keygen 22"},
-	{"dm_keygen23.ft2.mp3", "Dubmood - Keygen 23"},
-	{"dm_keygen30.ft2.mp3", "Dubmood - Keygen 30"},
-	{"dm_keygen31.ft2.mp3", "Dubmood - Keygen 31"},
-	{"fr_keygen31.ft2.mp3", "Hoster's FR - Alternate Keygen 31"},
-	{"dm_laparade.ft2.mp3", "Dubmood & MBR - La Parade"},
-	{"dm_reztro4.ft2.mp3", "Dubmood - Rez Cracktro #4"},
-	{"dm_unaseraariccione.ft2.mp3", "Dubmood - Una Sera A Riccione"},
+	{"UhhhhhhReanim/Assets/dm_afterburner.ft2.mp3", "Dubmood - Afterburner"},
+	{"UhhhhhhReanim/Assets/dm_robotadventure.ft2.mp3", "Dubmood & Zabutom - Robot Adventure Remix"},
+	{"UhhhhhhReanim/Assets/4m_brokenheart.ft2.mp3", "4-Mat - <3 Broken Heart <3"},
+	{"UhhhhhhReanim/Assets/fr_brokenheart.ft2.mp3", "Hoster's FR - Alternate Broken Heart"},
+	{"UhhhhhhReanim/Assets/dm_change.ft2.mp3", "Dubmood - Change (Radio Edit)"},
+	{math.random() < 0.5 and "UhhhhhhReanim/Assets/dm_deadscene2024.ft2.mp3" or "UhhhhhhReanim/Assets/dm_deadscene2024alt.ft2.mp3", "Dubmood - The Scene is Dead 2024"},
+	{"UhhhhhhReanim/Assets/dm_e1m777.ft2.mp3", "Dubmood & MBR - E1M777"},
+	{"UhhhhhhReanim/Assets/dm_haze.ft2.mp3", "Dubmood - Haze (Keygen 13 Edit)"},
+	{"UhhhhhhReanim/Assets/dm_haze2.ft2.mp3", "Dubmood - Haze Keygen 2"},
+	{"UhhhhhhReanim/Assets/dm_iostesso.ft2.mp3", "Dubmood - Io Stesso"},
+	{"UhhhhhhReanim/Assets/dm_keygen3.ft2.mp3", "Dubmood - Keygen 3"},
+	{"UhhhhhhReanim/Assets/dm_keygen8.ft2.mp3", "Dubmood - Keygen 8"},
+	{"UhhhhhhReanim/Assets/dm_keygen18.ft2.mp3", "Dubmood - Keygen 18"}, -- intro music
+	{"UhhhhhhReanim/Assets/dm_keygen19.ft2.mp3", "Dubmood - Keygen 19"},
+	{"UhhhhhhReanim/Assets/dm_keygen20.ft2.mp3", "Dubmood - Keygen 20"},
+	{"UhhhhhhReanim/Assets/dm_keygen21alt.ft2.mp3", "Dubmood - Keygen 21"},
+	{"UhhhhhhReanim/Assets/dm_keygen21.ft2.mp3", "Dubmood - Keygen 21 (Installer Edit)"},
+	{"UhhhhhhReanim/Assets/dm_keygen22.ft2.mp3", "Dubmood - Keygen 22"},
+	{"UhhhhhhReanim/Assets/dm_keygen23.ft2.mp3", "Dubmood - Keygen 23"},
+	{"UhhhhhhReanim/Assets/dm_keygen30.ft2.mp3", "Dubmood - Keygen 30"},
+	{"UhhhhhhReanim/Assets/dm_keygen31.ft2.mp3", "Dubmood - Keygen 31"},
+	{"UhhhhhhReanim/Assets/fr_keygen31.ft2.mp3", "Hoster's FR - Alternate Keygen 31"},
+	{"UhhhhhhReanim/Assets/dm_laparade.ft2.mp3", "Dubmood & MBR - La Parade"},
+	{"UhhhhhhReanim/Assets/dm_reztro4.ft2.mp3", "Dubmood - Rez Cracktro #4"},
+	{"UhhhhhhReanim/Assets/dm_unaseraariccione.ft2.mp3", "Dubmood - Una Sera A Riccione"},
 }
+pcall(function()
+	local future = table.clone(MusicPlayer.Database)
+	if isfile("UhhhhhhReanim/Muzik/nobuiltin") then
+		table.clear(future)
+	end
+	for _,file in listfiles("UhhhhhhReanim/Muzik") do
+		if isfile(file) and file:sub(-4, -1) == ".mp3" then
+			table.insert(future, {file, file:sub(21, -4)})
+		end
+	end
+	if #future > 0 then
+		MusicPlayer.Database = future
+	end
+end)
 MusicPlayer.Switching = false
 MusicPlayer.Last = 1
 MusicPlayer.PlayMusic = function(i)
@@ -679,7 +694,22 @@ MusicPlayer.PlayMusic = function(i)
 	MusicPlayer.LastMusic = i
 	local hi = MusicPlayer.Database[i]
 	local soundid, soundname = hi[1], hi[2]
-	UISound.Music.SoundId = Util.GetCDNAsset(soundid)
+	local s, id = pcall(isfile, soundid)
+	if s and id then
+		s, id = pcall(getcustomasset, soundid)
+		if s then
+			soundid = id
+		else
+			soundid = ""
+		end
+	else
+		soundid = ""
+	end
+	if #soundid == 0 then
+		MusicPlayer.Switching = false
+		return MusicPlayer.PlayMusic()
+	end
+	UISound.Music.SoundId = soundid
 	UISound.Music.Name = soundname
 	UISound.Music:Stop()
 	task.wait()
@@ -688,7 +718,6 @@ MusicPlayer.PlayMusic = function(i)
 	UISound.Music:Play()
 	task.wait()
 	MusicPlayer.Switching = false
-	if #UISound.Music.SoundId == 0 then MusicPlayer.PlayMusic() end
 end
 UISound.Music.Ended:Connect(function()
 	MusicPlayer.PlayMusic()
