@@ -8,6 +8,7 @@ $$      $$$$$$"""$$$ $$$"""$$$ $$$"""$$$ $$$"""$$$ $$$"""$$$ $$$"""$$$
        "DREAMS WILL NEVER COME TRUE UNTIL YOU ACTUALLY MAKE IT."       
 
        Code:    STEVETHEREALONE
+                BoredGal (mostly patches..)
        GFX:     STEVETHEREALONE
                 AALib
                 some random generators
@@ -1611,6 +1612,7 @@ do -- homepage
 		"boredgal was here..",
 	}
 	local text3 = nil
+	local text3mustchange = false
 	local function changequote()
 		if text3 then text3:Destroy() end
 		text3 = Util.MakeText(quotes[math.random(1, #quotes)])
@@ -1619,7 +1621,6 @@ do -- homepage
 		text3.ZIndex = 3
 		text3.Parent = CracktroFrame
 		Util.SetTextColor(text3, UITextColor.Value, 0)
-		task.delay(12, changequote)
 	end
 	changequote()
 	UITextColor.Changed:Connect(function(val)
@@ -1750,6 +1751,10 @@ do -- homepage
 				textsel = t % 12
 			end
 			textsel //= 3
+			if text3mustchange ~= (textsel == 3) then
+				text3mustchange = (textsel == 3)
+				if text3mustchange then changequote() end
+			end
 			if textsel == 0 then
 				text0.Visible = true
 				text1.Visible = false
@@ -2646,6 +2651,7 @@ end)
 local AsciiText = UI.CreateText(MainPage, "", 12, Enum.TextXAlignment.Center)
 Util.ForceTextSize(AsciiText)
 task.spawn(function()
+	-- nice ascii art steve
 	local AsciiTextarts = {
 		{
 			"  ____ ___.__    .__    .__    .__    .__    .__      ",
@@ -2703,7 +2709,7 @@ task.spawn(function()
 			"ns at a really stable framerate, so optimised it handl",
 			"ow, BUY OUR PRODUCT FOR FREE! We know you like it! We ",
 		},
-		{
+		{ -- omg hi steveee-
 			"....... gmWWWQQQQQQPg ..............................",
 			":;:;:; qm#WWNWQQWQWWmp ;:;:;:.                  .;:;",
 			"!!?!!?.WX##: W#W :###W.?!!?:.  hi im steve!      .:!",
@@ -8822,6 +8828,7 @@ do
 		"We can confirm that we were !",
 		"Looking At You Just Makes Me Jaded",
 		"\"Yo whwho can dm me emeremerian  reanimation\"",
+		"boredgal was here..",
 	}
 	for _=1, 15 do
 		local idx = math.random(1, #quotes)
