@@ -1228,6 +1228,7 @@ local UIMainWindow, WindowContent do
 			"uhhhh hub",
 			"Emperyan Reanimate",
 			"<font color=\"#0000FF\">IM BLUE BADA DEE BADA DIE</font>",
+			"Delta Reanimate | v" .. UhhhhhhVersion,
 		}
 		if os.date("%m") == "12" and math.random(4) == 1 then
 			quotes = {
