@@ -6691,7 +6691,6 @@ function HatReanimator.Start()
 	local letitgo = 0
 	while not Reanimate.Stopping do
 		RunService.PreSimulation:Wait()
-		debug.profilebegin("Uhhhhhh > Reanimate")
 		workspace.FallenPartsDestroyHeight = 0/0
 		SetSimulationRadius()
 		debug.profilebegin("Uhhhhhh > CharacterCheck")
@@ -7082,7 +7081,6 @@ function HatReanimator.Start()
 				end
 			end
 		end
-		debug.profileend()
 		debug.profileend()
 	end
 	ResetHatRefs()
