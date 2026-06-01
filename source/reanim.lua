@@ -762,7 +762,7 @@ else
 		"wwwwwwwwwwwwwwwwwww                         grass                 ",
 		"erika's the towers                            sfoth iv update when",
 		"i will leak all ur script i will leak all ur script i will leak al",
-		"kasil loves gooning to everybody                                  ",
+		--"kasil loves gooning to everybody                  must've been the",
 		"fflags are dead lol                                               ",
 		"imagine being called a dummy                                      ",
 		-- DEAD MEME "nothing beats a jet 2 holiday. and right now, im beating myself to",
@@ -785,6 +785,7 @@ else
 		"skids, be alert, go to weao.xyz for your roblox hacks!            ",
 		"                                             ok.                         ",
 		"hey steve why is this better than genesis fe?                     ",
+		"RCDless is the future of roblox exploiting                        ",
 	}
 	scrolltexts = scrolltexts[math.random(1, #scrolltexts)]
 	local fade = TweenService:Create(UIMainFrame, TweenInfo.new(5), {BackgroundTransparency = 0.5})
@@ -8854,11 +8855,12 @@ UI.CreateText(CreditsPage, "your tool fling is great reference!", 12, Enum.TextX
 UI.CreateSeparator(CreditsPage)
 UI.CreateText(CreditsPage, "<b>* Greetings to *</b>", 15, Enum.TextXAlignment.Center)
 UI.CreateText(CreditsPage, "fev, inno, rqz, mry7zz, theo, redactedre, colon", 12, Enum.TextXAlignment.Center)
-UI.CreateText(CreditsPage, "terminal, guinwah, kasil, hamza, nexus, hoster", 12, Enum.TextXAlignment.Center)
+UI.CreateText(CreditsPage, "terminal, guinwah, kasil (just a greet), hoster", 12, Enum.TextXAlignment.Center)
 UI.CreateText(CreditsPage, "hamoun, baze, luacope, 2024, 2023 and 2022 me", 12, Enum.TextXAlignment.Center)
 UI.CreateText(CreditsPage, "scout, edge, shownape, index, blackhole/whitehole", 12, Enum.TextXAlignment.Center)
 UI.CreateText(CreditsPage, "zero from iwbtc for no reason, presidentanvil, mech/catlover", 12, Enum.TextXAlignment.Center)
-UI.CreateText(CreditsPage, "return from fishstrap, erika, skeltoun", 12, Enum.TextXAlignment.Center)
+UI.CreateText(CreditsPage, "return from fishstrap, erika, skeltoun, pala :D", 12, Enum.TextXAlignment.Center)
+UI.CreateText(CreditsPage, "awes, boredgal, hamza, nexus", 12, Enum.TextXAlignment.Center)
 UI.CreateSeparator(CreditsPage)
 UI.CreateText(CreditsPage, "<b>* Very random quotes *</b>", 15, Enum.TextXAlignment.Center)
 do
