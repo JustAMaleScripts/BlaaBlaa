@@ -1,15 +1,16 @@
-# <p align="center">STEVETHEREALONE (@steve_internal)'s Universal Hierarchical 6 Reanimator</p>
-<p align="center">A really cool, optimised animation program with demo scenes! Idea originated from a dream.</p>
+# <p align="center">STEVETHEREALONE (@steve_internal)'s Universal Hierarchical 6 Reanimator And JustAMaleScript (@JustAMaleYT)'s Universal Music Adder</p>
+<p align="center">A really cool, optimised animation program and musics with demo scenes! Idea originated from a dream.</p>
 <p align="center">
 	<img src="./images/Showcase.gif" alt="drawing" width="45%"/>
 	<img src="./images/Showcase2.gif" alt="drawing" width="45%"/>
 </p>
 
+## IMPORTANT, READ CAREFULLY!!!
 This is the official repository for Uhhhhhh.
 All code is stored in this repository.
 Feel free to use these as your reference.
 
-Join the [DISCORD](https://discord.gg/NASNUKRBVM) of all my programming shenanigans! :D
+Join the [DISCORD](https://discord.gg/NASNUKRBVM) for Uhhhhhh Reanimate :D
 
 **NOTICE:** This is still in development, so things are subject to change and stuff are expected to be missing.
 
@@ -27,7 +28,7 @@ local a,b,c,g="/STEVE-916-create/Uhhhhhh/","/source/reanim.lua",".github","https
 ```
 
 ## Features:
-1. ~Probably the most stable hatdrop~ (roblox patched permadeath which makes this useless 3:)
+1. ~Probably the most stable hatdrop~ (roblox patched permadeath and R15 Joints which makes this useless 3:)
 
    Uhhhhhh's hatdrop supports most (if not all) hat rigs!
 
@@ -39,7 +40,8 @@ local a,b,c,g="/STEVE-916-create/Uhhhhhh/","/source/reanim.lua",".github","https
 
    In the case where you are just unable to afford hats, you can use your own limbs instead!
 
-   Unfortunately, this only supports a few games.
+   Unfortunately, this only supports a few games. 
+   ### (EDIT: I'd Recommend to choose Zombie Game UPD3 But... many hackers will be useless, so Join your own private server.)
 
    <img src="./images/LimbReanimation.gif" alt="drawing" width="350"/>
 
