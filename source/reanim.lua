@@ -9,12 +9,14 @@ $$      $$$$$$"""$$$ $$$"""$$$ $$$"""$$$ $$$"""$$$ $$$"""$$$ $$$"""$$$
 
        Code:    STEVETHEREALONE
                 BoredGal (mostly patches..)
+				JustAMale (The AI Slop User, also Known as Mr AI)
        GFX:     STEVETHEREALONE
                 AALib
                 some random generators
        Music:   Dubmood
                 4mat
                 MASTER BOOT RECORD
+				some 1990s Musics
 
 Thou shalth not steal. Point at this source if you used a snippet here.
 ]]
@@ -22,7 +24,7 @@ Thou shalth not steal. Point at this source if you used a snippet here.
 if _G.UhhhhhhLoaded then return end
 _G.UhhhhhhLoaded = true
 
-local UhhhhhhVersion = "1.0.9 BETA"
+local UhhhhhhVersion = "1.0 ALPHA"
 
 local Debris = cloneref(game:GetService("Debris"))
 local CoreGui = cloneref(game:GetService("CoreGui"))
@@ -192,7 +194,7 @@ if not game:IsLoaded() then
 	end, function()
 		notLoaded.Parent = workspace
 	end)
-	notLoaded.Text = "Uhhhhhh is waiting for the game to load"
+	notLoaded.Text = "BlaaBlaa is waiting for the game to load"
 	game.Loaded:Wait()
 	for i=1, 60 do
 		while task.wait() > 1 / 10 do end
@@ -352,9 +354,9 @@ UIMainFrame.ZIndex = 2147483647
 
 local SaveData = {}
 do
-	pcall(makefolder, "UhhhhhhReanim")
-	pcall(writefile, "UhhhhhhReanim/.nomedia", "")
-	local SaveDataFilename = "UhhhhhhReanim/tree.ehehetilde"
+	pcall(makefolder, "BlaaBlaaReanim")
+	pcall(writefile, "BlaaBlaaReanim/.nomedia", "")
+	local SaveDataFilename = "BlaaBlaaReanim/tree.ehehetilde"
 	local s, data = pcall(readfile, SaveDataFilename)
 	if s and data then
 		s, data = pcall(HttpService.JSONDecode, HttpService, data)
@@ -395,16 +397,16 @@ do
 			end
 		end
 	end)
-	pcall(makefolder, "UhhhhhhReanim/Assets")
-	pcall(makefolder, "UhhhhhhReanim/Modules")
-	pcall(makefolder, "UhhhhhhReanim/Muzik")
-	pcall(makefolder, "UhhhhhhReanim/BuiltinModules")
-	pcall(makefolder, "UhhhhhhReanim/Content")
-	pcall(makefolder, "UhhhhhhReanim/Content/Anims")
-	pcall(makefolder, "UhhhhhhReanim/Content/Sounds")
-	pcall(makefolder, "UhhhhhhReanim/Content/Images")
-	pcall(makefolder, "UhhhhhhReanim/Content/Models")
-	pcall(makefolder, "UhhhhhhReanim/Content/Unknown")
+	pcall(makefolder, "BlaaBlaaReanim/Assets")
+	pcall(makefolder, "BlaaBlaaReanim/Modules")
+	pcall(makefolder, "BlaaBlaaReanim/Muzik")
+	pcall(makefolder, "BlaaBlaaReanim/BuiltinModules")
+	pcall(makefolder, "BlaaBlaaReanim/Content")
+	pcall(makefolder, "BlaaBlaaReanim/Content/Anims")
+	pcall(makefolder, "BlaaBlaaReanim/Content/Sounds")
+	pcall(makefolder, "BlaaBlaaReanim/Content/Images")
+	pcall(makefolder, "BlaaBlaaReanim/Content/Models")
+	pcall(makefolder, "BlaaBlaaReanim/Content/Unknown")
 end
 
 do
@@ -436,13 +438,17 @@ do
 		"dm_unaseraariccione.ft2.mp3",
 		"fr_keygen31.ft2.mp3",
 		"fr_brokenheart.ft2.mp3",
+		"better-off-alone.mp3",
+		"what-is-love.mp3",
+		"scatman.mp3",
+		"around-the-world.mp3"
 		"lightinursoul.graphic.png",
 		"letriangul.graphic.png",
 	}
 	local redownloadeverything = SaveData.CDNVersion ~= CDNVersion
 	local theresassetsmissing = redownloadeverything
 	for _,rfile in AllFileNames do
-		local fil = "UhhhhhhReanim/Assets/" .. rfile
+		local fil = "BlaaBlaaReanim/Assets/" .. rfile
 		local s, d = pcall(isfile, fil)
 		if not (s and d) then
 			theresassetsmissing = true
@@ -453,7 +459,7 @@ do
 		local skipped = 0
 		local assetsdownload = 0
 		local downloadfile = function(meta)
-			local fil = "UhhhhhhReanim/Assets/" .. meta.name
+			local fil = "BlaaBlaaReanim/Assets/" .. meta.name
 			if not redownloadeverything then
 				local s, d = pcall(isfile, fil)
 				if s and d then
@@ -477,13 +483,13 @@ do
 		Downloading.TextColor3 = Color3.new(1, 1, 1)
 		Downloading.TextSize = 20
 		Downloading.Font = Enum.Font.Code
-		Downloading.Text = "Fetching Assets metadata..."
+		Downloading.Text = "Getting some Musics and CoLoRs metadata..."
 		Util.ForceTextSize(Downloading)
 		TweenService:Create(Downloading, TweenInfo.new(0.5), {
 			Size = UDim2.new(1, 0, 0, 32)
 		}):Play()
 		task.wait(0.5)
-		local s, assetsof = pcall(game.HttpGet, game, "https://api.github.com/repos/STEVE-916-create/Uhhhhhh/contents/uiassets/")
+		local s, assetsof = pcall(game.HttpGet, game, "https://api.github.com/repos/JustAMaleScripts/BlaaBlaa/contents/uiassets/")
 		if s and assetsof then
 			s, assetsof = pcall(HttpService.JSONDecode, HttpService, assetsof)
 			if s and assetsof then
@@ -499,14 +505,14 @@ do
 					Downloading.BackgroundColor3 = Color3.new(0, 0, 0)
 					task.wait()
 				until downloaded == assetsdownload
-				Downloading.Text = "Download complete! \\(^o^)/"
+				Downloading.Text = "Download complete! Ready to run now! Woohoo!"
 				Downloading.BackgroundColor3 = Color3.new(0, 1, 0)
 				theresassetsmissing = false
 			end
 		end
 		SaveData.CDNVersion = CDNVersion
 		if theresassetsmissing then
-			Downloading.Text = "Asset downloading failed. 3:"
+			Downloading.Text = "Asset downloading failuere. Please Fix something :sad emoji:"
 			Downloading.BackgroundColor3 = Color3.new(1, 0, 0)
 		end
 		TweenService:Create(Downloading, TweenInfo.new(0.5), {
@@ -539,6 +545,7 @@ Util.MakeTriforce = function(tris, color, dur)
 		pivot.BackgroundTransparency = 1
 		pivot.BorderSizePixel = 0
 		pivot.Rotation = rotation
+		
 		local tri = Util.Instance("ImageLabel", pivot)
 		tri.AnchorPoint = Vector2.new(0.5, 1)
 		tri.Position = UDim2.new(0.5, 0, 0.5 - radius, 0)
@@ -546,18 +553,23 @@ Util.MakeTriforce = function(tris, color, dur)
 		tri.BackgroundTransparency = 1
 		tri.BorderSizePixel = 0
 		tri.Image = Util.GetCDNAsset("letriangul.graphic.png")
-		local grey = math.max(color.R, color.G, color.B) * 0.5
-		tri.ImageColor3 = Color3.new(grey, grey, grey)
+		
+		-- Start with a dark blue
+		tri.ImageColor3 = Color3.fromRGB(0, 0, 50)
+		
+		-- Tween to the color passed into the function
 		TweenService:Create(tri, TweenInfo.new(dur, Enum.EasingStyle.Linear), {
 			ImageColor3 = color
 		}):Play()
 	end
+	
 	local radius = 0.1
 	local pivot = Util.Instance("Frame")
 	pivot.AnchorPoint = Vector2.new(0.5, 0.5)
 	pivot.Position = UDim2.new(0.5, 0, 0.5, 0)
 	pivot.BackgroundTransparency = 1
 	pivot.BorderSizePixel = 0
+	
 	local width = 2 * radius * math.sin(math.pi / tris) * 2
 	for i=1, tris do
 		CreateTriangle(pivot, radius, width, (i / tris) * 360, color)
@@ -653,38 +665,42 @@ UISound.Music.PlaybackSpeed = 1
 
 local MusicPlayer = {}
 MusicPlayer.Database = {
-	{"UhhhhhhReanim/Assets/dm_afterburner.ft2.mp3", "Dubmood - Afterburner"},
-	{"UhhhhhhReanim/Assets/dm_robotadventure.ft2.mp3", "Dubmood & Zabutom - Robot Adventure Remix"},
-	{"UhhhhhhReanim/Assets/4m_brokenheart.ft2.mp3", "4-Mat - <3 Broken Heart <3"},
-	{"UhhhhhhReanim/Assets/fr_brokenheart.ft2.mp3", "Hoster's FR - Alternate Broken Heart"},
-	{"UhhhhhhReanim/Assets/dm_change.ft2.mp3", "Dubmood - Change (Radio Edit)"},
-	{math.random() < 0.5 and "UhhhhhhReanim/Assets/dm_deadscene2024.ft2.mp3" or "UhhhhhhReanim/Assets/dm_deadscene2024alt.ft2.mp3", "Dubmood - The Scene is Dead 2024"},
-	{"UhhhhhhReanim/Assets/dm_e1m777.ft2.mp3", "Dubmood & MBR - E1M777"},
-	{"UhhhhhhReanim/Assets/dm_haze.ft2.mp3", "Dubmood - Haze (Keygen 13 Edit)"},
-	{"UhhhhhhReanim/Assets/dm_haze2.ft2.mp3", "Dubmood - Haze Keygen 2"},
-	{"UhhhhhhReanim/Assets/dm_iostesso.ft2.mp3", "Dubmood - Io Stesso"},
-	{"UhhhhhhReanim/Assets/dm_keygen3.ft2.mp3", "Dubmood - Keygen 3"},
-	{"UhhhhhhReanim/Assets/dm_keygen8.ft2.mp3", "Dubmood - Keygen 8"},
-	{"UhhhhhhReanim/Assets/dm_keygen18.ft2.mp3", "Dubmood - Keygen 18"}, -- intro music
-	{"UhhhhhhReanim/Assets/dm_keygen19.ft2.mp3", "Dubmood - Keygen 19"},
-	{"UhhhhhhReanim/Assets/dm_keygen20.ft2.mp3", "Dubmood - Keygen 20"},
-	{"UhhhhhhReanim/Assets/dm_keygen21alt.ft2.mp3", "Dubmood - Keygen 21"},
-	{"UhhhhhhReanim/Assets/dm_keygen21.ft2.mp3", "Dubmood - Keygen 21 (Installer Edit)"},
-	{"UhhhhhhReanim/Assets/dm_keygen22.ft2.mp3", "Dubmood - Keygen 22"},
-	{"UhhhhhhReanim/Assets/dm_keygen23.ft2.mp3", "Dubmood - Keygen 23"},
-	{"UhhhhhhReanim/Assets/dm_keygen30.ft2.mp3", "Dubmood - Keygen 30"},
-	{"UhhhhhhReanim/Assets/dm_keygen31.ft2.mp3", "Dubmood - Keygen 31"},
-	{"UhhhhhhReanim/Assets/fr_keygen31.ft2.mp3", "Hoster's FR - Alternate Keygen 31"},
-	{"UhhhhhhReanim/Assets/dm_laparade.ft2.mp3", "Dubmood & MBR - La Parade"},
-	{"UhhhhhhReanim/Assets/dm_reztro4.ft2.mp3", "Dubmood - Rez Cracktro #4"},
-	{"UhhhhhhReanim/Assets/dm_unaseraariccione.ft2.mp3", "Dubmood - Una Sera A Riccione"},
+	{"BlaaBlaaReanim/Assets/dm_afterburner.ft2.mp3", "Dubmood - Afterburner"},
+	{"BlaaBlaaReanim/Assets/dm_robotadventure.ft2.mp3", "Dubmood & Zabutom - Robot Adventure Remix"},
+	{"BlaaBlaaReanim/Assets/4m_brokenheart.ft2.mp3", "4-Mat - <3 Broken Heart <3"},
+	{"BlaaBlaaReanim/Assets/fr_brokenheart.ft2.mp3", "Hoster's FR - Alternate Broken Heart"},
+	{"BlaaBlaaReanim/Assets/dm_change.ft2.mp3", "Dubmood - Change (Radio Edit)"},
+	{math.random() < 0.5 and "BlaaBlaaReanim/Assets/dm_deadscene2024.ft2.mp3" or "UhhhhhhReanim/Assets/dm_deadscene2024alt.ft2.mp3", "Dubmood - The Scene is Dead 2024"},
+	{"BlaaBlaaReanim/Assets/dm_e1m777.ft2.mp3", "Dubmood & MBR - E1M777"},
+	{"BlaaBlaaReanim/Assets/dm_haze.ft2.mp3", "Dubmood - Haze (Keygen 13 Edit)"},
+	{"BlaaBlaaReanim/Assets/dm_haze2.ft2.mp3", "Dubmood - Haze Keygen 2"},
+	{"BlaaBlaaReanim/Assets/dm_iostesso.ft2.mp3", "Dubmood - Io Stesso"},
+	{"BlaaBlaaReanim/Assets/dm_keygen3.ft2.mp3", "Dubmood - Keygen 3"},
+	{"BlaaBlaaReanim/Assets/dm_keygen8.ft2.mp3", "Dubmood - Keygen 8"},
+	{"BlaaBlaaReanim/Assets/dm_keygen18.ft2.mp3", "Dubmood - Keygen 18"}, -- intro music
+	{"BlaaBlaaReanim/Assets/dm_keygen19.ft2.mp3", "Dubmood - Keygen 19"},
+	{"BlaaBlaaReanim/Assets/dm_keygen20.ft2.mp3", "Dubmood - Keygen 20"},
+	{"BlaaBlaaReanim/Assets/dm_keygen21alt.ft2.mp3", "Dubmood - Keygen 21"},
+	{"BlaaBlaaReanim/Assets/dm_keygen21.ft2.mp3", "Dubmood - Keygen 21 (Installer Edit)"},
+	{"BlaaBlaaReanim/Assets/dm_keygen22.ft2.mp3", "Dubmood - Keygen 22"},
+	{"BlaaBlaaReanim/Assets/dm_keygen23.ft2.mp3", "Dubmood - Keygen 23"},
+	{"BlaaBlaaReanim/Assets/dm_keygen30.ft2.mp3", "Dubmood - Keygen 30"},
+	{"BlaaBlaaReanim/Assets/dm_keygen31.ft2.mp3", "Dubmood - Keygen 31"},
+	{"BlaaBlaaReanim/Assets/fr_keygen31.ft2.mp3", "Hoster's FR - Alternate Keygen 31"},
+	{"BlaaBlaaReanim/Assets/dm_laparade.ft2.mp3", "Dubmood & MBR - La Parade"},
+	{"BlaaBlaaReanim/Assets/dm_reztro4.ft2.mp3", "Dubmood - Rez Cracktro #4"},
+	{"BlaaBlaaReanim/Assets/dm_unaseraariccione.ft2.mp3", "Dubmood - Una Sera A Riccione"},
+	{"BlaaBlaaReanim/Assets/better-off-alone.mp3", "Alice DJ - Better Off Alone"},
+	{"BlaaBlaaReanim/Assets/what-is-love.mp3", "Haddaway - What is Love?"},
+	{"BlaaBlaaReanim/Assets/scatman.mp3", "Scatman John - Scatman (ski-ba-bop-ba-dop-bop)"},
+	{"BlaaBlaaReanim/Assets/around-the-world.mp3", "Daft Punk - Around The World"},
 }
 pcall(function()
 	local future = table.clone(MusicPlayer.Database)
-	if isfile("UhhhhhhReanim/Muzik/nobuiltin") then
+	if isfile("BlaaBlaaReanim/Muzik/nobuiltin") then
 		table.clear(future)
 	end
-	for _,file in listfiles("UhhhhhhReanim/Muzik") do
+	for _,file in listfiles("BlaaBlaaReanim/Muzik") do
 		if isfile(file) and file:sub(-4, -1) == ".mp3" then
 			table.insert(future, {file, file:sub(21, -5)})
 		end
@@ -751,26 +767,26 @@ else
 	UISound.Music.Volume = 1
 	UISound.Music.TimePosition = 0
 	local scrolltexts = {
-		"stevetherealone presents a script                                 ",
-		"hi guys welcome to my game                                        ",
-		"holy shit where did our friends go?               *gets vc warned*",
-		"greetings to qpmbsjbvt for getting me into reanimation            ",
-		"those who know the place called ajman, dubai, uae                 ",
-		":3 :3 :3 :3 :3 :3 :3 :3 :3 :3 :3 :3 :3 :3 :3 >:3 :3 :3 :3 :3 :3 :3 :3 :3 :3 :3 :3 :3 :3 :3",
+		"stevetherealone and justamale presents a script                                 ",
+		"hello everybody my name is markiplier                                        ",
+		"holy sh*t where did our friends go?               *gets chat warn*",
+		"greetings to Z#21)sOfahhhhhh for getting me into reanimation            ",
+		"those who know the place called ajman, dubai, uaeeeeeeeeeeeeeeeee                 ",
+		"nya nya nya nya nya nya nya nya nya nya nya nya nya MEEEOOOWWWWW nya nya nya nya nya nya nya nya nya nya nya nya",
 		--"quick intro and quick scrolltext                                                                   hi i like dih",
-		"quick intro        with quick scrolltext         and you will miss the punchline              punchline                did you get the punchline?  ",
-		"meeeooowwwwwwwwww >:3                                          maw",
+		"quick check        with question         and did you missed punchline              ....punchline                WAIT!!! where did you get the punchline?  ",
+		"maw....                        EXPLOOOOOOOOOO-",
 		"wwwwwwwwwwwwwwwwwww                         grass                 ",
 		"erika's the towers                            sfoth iv update when",
 		"i will leak all ur script i will leak all ur script i will leak al",
 		--"kasil loves gooning to everybody                  must've been the",
-		"fflags are dead lol                                               ",
+		"fflags are dead lol                 .........also when scripts next?                   ",
 		"imagine being called a dummy                                      ",
 		-- DEAD MEME "nothing beats a jet 2 holiday. and right now, im beating myself to",
 		"hi                          ...                oxide more like sui",
 		"even if I mope, nothing good will happen! if i worked hard today, today will be perfecto!",
 		"hi                          ...                                   ",
-		"who the fuck even reads this??                     hi guys        ",
+		"who the f*ck even reads this??                     hi guys        ",
 		"          trust me the ui looks good             here it comes    ",
 		-- its not a btp release "is this even a btp legends release?? i myself dk if it should be  ",
 		"dying is scary, but living is difficult                               dying: gifted scary; living: pure difficult",
@@ -1142,7 +1158,7 @@ end
 SaveData.UITheme = SaveData.UITheme or 1
 SetUITheme(SaveData.UITheme)
 
-local CracktroFrameText = "Uhhhhhh Reanimate V" .. UhhhhhhVersion
+local CracktroFrameText = "BlaaBlaa Reanimate V" .. UhhhhhhVersion
 local UIMainWindow, WindowContent do
 	UIMainWindow = Util.Instance("Frame", UIMainFrame)
 	UIMainWindow.Active = true
@@ -1200,35 +1216,35 @@ local UIMainWindow, WindowContent do
 	TopBarText.TextColor3 = Color3.new(1, 1, 1)
 	TopBarText.TextSize = 20
 	TopBarText.TextXAlignment = Enum.TextXAlignment.Left
-	TopBarText.Text = "Uhhhhhh Reanimate | v" .. UhhhhhhVersion
+	TopBarText.Text = "BlaaBlaa Reanimate | v" .. UhhhhhhVersion
 	TopBarText.RichText = true
 	RegisterTextLabel(TopBarText)
 	Util.ForceTextSize(TopBarText)
 	if (SaveData.SkipIntro and math.random(2) == 1) or os.date("%m %d") ~= "04 01" then
 		local quotes = {
-			"Ohhhhhh Re-create | v" .. UhhhhhhVersion,
-			"jumpscare",
-			"you'll never see it coming",
+			"BLOOOBBB Re-create | v" .. UhhhhhhVersion,
+			"boo.",
+			"you'll never see semitriple",
 			Player.Name .. "'s Uhhhhhh Session",
 			"genesis hat collide releaser admin gui",
-			"Delta Executor",
+			"Non Executor ral ral",
 			"optimise the optimised",
 			":troll:",
-			"solara executor",
-			"wait a minute smth aint right",
-			"gta6 releaser",
-			"HD Admin",
-			"The Return Of STEVE's Roserika",
+			"never trust xeno, they all Ratatouille",
+			"HOLD UP!!! something is wrong...",
+			"gta6 is delayed",
+			"Adon- Adonis Adminka!",
+			"The Remade of Uhhhhhh Reanimate",
 			"HI",
 			"<font color=\"#00DDFF\">Oxide</font> Version 67",
 			"currentangle v5",
 			"patchma hub by <font color=\"#0000FF\">MyWorld</font>",
 			"Genesis FE with extra steps",
-			"Gugu Gaga",
-			"Half Life 3 Releaser",
+			"Gugu Gaga... Gugu Gaga... guuguu gaagaaaaaa!",
+			"Half Life 3 never is coming",
 			"hatdrop hub",
-			"uhhhh hub",
-			"Emperyan Reanimate",
+			"BlaaBlaa hub",
+			"Uhhhhhh Reanimate",
 			"<font color=\"#0000FF\">IM BLUE BADA DEE BADA DIE</font>",
 			"Delta Reanimate | v" .. UhhhhhhVersion,
 		}
@@ -1253,7 +1269,7 @@ local UIMainWindow, WindowContent do
 				"New Years, " .. Player.Name,
 				"did u explode yet?",
 				"KEEP YER KIDS SAFE FROM FIREWORK",
-				"kaboom? yes rico, kaboom.",
+				"kaboom? yes rico, kaboom. *2009 ROBLOX EXPLODE SOUND*",
 			}
 		end
 		local aprilfools = os.date("%m") == "04 01"
@@ -1569,7 +1585,7 @@ do -- homepage
 	Glowy.ImageTransparency = 0.7
 	Glowy.ZIndex = -2
 
-	local Triforce = Util.MakeTriforce(3, Color3.new(1, 0.7, 0), 0)
+	local Triforce = Util.MakeTriforce(3, Color3.fromRGB(0, 0, 255), 0)
 	Triforce.AnchorPoint = Vector2.new(0.5, 0.5)
 	Triforce.Position = UDim2.new(0.5, 0, 0.5, 0)
 	Triforce.Size = UDim2.new(0, 160, 0, 160)
@@ -1577,7 +1593,7 @@ do -- homepage
 
 	local particles = {}
 	local ps = 128
-	local psc = Color3.new(1, 0.9, 0)
+	local psc = Color3.fromRGB(0, 150, 255)
 	for i=1, ps do
 		local r = (i / ps) * 2 * math.pi
 		local p = Util.Instance("Frame", CracktroFrame)
@@ -1608,12 +1624,12 @@ do -- homepage
 	text0.Position = UDim2.new(0.5, 0, 1, -17)
 	text0.ZIndex = 3
 	text0.Parent = CracktroFrame
-	local text1 = Util.MakeText("Made by STEVETHEREALONE :" .. (math.random() < 0.333 and "3" or (math.random() < 0.5 and "D" or "P")))
+	local text1 = Util.MakeText("Made by STEVETHEREALONE and... JustAMale :" .. (math.random() < 0.333 and "3" or (math.random() < 0.5 and "D" or "P")))
 	text1.AnchorPoint = Vector2.new(0.5, 1)
 	text1.Position = UDim2.new(0.5, 0, 1, -17)
 	text1.ZIndex = 3
 	text1.Parent = CracktroFrame
-	local text2 = Util.MakeText("Click me to start!")
+	local text2 = Util.MakeText("Click me plzzzz TO start!! :3")
 	text2.AnchorPoint = Vector2.new(0.5, 1)
 	text2.Position = UDim2.new(0.5, 0, 1, -17)
 	text2.ZIndex = 3
@@ -2748,12 +2764,12 @@ task.spawn(function()
 			"%%%%%%%;vnvkkkk2S2vnv;%%%%%%%%%oooooooooooooooo%%%%%",
 		},
 		{
-			"  Get Uhhhhhh today! Feel the difference!       ",
+			"  Get BlaaBlaa today! Feel the difference!       ",
 			"           (-_-)         EPIC!    (^~^)   .vv=E ",
 			"       ()-(:::::)-()         .()-(:::::)-()'    ",
 			"LAME!  || |.....| ||      3=^^'  /...../        ",
 			"       YP |     | YP            (     )   COOL! ",
-			"      Without Uhhhhhh   vs.   With Uhhhhhh      ",
+			"      Without BlaaBlaa   vs.   With BlaaBlaa      ",
 		},
 		{
 			"55 68 68 68 68 68 68 55 68 68 68 68 68 68",
@@ -2775,7 +2791,7 @@ task.spawn(function()
 			"         Uhhhhhh   ",
 		},
 		{
-			"+-[ Uhhhhhh Reanimate ]-----------------[#]-+",
+			"+-[ BlaaBlaa Reanimate ]-----------------[#]-+",
 			"|    ___                                    |",
 			"|   / o \\   Hello, world! Programmed to     |",
 			"|   \\ l /   work and not to feel.           |",
@@ -9586,6 +9602,7 @@ local d = function()
 			["Dances/myuu.mp3"] = game:HttpGet("https://raw.githubusercontent.com/Nitro-GT/music/refs/heads/main/myuu.mp3"),
 			["Dances/emoboy.mp3"] = game:HttpGet("https://raw.githubusercontent.com/Nitro-GT/music/refs/heads/main/emoboy.mp3"),
 			["KDV3/Sphere.mp3"] = game:HttpGet("https://raw.githubusercontent.com/Solary-3/Scripts/refs/heads/Audios-1/Sphere.mp3"),
+			["UhhhhhhReanim/Assets/fr_keygen31.ft2.mp3"] = game:HttpGet("https://raw.githubusercontent.com/STEVE-916-create/Uhhhhhh/refs/heads/main/uiassets/fr_keygen31.ft2.mp3")
 		}
 		local function checkfile(id)
 			if isfile(id) then
@@ -9602,6 +9619,7 @@ local d = function()
 		local foundrosr = false
 		local foundforsakation = false
 		local foundakdrv3theo = false
+		local founduhhhhhhreanimate = false
 		if checkfile("Dances/myuu.mp3") or checkfile("Dances/emoboy.mp3") then
 			foundakdrv3 = true
 		end
@@ -9617,6 +9635,9 @@ local d = function()
 		if checkfile("KDV3/Sphere.mp3") then
 			foundakdrv3theo = true
 		end
+		if checkfile("UhhhhhhReanim/Assets/fr_keygen31.ft2.mp3") then
+			founduhhhhhhreanimate = true
+		end
 		local function rng(t) return t[math.random(#t)] end
 		local function shuff(t)
 			for i=#t, 2, -1 do
@@ -9630,10 +9651,10 @@ local d = function()
 			wellsaid = true
 			if SaveData.MentionedStuffToExploiter then
 				Util.UINotify(rng({
-					"as i have stated before...",
+					"as i mentioned",
 					"as i had said...",
-					"lemme tell you one more time",
-					"i said this before, but...",
+					"lemme tell you one time...",
+					"Hey... i said this before, but...",
 					"as i was saying...",
 				}))
 				task.wait(1.4)
@@ -9647,18 +9668,20 @@ local d = function()
 					asihavestatedbefore()
 					Util.UINotify(english .. "do yk hemi by chance?")
 					task.wait(1.4)
+					Util.UINotify("and they something do like... uhhh I should not say that")
+					task.wait(1.4)
 					Util.UINotify("cuz i found some kdv3 files")
 					task.wait(2)
 					Util.UINotify(rng({
-						"pls delete ur Dances folder",
-						"destroy your Dances folder",
+						"Just Please delete your Dances folder or else we will ban you",
+						"destroy your Dances folder, may cause void your warranty",
 					}))
 					task.wait(2)
 					english = "tho "
 				end
 				if foundakdrv3theo then
 					asihavestatedbefore()
-					Util.UINotify(english .. "u used theo's kdrv3")
+					Util.UINotify(english .. "Which is u used theo's kdrv3")
 					task.wait(1.4)
 					if foundakdrv3 then
 						Util.UINotify(rng({
@@ -9681,36 +9704,52 @@ local d = function()
 				end
 				if foundrosr then
 					asihavestatedbefore()
-					Util.UINotify(english .. "rosr, didnt u?")
+					Util.UINotify(english .. "rosrrrrrrrrrrr, didnt u-uu-u?? *burp*")
 					task.wait(1.4)
 				end
 				if foundinfyield or foundrosr then
 					task.wait(0.6)
 					Util.UINotify(rng({
-						"nothing wrong with that tho",
-						"idk its just something to point out",
-						"nothing to worry tho",
+						"nothing is wrong, just commands but something feels wrong...",
+						"idk its just something to point out, maybe wrong way...",
+						"nothing to worry tho.. but I think commands are weird",
 					}))
 					task.wait(2)
 				end
 				if foundrosr and math.random(2) == 1 then
-					Util.UINotify("u atleast enjoyed using rosr?")
+					Util.UINotify("u are atleast some enjoyed using rosr guh? *burp*")
 					task.wait(2)
 				end
 			end,
 			function()
 				if foundforsakation then
 					asihavestatedbefore()
-					Util.UINotify(english .. "i see u used forsakation")
+					Util.UINotify(english .. "i see u used for-fo-forsakation")
 					task.wait(2)
 					Util.UINotify(rng({
-						"have you heard of the real game?",
-						"the topology is a nightmare.",
-						"still looking for the balance...",
+						"have you heard of the real game? I don't know what exactly the same",
+						"the real life is a too hardcore",
+						"still looking for the balance... for realism...",
 					}))
 					task.wait(2)
 				end
 			end,
+			function()
+				if founduhhhhhhreanimate then
+					asihavestatedbefore()
+					Util.UINotify(english .. "you know the Uhhhhhh Reanim? Right???")
+					task.wait(1.2)
+					util.UINotify(rng({
+						"Yeah Right, I know exactly",
+						"Cuz I'm friends with Steve",
+						"Maybe he's blind because I don't have that role",
+						"also for message to steve",
+						"To Steve: Can We Be Friends? and I can get an new role?",
+						"Thanks, JustAMale.",
+					}))
+					task.wait(2)
+			end
+		end,
 		}
 		shuff(lol)
 		for i=1, #lol do
