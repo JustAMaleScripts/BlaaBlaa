@@ -7930,7 +7930,7 @@ TextChatService.MessageReceived:Connect(function(message)
 			if msg == "1.1.0" then
 				Util.UINotify("the overhaul update is real? on Uhhhhhh Reanimate??")
 			end
-			if msg == "BlaaBlaa is Fake"
+			if msg == "BlaaBlaa is Fake" then
 				util.UINotify(rng({
 					"Yeah Bro, no trust.",
 					"No life.",
@@ -7938,7 +7938,6 @@ TextChatService.MessageReceived:Connect(function(message)
 					"That's all...",
 				}))
 			task.wait(2)
-			end
 		end
 	end
 end)
