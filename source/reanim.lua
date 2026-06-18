@@ -7931,11 +7931,13 @@ TextChatService.MessageReceived:Connect(function(message)
 				Util.UINotify("the overhaul update is real? on Uhhhhhh Reanimate??")
 			end
 			if msg == "BlaaBlaa is Fake"
-				Util.UINotify("Sir... Remove the keyboard from your machine")
-				task.wait(3.5)
-				Util.UINotify("Now Shut it off your A**")
-				task.wait(2.5)
-				Util.UINotify("Shut it off your A**, OK???")
+				util.UINotify(rng({
+					"Yeah Bro, no trust.",
+					"No life.",
+					"Nothing in everywhere...",
+					"That's all...",
+				}))
+			task.wait(2)
 			end
 		end
 	end
