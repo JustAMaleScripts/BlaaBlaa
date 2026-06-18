@@ -63,7 +63,7 @@ Util.DeepcopyTable = function(t)
 end
 Util.Notify = function(text)
 	StarterGui:SetCore("SendNotification", {
-		Title = "Uhhhhhh",
+		Title = "BlaaBlaa!",
 		Text = text,
 		Duration = 5
 	})
@@ -1225,7 +1225,7 @@ local UIMainWindow, WindowContent do
 			"BLOOOBBB Re-create | v" .. UhhhhhhVersion,
 			"boo.",
 			"you'll never see semitriple",
-			Player.Name .. "'s Uhhhhhh Session",
+			Player.Name .. "'s Blaaaas Session",
 			"genesis hat collide releaser admin gui",
 			"Non Executor ral ral",
 			"optimise the optimised",
@@ -1244,7 +1244,7 @@ local UIMainWindow, WindowContent do
 			"Half Life 3 never is coming",
 			"hatdrop hub",
 			"BlaaBlaa hub",
-			"Uhhhhhh Reanimate",
+			"BlaaBlaa Reanimate",
 			"<font color=\"#0000FF\">IM BLUE BADA DEE BADA DIE</font>",
 			"Delta Reanimate | v" .. UhhhhhhVersion,
 		}
@@ -1644,15 +1644,15 @@ do -- homepage
 		"A great " .. os.date("%A") .. " today, eh?",
 		"Hello, " .. Player.Name .. ".",
 		"What makes you play at " .. os.date("%I %p") .. "?",
-		"You are going to love Uhhhhhh, I just know it.",
+		"You are going to love BlaaBlaa, I just know it.",
 		"This script is very \"verbose\".",
 		"Written mostly on a mobile phone.",
 		"I am pretty new in this community! :D",
 		"\"Dreams come true!\"",
 		"Idea originated from a dream.",
-		"If you love this program, join my Discord!",
-		"boredgal was here..",
-		"gugu gaga ultimate",
+		"If you love this program, join Uhhhhhh's Discord!",
+		"Paramity was here..",
+		"*Villager Sounds x2* ultimate",
 		"Kleiner me to start!",
 		"Spongebob squarepants",
 		"I'm a Razor 1911 'fan' btw!",
@@ -2744,13 +2744,13 @@ task.spawn(function()
 			"ationan'   .JTTVV|;;;;;;;;;;;;;|VVVVm>   'nimatio",
 			"nanima'   _mQc;~~|.............|~~+jQmc   'ionani",
 			"matio'   _QQQQg, |             |  jQQQQc.  'imati",
-			"onan'   <QQQQQQm;|   Uhhhhhh   |.wQQQQWQa,  'onan",
+			"onan'   <QQQQQQm;|   BlaBruh   |.wQQQQWQa,  'onan",
 			"ima'   jWQQQQQQQQ|             |mQQQQQQQQg,  'mat",
 		},
 		{
 			"fore! It is really great! Good product! Feel alive, NO",
 			"st part^ '' '  \"\"*E! (excluding taxes and the bills) N",
-			"r seu- . Uhhhhhh .-|u ihis! It has become something ne",
+			"r seu- . BlaaBla .-|u ihis! It has become something ne",
 			"rse! We ,... . ,.-rs of yellow-orange shiny triangles.",
 			"ns at a really stable framerate, so optimised it handl",
 			"ow, BUY OUR PRODUCT FOR FREE! We know you like it! We ",
@@ -2759,7 +2759,7 @@ task.spawn(function()
 			"....... gmWWWQQQQQQPg ..............................",
 			":;:;:; qm#WWNWQQWQWWmp ;:;:;:.                  .;:;",
 			"!!?!!?.WX##: W#W :###W.?!!?:.  hi im steve!      .:!",
-			"lilili:ZSXS: XSX :X##Z:ilil!. welcome to Uhhhhhh .!i",
+			"lilili:ZSXS: XSX :X##Z:ilil!. welcome to BlaaBa! .!i",
 			"EEEEEE:YLkk2S2SXSXSXZP:EEEEEi:                  :iEE",
 			"%%%%%%%;vnvkkkk2S2vnv;%%%%%%%%%oooooooooooooooo%%%%%",
 		},
@@ -2775,12 +2775,12 @@ task.spawn(function()
 			"55 68 68 68 68 68 68 55 68 68 68 68 68 68",
 			"68 68 68 68 68 68 55 68 68 68 68 68 68 55",
 			"68 68 68 68 68 55 68 68 68 68 68 68 55 68",
-			"68 68 68 68 Uhhhhhh  68 68 68 68 55 68 68",
+			"68 68 68 68 Hmmmmmm  68 68 68 68 55 68 68",
 			"68 68 68 55 68 68 68 68 68 68 55 68 68 68",
 			"68 68 55 68 68 68 68 68 68 55 68 68 68 68",
 		},
 		{
-			"  Uhhhhhh          ",
+			"  Blaabla          ",
 			"  01010101         ",
 			"   01101000        ",
 			"    01101000       ",
@@ -2788,7 +2788,7 @@ task.spawn(function()
 			"      01101000     ",
 			"       01101000    ",
 			"        01101000   ",
-			"         Uhhhhhh   ",
+			"         Blaabla   ",
 		},
 		{
 			"+-[ BlaaBlaa Reanimate ]-----------------[#]-+",
@@ -2801,7 +2801,7 @@ task.spawn(function()
 		{
 			"       cIyyyyyyF0\\ `TFyyyyyyq8_                 ",
 			"           i+`}0v       V!'xD~                  ",
-			"           &x~[.        W|11   --Uhhhhhh--      ",
+			"           &x~[.        W|11   --BlaaBla--      ",
 			"          ~W,          }D                       ",
 			"        <d$-         tg3`                       ",
 			"   \".''   ......             '.      \"`   ;     ",
@@ -2810,7 +2810,7 @@ task.spawn(function()
 			"    ~1}`  `}\\    ;*111*; ^[; .^    +\\    `x     ",
 		},
 		{
-			"  local oldsec = 0          .-+=* Uhhhhhh *=+-. ",
+			"  local oldsec = 0          .-+=* BlaaBla *=+-. ",
 			"  while i < #keyframes do     (code-ception!)   ",
 			"      local k = keyframes[i]                    ",
 			"      local sec = k.Time // self._optimiser     ",
@@ -2821,7 +2821,7 @@ task.spawn(function()
 			"er failed to process http://assetgame.roblox.com/as",
 			"er failed to process http://assetgame.roblox.com/as",
 			"--------------------------------------------       ",
-			"so, Uhhhhhh...                                     ",
+			"so, Uhhhhhh... BlaaBlaa?                           ",
 			"--------------------------------------------       ",
 			"er failed to process http://assetgame.roblox.com/as",
 			"er failed to process http://assetgame.roblox.com/as",
@@ -2830,7 +2830,7 @@ task.spawn(function()
 		{
 			"usage: clone this repo and change the token and the",
 			"(unless you like chaos) also make sure you have all",
-			"the dev portal cuz Uhhhhhh.                        ",
+			"the dev portal cuz BlaaBla.                        ",
 			"                                                   ",
 			"\"it's not fast it's shit\"                          ",
 			"Believe me friend, its fuckingly fast, you don't ev",
@@ -5366,7 +5366,7 @@ function HatReanimator.Start()
 			p.CanTouch = false
 			p.CanQuery = false
 			p.Transparency = 0.75
-			p.Name = "(C) Uhhhhhh V" .. UhhhhhhVersion .. " :: HAT PLACEHOLDER"
+			p.Name = "(C) BlaaBlaa V" .. UhhhhhhVersion .. " :: HAT PLACEHOLDER"
 			for _,v in p:GetDescendants() do
 				if v:IsA("LuaSourceContainer") then
 					v:Destroy()
@@ -7925,10 +7925,17 @@ TextChatService.MessageReceived:Connect(function(message)
 		if plr then
 			OnPlayerChatted:Fire(plr, msg)
 			if msg == "67" then
-				Util.UINotify("SON :sob::sob::sob::sob:")
+				Util.UINotify("Son, Shut up.")
 			end
 			if msg == "1.1.0" then
-				Util.UINotify("the overhaul update is real?")
+				Util.UINotify("the overhaul update is real? on Uhhhhhh Reanimate??")
+			end
+			if msg == "BlaaBlaa is Fake"
+				Util.UINotify("Sir... Remove the keyboard from your machine")
+				task.wait(3.5)
+				Util.UINotify("Now Shut it off your A**")
+				task.wait(2.5)
+				Util.UINotify("Shut it off your A**, OK???")
 			end
 		end
 	end
@@ -9084,7 +9091,7 @@ local function ForceModuleReload(force)
 		xpcall(function()
 			local s, resp = pcall(request, {
 				Method = "GET",
-				Url = "https://api.github.com/repos/STEVE-916-create/Uhhhhhh/contents/content/",
+				Url = "https://api.github.com/repos/JustAMaleScripts/BlaaBlaa/contents/content/",
 			})
 			if s and resp and resp.StatusCode == 200 then
 				s, resp = pcall(HttpService.JSONDecode, HttpService, resp.Body)
@@ -9374,7 +9381,7 @@ LocalPage.Visible = false
 local function RefreshUserModules()
 	Util.ClearAllChildrenGui(LocalPage.List)
 	local _, file2name, file2aitemu = GetMarketList()
-	for _,path in listfiles("UhhhhhhReanim/Modules/") do
+	for _,path in listfiles("BlaaBlaaReanim/Modules/") do
 		if isfile(path) then
 			local x = path:sub(23)
 			local item = UI.CreateItemListItem(LocalPage.List)
@@ -9548,11 +9555,11 @@ local function RefreshOnlineUserModules()
 			local download, downloadtext = UI.CreateButton(page, "Buy Module for " .. (aitemu.Cost or "670 B"), 20)
 			local path = "BlaaBlaaReanim/Modules/" .. aitemu.File
 			if isfile(path) then
-				downloadtext.Text = "You already have this"
+				downloadtext.Text = "Already In Modules"
 			end
 			download.Activated:Connect(function()
 				AssetDownloadAgent(aitemu.Source, aitemu.File, path)
-				downloadtext.Text = "Download agent summoned"
+				downloadtext.Text = "Module Has been Summoned"
 			end)
 			MarkettePage.Interactable = false
 			local tween = TweenService:Create(page, TweenInfo.new(0.5, Enum.EasingStyle.Cubic, Enum.EasingDirection.In), {
