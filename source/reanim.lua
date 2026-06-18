@@ -819,7 +819,7 @@ else
 	}):Play()
 	local scrolltextratio = scrolltext.Size.X.Offset / scrolltext.Size.Y.Offset
 	local Triforce1 = Util.MakeTriforce(3, Color3.new(1, 0.7, 0), 4)
-	local Triforce2 = Util.MakeTriforce(3, Color3.new(0.8, 0.4, 0), 4)
+	local Triforce2 = Util.MakeTriforce(3, Color3.fromRGB(0, 0, 50), 4)
 	Triforce1.ZIndex = 2
 	Triforce2.ZIndex = 1
 	Triforce1.Parent = UIMainFrame
@@ -891,7 +891,7 @@ else
 			stevetherealone.Visible = true
 			stevetherealone.Size = UDim2.fromOffset(z, z)
 		elseif t < 4.756 then
-			stevetherealone.Text = "STEVE\nTHERE\nALONE"
+			stevetherealone.Text = "JUST\nA\nMALE"
 			stevetherealone.Visible = true
 			stevetherealone.Size = UDim2.fromOffset(100, 100)
 		else
@@ -1294,7 +1294,7 @@ local UIMainWindow, WindowContent do
 		TopBarText.Text = quotes[math.random(1, #quotes)]
 		if not aprilfools then
 			task.delay(2, function()
-				TopBarText.Text = "Uhhhhhh Reanimate | v" .. UhhhhhhVersion
+				TopBarText.Text = "BlaaBlaa Reanimate | v" .. UhhhhhhVersion
 			end)
 		end
 	end
@@ -3011,7 +3011,7 @@ task.spawn(function()
 	end)
 	switchart()
 end)
-UI.CreateText(MainPage, `Reanimate V{UhhhhhhVersion}, By STEVE :D`, 15, Enum.TextXAlignment.Right)
+UI.CreateText(MainPage, `Reanimate V{UhhhhhhVersion}, By STEVE & JustAMale :D`, 15, Enum.TextXAlignment.Right)
 UI.CreateSeparator(MainPage)
 UI.CreateButton(MainPage, " &lt; Back to cool scene", 20).Activated:Connect(function()
 	CracktroFrame.Interactable = false
@@ -3068,7 +3068,7 @@ MusicSelect.Changed:Connect(function(val)
 		MusicPlayer.PlayMusic(val - 1)
 	end
 end)
-UI.CreateSwitch(MainPage, math.random(8) == 1 and "Mute @Noober 67s" or "Mute UI Music", SaveData.MuteUIMusic).Changed:Connect(function(value)
+UI.CreateSwitch(MainPage, math.random(8) == 1 and "Mute @Villager 61s" or "Mute UI Music", SaveData.MuteUIMusic).Changed:Connect(function(value)
 	SaveData.MuteUIMusic = value
 end)
 UI.CreateSwitch(MainPage, "Mute Reanim Music", SaveData.MuteReanimMusic).Changed:Connect(function(value)
@@ -3204,7 +3204,7 @@ end)
 
 local function CreateHumanoidCharacter()
 	local char = Util.Instance("Model")
-	char.Name = "(C) Uhhhhhh V" .. UhhhhhhVersion
+	char.Name = "(C) BlaaBlaa V" .. UhhhhhhVersion
 
 	local god = Util.Instance("ForceField", char)
 	god.Name = "heyy!! :33"
@@ -7890,7 +7890,7 @@ local function AssetDownload(filename)
 		source = table.concat(split, "@")
 	end
 	if source:sub(1, 7) == "MARKET/" then
-		source = "https://raw.githubusercontent.com/STEVE-916-create/Uhhhhhh/main/community/" .. source:sub(8)
+		source = "https://raw.githubusercontent.com/JustAMaleScripts/BlaaBlaa/main/community/" .. source:sub(8)
 	end
 	local path = AssetGetPathFromFilename(filename)
 	return AssetDownloadAgent(source, filename, path)
@@ -9316,7 +9316,7 @@ local GetMarketList_cache = {}
 local function GetMarketList()
 	local aitemus, file2name, file2aitemu = GetMarketList_cache.aitemus, GetMarketList_cache.file2name, GetMarketList_cache.file2aitemu
 	if not aitemus or not file2name or not file2aitemu then
-		local marketteresult = game:HttpGet("https://raw.githubusercontent.com/STEVE-916-create/Uhhhhhh/main/community/list.txt")
+		local marketteresult = game:HttpGet("https://raw.githubusercontent.com/JustAMaleScripts/BlaaBlaa/main/community/list.txt")
 		marketteresult = string.split(marketteresult, "\n")
 		aitemus = {}
 		local aitemu = {}
@@ -9341,7 +9341,7 @@ local function GetMarketList()
 					continue
 				end
 				if k == "file" then
-					aitemu.Source = "https://raw.githubusercontent.com/STEVE-916-create/Uhhhhhh/main/community/" .. v
+					aitemu.Source = "https://raw.githubusercontent.com/JustAMaleScripts/BlaaBlaa/main/community/" .. v
 					aitemu.File = string.gsub(v, "/", ".")
 					continue
 				end
