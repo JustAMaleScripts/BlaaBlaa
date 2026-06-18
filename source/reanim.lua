@@ -525,7 +525,7 @@ do
 end
 
 Util.GetCDNAsset = function(filename)
-	local path = "UhhhhhhReanim/Assets/" .. filename
+	local path = "BlaaBlaaReanim/Assets/" .. filename
 	local s, id = pcall(isfile, path)
 	if s and id then
 		s, id = pcall(getcustomasset, path)
@@ -670,7 +670,7 @@ MusicPlayer.Database = {
 	{"BlaaBlaaReanim/Assets/4m_brokenheart.ft2.mp3", "4-Mat - <3 Broken Heart <3"},
 	{"BlaaBlaaReanim/Assets/fr_brokenheart.ft2.mp3", "Hoster's FR - Alternate Broken Heart"},
 	{"BlaaBlaaReanim/Assets/dm_change.ft2.mp3", "Dubmood - Change (Radio Edit)"},
-	{math.random() < 0.5 and "BlaaBlaaReanim/Assets/dm_deadscene2024.ft2.mp3" or "UhhhhhhReanim/Assets/dm_deadscene2024alt.ft2.mp3", "Dubmood - The Scene is Dead 2024"},
+	{math.random() < 0.5 and "BlaaBlaaReanim/Assets/dm_deadscene2024.ft2.mp3" or "BlaaBlaaReanim/Assets/dm_deadscene2024alt.ft2.mp3", "Dubmood - The Scene is Dead 2024"},
 	{"BlaaBlaaReanim/Assets/dm_e1m777.ft2.mp3", "Dubmood & MBR - E1M777"},
 	{"BlaaBlaaReanim/Assets/dm_haze.ft2.mp3", "Dubmood - Haze (Keygen 13 Edit)"},
 	{"BlaaBlaaReanim/Assets/dm_haze2.ft2.mp3", "Dubmood - Haze Keygen 2"},
@@ -4618,7 +4618,7 @@ function LimbReanimator.Start()
 		end
 	end
 
-	local LimbMapping = loadstring(readfile("UhhhhhhReanim/BuiltinModules/d_limbmap.lua"))()
+	local LimbMapping = loadstring(readfile("BlaaBlaaReanim/BuiltinModules/d_limbmap.lua"))()
 
 	local FakeTools = {}
 	local function CreateFakeTool()
@@ -5198,7 +5198,7 @@ function HatReanimator.Start()
 		FaceCenterAttachment = {"Head", CFrame.new(0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1)},
 	}
 
-	local HatMeshDatabase, HatNameDatabase, HatKnownAccessoriesDatabase = loadstring(readfile("UhhhhhhReanim/BuiltinModules/d_hatsmap.lua"))()
+	local HatMeshDatabase, HatNameDatabase, HatKnownAccessoriesDatabase = loadstring(readfile("BlaaBlaaReanim/BuiltinModules/d_hatsmap.lua"))()
 
 	local function GetTools()
 		local tools = {}
@@ -7836,7 +7836,7 @@ local function AssetGetPathFromFilename(filename)
 	elseif filename:sub(-4, -1) == ".rbxm" then
 		filetype = "Models/"
 	end
-	return "UhhhhhhReanim/Content/" .. filetype .. filename
+	return "BlaaBlaaReanim/Content/" .. filetype .. filename
 end
 local _Assetdownloading = {}
 local _Assetdownloadingcount, _Assetdownloadingfail = 0, 0
@@ -9094,7 +9094,7 @@ local function ForceModuleReload(force)
 							if SaveData.ContentHash[file.name] ~= file.sha then
 								SaveData.ContentHash[file.name] = file.sha
 								if table.find(filesofbuiltins, file.name) then
-									local path = "UhhhhhhReanim/BuiltinModules/" .. file.name
+									local path = "BlaaBlaaReanim/BuiltinModules/" .. file.name
 									if isfile(path) then
 										InitLogsText.Text ..= "\n[LOG] BuiltinModules/" .. file.name .. " has been updated on the repo."
 										delfile(path)
@@ -9127,7 +9127,7 @@ local function ForceModuleReload(force)
 	InitLogsText.Text ..= "\n[LOG] Loading maps..."
 	for i,x in filesofbuiltins_d do
 		Util.UINotify("Loading maps...", 0.15 + (i / #filesofbuiltins_d) * 0.15)
-		local path = "UhhhhhhReanim/BuiltinModules/" .. x
+		local path = "BlaaBlaaReanim/BuiltinModules/" .. x
 		local exist = false
 		local s, a = pcall(isfile, path)
 		if s and a then exist = true end
@@ -9148,7 +9148,7 @@ local function ForceModuleReload(force)
 	InitLogsText.Text ..= "\n[LOG] Loading builtin (also called vanilla) modules..."
 	for i,x in filesofbuiltins_m do
 		Util.UINotify("Loading modules...", 0.325 + (i / #filesofbuiltins_m) * 0.475)
-		local path = "UhhhhhhReanim/BuiltinModules/" .. x
+		local path = "BlaaBlaaReanim/BuiltinModules/" .. x
 		local exist = false
 		local s, a = pcall(isfile, path)
 		if s and a then exist = true end
@@ -9187,7 +9187,7 @@ local function ForceModuleReload(force)
 	end
 	Util.UINotify("Loading modules...", 0.8)
 	InitLogsText.Text ..= "\n[LOG] Loading user modules..."
-	for _,path in listfiles("UhhhhhhReanim/Modules/") do
+	for _,path in listfiles("BlaaBlaaReanim/Modules/") do
 		if isfile(path) then
 			local x = path:sub(23)
 			xpcall(function()
@@ -9274,11 +9274,11 @@ clearcontenthash.Activated:Connect(function()
 				end
 			end
 		end
-		pcall(cleardir, "UhhhhhhReanim/Content/Anims")
-		pcall(cleardir, "UhhhhhhReanim/Content/Sounds")
-		pcall(cleardir, "UhhhhhhReanim/Content/Images")
-		pcall(cleardir, "UhhhhhhReanim/Content/Models")
-		pcall(cleardir, "UhhhhhhReanim/Content/Unknown")
+		pcall(cleardir, "BlaaBlaaReanim/Content/Anims")
+		pcall(cleardir, "BlaaBlaaReanim/Content/Sounds")
+		pcall(cleardir, "BlaaBlaaReanim/Content/Images")
+		pcall(cleardir, "BlaaBlaaReanim/Content/Models")
+		pcall(cleardir, "BlaaBlaaReanim/Content/Unknown")
 		ForceModuleReload(false)
 		clearcontenthashtext.Text = "Sayonara = Matane!"
 		task.wait(1)
@@ -9546,7 +9546,7 @@ local function RefreshOnlineUserModules()
 			UI.CreateText(page, aitemu.Description, 15, Enum.TextXAlignment.Left)
 			UI.CreateSeparator(page)
 			local download, downloadtext = UI.CreateButton(page, "Buy Module for " .. (aitemu.Cost or "670 B"), 20)
-			local path = "UhhhhhhReanim/Modules/" .. aitemu.File
+			local path = "BlaaBlaaReanim/Modules/" .. aitemu.File
 			if isfile(path) then
 				downloadtext.Text = "You already have this"
 			end
