@@ -441,7 +441,7 @@ do
 		"better-off-alone.mp3",
 		"what-is-love.mp3",
 		"scatman.mp3",
-		"around-the-world.mp3"
+		"around-the-world.mp3",
 		"lightinursoul.graphic.png",
 		"letriangul.graphic.png",
 	}
