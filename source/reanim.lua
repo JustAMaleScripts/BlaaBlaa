@@ -7938,6 +7938,7 @@ TextChatService.MessageReceived:Connect(function(message)
 					"That's all...",
 				}))
 			task.wait(2)
+			end
 		end
 	end
 end)
