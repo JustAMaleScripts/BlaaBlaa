@@ -9390,36 +9390,36 @@ local function GetMarketList()
 		local aitemu = {}
 		for _,a in marketteresult do
 			if #a > 3 then
-				local k, v = string.split(a, " = ")
-				k, v = table.remove(k, 1), table.concat(string.split(table.concat(k, " = "), "\\n"), "\n")
-				if k == "name" then
-					aitemu.Name = v
-					continue
-				end
-				if k == "user" then
-					aitemu.User = v
-					continue
-				end
-				if k == "desc" then
-					aitemu.Description = v
-					continue
-				end
-				if k == "cost" then
-					aitemu.Cost = v
-					continue
-				end
-				if k == "file" then
-					aitemu.Source = "https://raw.githubusercontent.com/JustAMaleScripts/BlaaBlaa/main/community/" .. v
-					aitemu.File = string.gsub(v, "/", ".")
-					continue
-				if k == "type" then
-    				aitemu.Type = v
-    				continue
-				end
-				if k == "path" then
-    				aitemu.Path = v
-    				continue
-				end
+			local k, v = string.split(a, " = ")
+			k, v = table.remove(k, 1), table.concat(string.split(table.concat(k, " = "), "\\n"), "\n")
+			if k == "name" then
+				aitemu.Name = v
+				continue
+			end
+			if k == "user" then
+				aitemu.User = v
+				continue
+			end
+			if k == "desc" then
+				aitemu.Description = v
+				continue
+			end
+			if k == "cost" then
+				aitemu.Cost = v
+				continue
+			end
+			if k == "file" then
+				aitemu.Source = "https://raw.githubusercontent.com/JustAMaleScripts/BlaaBlaa/main/community/" .. v
+				aitemu.File = string.gsub(v, "/", ".")
+				continue
+			end
+			if k == "type" then
+				aitemu.Type = v
+				continue
+			end
+			if k == "path" then
+				aitemu.Path = v
+				continue
 			end
 			if next(aitemu) == nil then
 				continue
