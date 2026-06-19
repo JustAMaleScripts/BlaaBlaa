@@ -10,7 +10,7 @@ $$      $$$$$$"""$$$ $$$"""$$$ $$$"""$$$ $$$"""$$$ $$$"""$$$ $$$"""$$$
        Code:    STEVETHEREALONE
                 BoredGal (mostly patches..)
 				JustAMale (The AI Slop User, also Known as Mr AI)
-				Claude (Fixed Something and Coolest AI to Code.)
+				Claude (HUGE Fixes Anything, also genius. Thanks!)
        GFX:     STEVETHEREALONE
                 AALib
                 some random generators
@@ -25,7 +25,7 @@ Thou shalth not steal. Point at this source if you used a snippet here.
 if _G.UhhhhhhLoaded then return end
 _G.UhhhhhhLoaded = true
 
-local UhhhhhhVersion = "1.0 ALPHA"
+local UhhhhhhVersion = "1.0.1 ALPHA"
 
 local Debris = cloneref(game:GetService("Debris"))
 local CoreGui = cloneref(game:GetService("CoreGui"))
@@ -819,8 +819,8 @@ else
 		AnchorPoint = Vector2.new(1, 0.5),
 	}):Play()
 	local scrolltextratio = scrolltext.Size.X.Offset / scrolltext.Size.Y.Offset
-	local Triforce1 = Util.MakeTriforce(3, Color3.fromRGB(0, 120, 255), 4)
-	local Triforce2 = Util.MakeTriforce(3, Color3.fromRGB(0, 0, 80), 4)
+	local Triforce1 = Util.MakeTriforce(3, Color3.new(1, 0.7, 0), 4)
+	local Triforce2 = Util.MakeTriforce(3, Color3.fromRGB(0, 0, 50), 4)
 	Triforce1.ZIndex = 2
 	Triforce2.ZIndex = 1
 	Triforce1.Parent = UIMainFrame
@@ -1106,8 +1106,6 @@ local function SetUITheme(index)
 		{Fore = Color3.fromHex("F7ABE8"), Back = Color3.fromHex("75284B"), Text = Color3.new(1, 1, 1)},
 		-- Tommorow Night 80s
 		{Fore = Color3.fromHex("272727"), Back = Color3.fromHex("2D2D2D"), Text = Color3.fromHex("BEBEBE"), SndClick = "rbxassetid://86097124503088"},
-		-- Blue
-		{Fore = Color3.fromRGB(0, 120, 255), Back = Color3.fromRGB(0, 10, 40), Text = Color3.fromRGB(150, 210, 255), SndClick = "rbxassetid://81511855170472"},
 	}
 	local theme = {nil, nil, Color3.new(1, 1, 1), "rbxassetid://118806752369227"}
 	local function processtable(t)
@@ -3048,7 +3046,6 @@ UI.CreateDropdown(MainPage, "UI Theme", {
 	"Cherry Blossom",
 	"Sakura",
 	"Tommorow Night 80s", -- my personal IDE theme
-	"Ocean",
 	"User Defined (see README)",
 }, SaveData.UITheme).Changed:Connect(function(val)
 	SaveData.UITheme = val
@@ -4382,6 +4379,8 @@ else
 	end
 end
 
+-- v726 patch note: ReplicateCurrentOffset6D and ReplicateCurrentAngle6D are removed.
+-- We keep the pcalls for older clients, and fall back to direct Transform + Part1 CFrame.
 Util.SetMotor6DTransform = function(motor, transform)
 	local name = motor.Name
 	motor.MaxVelocity = 9e9
@@ -4389,8 +4388,16 @@ Util.SetMotor6DTransform = function(motor, transform)
 	motor:SetDesiredAngle(angle)
 	local axis, angle = transform:ToAxisAngle()
 	local newangle = axis * angle
+	-- Legacy (patched in v726, harmless pcalls):
 	pcall(sethiddenproperty, motor, "ReplicateCurrentOffset6D", transform.Position)
 	pcall(sethiddenproperty, motor, "ReplicateCurrentAngle6D", newangle)
+	-- v726 fallback: set Transform directly for local visuals,
+	-- and directly move Part1 so other players see it via physics replication.
+	pcall(function() motor.Transform = transform end)
+	if motor.Part0 and motor.Part1 and not motor.Part1:IsGrounded() then
+		local targetCF = motor.Part0.CFrame * motor.C0 * transform * motor.C1:Inverse()
+		motor.Part1.CFrame = targetCF
+	end
 end
 Util.SetMotor6DOffset = function(motor, offset)
 	Util.SetMotor6DTransform(motor, motor.C0:Inverse() * offset * motor.C1)
@@ -4563,12 +4570,14 @@ function LimbReanimator.SetRootPartMode(mode)
 end
 function LimbReanimator.Config(parent)
 	UI.CreateText(parent, "as mentioned in the README, this only works for SOME games,\nbecause 'modern' games create the Animator automatically which breaks limb reanimation", 10, Enum.TextXAlignment.Center)
-	local dmode = UI.CreateDropdown(parent, "RootPart Mode", {"RootPart in very void", "RootPart in void", "Keep RootPart Streamed", "CurrentAngle Style", "RootPart is Torso"}, LimbReanimator.Mode + 1)
+	local dmode = UI.CreateDropdown(parent, "RootPart Mode", {"RootPart in very void", "RootPart in void", "Keep RootPart Streamed", "CurrentAngle Style", "RootPart is Torso", "AlignConstraint (v726+)"}, LimbReanimator.Mode + 1)
 	local dvel = UI.CreateDropdown(parent, "RootPart Velocity", {"No Velocity", "Follow Character", "Fling-like"}, LimbReanimator.Velocity + 1)
 	local dinit = UI.CreateDropdown(parent, "Init Mode", {"Reset Character", "CDSB + Reset", "CDSB + SSE + Kill"}, LimbReanimator.InitMode + 1)
 	dmode.Changed:Connect(function(val)
 		LimbReanimator.Mode = val - 1
 		SaveData.Reanimator.LimbMode = val - 1
+		-- Rebuild AlignConstraint rigs if switching to/from mode 5
+		task.defer(SetupAlignRigs)
 	end)
 	dvel.Changed:Connect(function(val)
 		LimbReanimator.Velocity = val - 1
@@ -4651,6 +4660,59 @@ function LimbReanimator.Start()
 
 	local BaseParts = {}
 	local UnknownMotor6Ds = {}
+	-- v726 AlignConstraint mode: ghost parts + constraints per mapped limb
+	-- Used when Mode == 5 (AlignConstraint) to replicate without Motor6D hidden props
+	local AlignRigs = {} -- [map] = {Ghost, AP, AO, Att0, Att1, Part}
+	local function TeardownAlignRigs()
+		for _, rig in AlignRigs do
+			pcall(function() rig.Ghost:Destroy() end)
+			pcall(function() rig.AP:Destroy() end)
+			pcall(function() rig.AO:Destroy() end)
+			pcall(function() rig.Att0:Destroy() end)
+			pcall(function() rig.Att1:Destroy() end)
+		end
+		table.clear(AlignRigs)
+	end
+	local function SetupAlignRigs()
+		TeardownAlignRigs()
+		if LimbReanimator.Mode ~= 5 then return end
+		for _, map in LimbMapping do
+			local v = map.Reference
+			if v and v.Part1 and v.Part0 then
+				local realPart = v.Part1
+				local ghost = Instance.new("Part")
+				ghost.Anchored = true
+				ghost.CanCollide = false
+				ghost.CanTouch = false
+				ghost.CanQuery = false
+				ghost.Transparency = 1
+				ghost.Size = Vector3.new(0.1, 0.1, 0.1)
+				ghost.Name = "_AlignTarget_" .. (map.Part1 or "?")
+				ghost.CFrame = realPart.CFrame
+				ghost.Parent = workspace
+				local att0 = Instance.new("Attachment", realPart)
+				local att1 = Instance.new("Attachment", ghost)
+				local ap = Instance.new("AlignPosition")
+				ap.Attachment0 = att0
+				ap.Attachment1 = att1
+				ap.MaxForce = math.huge
+				ap.MaxVelocity = math.huge
+				ap.Responsiveness = 200
+				ap.Parent = realPart
+				local ao = Instance.new("AlignOrientation")
+				ao.Attachment0 = att0
+				ao.Attachment1 = att1
+				ao.MaxTorque = math.huge
+				ao.MaxAngularVelocity = math.huge
+				ao.Responsiveness = 200
+				ao.Parent = realPart
+				AlignRigs[map] = {
+					Ghost = ghost, AP = ap, AO = ao,
+					Att0 = att0, Att1 = att1, Part = realPart,
+				}
+			end
+		end
+	end
 	local CharOnDesc = function(v)
 		if v:IsA("BasePart") then
 			if not table.find(BaseParts, v) then
@@ -4742,6 +4804,7 @@ function LimbReanimator.Start()
 		lastspawn = os.clock()
 		table.clear(BaseParts)
 		table.clear(UnknownMotor6Ds)
+		TeardownAlignRigs()
 		for _,map in LimbMapping do
 			map.Reference = nil
 		end
@@ -4765,6 +4828,8 @@ function LimbReanimator.Start()
 	end)
 	Player.CharacterAdded:Wait()
 	Reanimate.CreateCharacter(InitCFrame)
+	-- Build AlignConstraint rigs if mode 5 is active
+	task.defer(SetupAlignRigs)
 
 	local lastrep = 0
 	local function UpdateTransforms(ReanimCharacter, RootPart, rootcf, rootvel, flingtarget, flingcf)
@@ -4824,6 +4889,16 @@ function LimbReanimator.Start()
 						map.CFrame = cf
 					end
 					Util.SetMotor6DOffset(v, map.CFrame)
+					-- v726 Mode 5: update ghost target for AlignConstraint replication
+					local rig = AlignRigs[map]
+					if rig and LimbReanimator.Mode == 5 and v.Part0 then
+						local targetWorldCF = v.Part0.CFrame * v.C0 * map.CFrame * v.C1:Inverse()
+						rig.Ghost.CFrame = targetWorldCF
+						if rig.Part:IsDescendantOf(workspace) and not rig.Part:IsGrounded() then
+							local netless = Reanimate.NetlessVelocity or 25.01
+							rig.Part.AssemblyLinearVelocity = Vector3.new(0, netless, 0)
+						end
+					end
 				end
 			end
 		end
@@ -4953,6 +5028,7 @@ function LimbReanimator.Start()
 		end
 	end
 	CharConn:Disconnect()
+	TeardownAlignRigs()
 	if Player.Character then
 		local h = Player.Character:FindFirstChild("Humanoid")
 		if h then
@@ -5396,6 +5472,8 @@ function HatReanimator.Start()
 		local handle = hat:FindFirstChild("Handle")
 		local mesh, tex = GetHatMeshAndTexture(hat)
 		if handle and mesh and tex then
+			-- v726: guard against AccessoryWeld being re-created if BAS is patched
+			GuardHatHandleWelds(handle)
 			for _,ref in HatRefs do
 				if not ref.Hat then
 					if ref.Name == hat.Name and ref.MeshId == mesh and ref.TextureId == tex then
@@ -5844,8 +5922,43 @@ function HatReanimator.Start()
 		InCharacter = 3,
 		Equipped = 4,
 	}
+	-- v726: BackendAccoutrementState is patched/removed.
+	-- Detect this on first call and fall back to manually breaking AccessoryWelds.
+	local _BASPatched = false
 	local function SetAccoutrementState(hat, state)
-		sethiddenproperty(hat, "BackendAccoutrementState", state)
+		if not _BASPatched then
+			local ok = pcall(sethiddenproperty, hat, "BackendAccoutrementState", state)
+			if not ok then
+				_BASPatched = true
+			end
+		end
+		if _BASPatched then
+			-- Fallback: when we want hat IN workspace (states None/InWorkspace),
+			-- destroy any AccessoryWeld so the game can't re-attach it.
+			if state == BackendAccoutrementState.None
+				or state == BackendAccoutrementState.InWorkspace
+			then
+				local handle = hat:FindFirstChild("Handle")
+				if handle then
+					for _, weld in handle:GetChildren() do
+						if weld:IsA("Weld") and weld.Name == "AccessoryWeld" then
+							weld:Destroy()
+						end
+					end
+				end
+			end
+		end
+	end
+
+	-- Guard: if BackendAccoutrementState is patched, continuously destroy any AccessoryWeld
+	-- that the game tries to re-create on hat handles (so hats stay in workspace).
+	local function GuardHatHandleWelds(handle)
+		if not handle then return end
+		handle.ChildAdded:Connect(function(v)
+			if _BASPatched and v:IsA("Weld") and v.Name == "AccessoryWeld" then
+				task.defer(v.Destroy, v)
+			end
+		end)
 	end
 
 	local IsRespawning = false
