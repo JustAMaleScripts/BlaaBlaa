@@ -9390,55 +9390,47 @@ local function GetMarketList()
 		local aitemu = {}
 		for _,a in marketteresult do
 			if #a > 3 then
-			local k, v = string.split(a, " = ")
-			k, v = table.remove(k, 1), table.concat(string.split(table.concat(k, " = "), "\\n"), "\n")
-			if k == "name" then
-				aitemu.Name = v
-				continue
+				local parts = string.split(a, " = ")
+				local k = parts[1]
+				local v = table.concat(parts, " = ", 2)
+				v = string.gsub(v, "\\n", "\n")
+				
+				if k == "name" then
+					aitemu.Name = v
+				elseif k == "user" then
+					aitemu.User = v
+				elseif k == "desc" then
+					aitemu.Description = v
+				elseif k == "cost" then
+					aitemu.Cost = v
+				elseif k == "file" then
+					aitemu.Source = "https://raw.githubusercontent.com/JustAMaleScripts/BlaaBlaa/main/community/" .. v
+					aitemu.File = string.gsub(v, "/", ".")
+				elseif k == "type" then
+					aitemu.Type = v
+				elseif k == "path" then
+					aitemu.Path = v
+				end
+			elseif next(aitemu) ~= nil then
+				table.insert(aitemus, aitemu)
+				aitemu = {}
 			end
-			if k == "user" then
-				aitemu.User = v
-				continue
-			end
-			if k == "desc" then
-				aitemu.Description = v
-				continue
-			end
-			if k == "cost" then
-				aitemu.Cost = v
-				continue
-			end
-			if k == "file" then
-				aitemu.Source = "https://raw.githubusercontent.com/JustAMaleScripts/BlaaBlaa/main/community/" .. v
-				aitemu.File = string.gsub(v, "/", ".")
-				continue
-			end
-			if k == "type" then
-				aitemu.Type = v
-				continue
-			end
-			if k == "path" then
-				aitemu.Path = v
-				continue
-			end
-			if next(aitemu) == nil then
-				continue
-			end
-			table.insert(aitemus, aitemu)
-			aitemu = {}
 		end
 		if next(aitemu) ~= nil then
 			table.insert(aitemus, aitemu)
 		end
+		
 		file2name, file2aitemu = {}, {}
-		for _,aitemu in aitemus do
-			if aitemu.Name and aitemu.File then
-				file2name[aitemu.File] = aitemu.Name
-				file2aitemu[aitemu.File] = aitemu
+		for _,item in aitemus do
+			if item.Name and item.File then
+				file2name[item.File] = item.Name
+				file2aitemu[item.File] = item
 			end
 		end
 	end
-	GetMarketList_cache.aitemus, GetMarketList_cache.file2name, GetMarketList_cache.file2aitemu = aitemus, file2name, file2aitemu
+	GetMarketList_cache.aitemus = aitemus
+	GetMarketList_cache.file2name = file2name
+	GetMarketList_cache.file2aitemu = file2aitemu
 	return aitemus, file2name, file2aitemu
 end
 local LocalPage = UI.CreateItemListPage()
