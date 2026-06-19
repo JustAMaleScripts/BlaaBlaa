@@ -1107,7 +1107,7 @@ local function SetUITheme(index)
 		-- Tommorow Night 80s
 		{Fore = Color3.fromHex("272727"), Back = Color3.fromHex("2D2D2D"), Text = Color3.fromHex("BEBEBE"), SndClick = "rbxassetid://86097124503088"},
 		-- Blue
-		{Fore = Color3.fromRGB(0, 120, 255), Back = Color3.fromRGB(0, 10, 40), Text = Color3.fromRGB(150, 210, 255)},
+		{Fore = Color3.fromRGB(0, 120, 255), Back = Color3.fromRGB(0, 10, 40), Text = Color3.fromRGB(150, 210, 255), SndClick = "rbxassetid://81511855170472"},
 	}
 	local theme = {nil, nil, Color3.new(1, 1, 1), "rbxassetid://118806752369227"}
 	local function processtable(t)
