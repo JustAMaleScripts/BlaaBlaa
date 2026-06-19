@@ -56,3 +56,9 @@ user = GeometryRunC
 desc = a basic moveset
 cost = 2 KB
 file = GeometryRunC/moveset.lua
+
+name = PiPi's Free Shop
+user = Pipis
+desc = Suggested me btw...
+type = folder
+path = Pipis/
