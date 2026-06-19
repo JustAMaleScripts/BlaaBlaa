@@ -10,7 +10,7 @@ $$      $$$$$$"""$$$ $$$"""$$$ $$$"""$$$ $$$"""$$$ $$$"""$$$ $$$"""$$$
        Code:    STEVETHEREALONE
                 BoredGal (mostly patches..)
 				JustAMale (The AI Slop User, also Known as Mr AI)
-				Claude (Most AI Coding.)
+				Claude (Prompt: Added your ocean! lol)
        GFX:     STEVETHEREALONE
                 AALib
                 some random generators
@@ -819,8 +819,8 @@ else
 		AnchorPoint = Vector2.new(1, 0.5),
 	}):Play()
 	local scrolltextratio = scrolltext.Size.X.Offset / scrolltext.Size.Y.Offset
-	local Triforce1 = Util.MakeTriforce(3, Color3.new(1, 0.7, 0), 4)
-	local Triforce2 = Util.MakeTriforce(3, Color3.fromRGB(0, 0, 50), 4)
+	local Triforce1 = Util.MakeTriforce(3, Color3.fromRGB(0, 120, 255), 4)
+	local Triforce2 = Util.MakeTriforce(3, Color3.fromRGB(0, 0, 80), 4)
 	Triforce1.ZIndex = 2
 	Triforce2.ZIndex = 1
 	Triforce1.Parent = UIMainFrame
@@ -1106,6 +1106,8 @@ local function SetUITheme(index)
 		{Fore = Color3.fromHex("F7ABE8"), Back = Color3.fromHex("75284B"), Text = Color3.new(1, 1, 1)},
 		-- Tommorow Night 80s
 		{Fore = Color3.fromHex("272727"), Back = Color3.fromHex("2D2D2D"), Text = Color3.fromHex("BEBEBE"), SndClick = "rbxassetid://86097124503088"},
+		-- Blue
+		{Fore = Color3.fromRGB(0, 120, 255), Back = Color3.fromRGB(0, 10, 40), Text = Color3.fromRGB(150, 210, 255), SndClick = "rbxassetid://9114175929"},
 	}
 	local theme = {nil, nil, Color3.new(1, 1, 1), "rbxassetid://118806752369227"}
 	local function processtable(t)
@@ -3046,6 +3048,7 @@ UI.CreateDropdown(MainPage, "UI Theme", {
 	"Cherry Blossom",
 	"Sakura",
 	"Tommorow Night 80s", -- my personal IDE theme
+	"Ocean",
 	"User Defined (see README)",
 }, SaveData.UITheme).Changed:Connect(function(val)
 	SaveData.UITheme = val
@@ -3203,52 +3206,6 @@ pcall(function()
 	end
 end)
 
--- Copies real character's skin/shirt/pants/face onto the fake character
--- so when Transparency=0 others see the correct avatar, not red blocks.
-local function ApplyCharacterAppearance(fakeChar, realChar)
-	if not realChar then return end
-	local limbNames = {"Head", "Torso", "Left Arm", "Right Arm", "Left Leg", "Right Leg", "HumanoidRootPart"}
-	for _, name in limbNames do
-		local realPart = realChar:FindFirstChild(name)
-		local fakePart = fakeChar:FindFirstChild(name)
-		if realPart and fakePart and realPart:IsA("BasePart") then
-			fakePart.Color = realPart.Color
-			fakePart.Material = realPart.Material
-			-- Copy mesh, decals, surface appearances
-			for _, v in realPart:GetChildren() do
-				if v:IsA("SpecialMesh") or v:IsA("DataModelMesh") then
-					local old = fakePart:FindFirstChildOfClass("SpecialMesh") or fakePart:FindFirstChildOfClass("DataModelMesh")
-					if old then old:Destroy() end
-					v:Clone().Parent = fakePart
-				elseif v:IsA("Decal") or v:IsA("Texture") or v:IsA("SurfaceAppearance") then
-					local old = fakePart:FindFirstChild(v.Name)
-					if old then old:Destroy() end
-					v:Clone().Parent = fakePart
-				end
-			end
-		end
-	end
-	-- Copy clothing and body colors
-	local copyClasses = {"Shirt", "Pants", "ShirtGraphic", "BodyColors"}
-	for _, className in copyClasses do
-		local old = fakeChar:FindFirstChildOfClass(className)
-		if old then old:Destroy() end
-		local src = realChar:FindFirstChildOfClass(className)
-		if src then src:Clone().Parent = fakeChar end
-	end
-	-- Copy face decal
-	local realHead = realChar:FindFirstChild("Head")
-	local fakeHead = fakeChar:FindFirstChild("Head")
-	if realHead and fakeHead then
-		local realFace = realHead:FindFirstChild("face") or realHead:FindFirstChildOfClass("Decal")
-		local fakeFace = fakeHead:FindFirstChild("face") or fakeHead:FindFirstChildOfClass("Decal")
-		if realFace then
-			if fakeFace then fakeFace:Destroy() end
-			realFace:Clone().Parent = fakeHead
-		end
-	end
-end
-
 local function CreateHumanoidCharacter()
 	local char = Util.Instance("Model")
 	char.Name = "(C) BlaaBlaa V" .. UhhhhhhVersion
@@ -3308,20 +3265,10 @@ local function CreateHumanoidCharacter()
 		motor.C0 = c0
 		motor.C1 = c1
 		motor.MaxVelocity = 0
-		-- Virtual Motor6D: bake the animation transform into C0 instead of Transform.
-		-- C0 IS replicated to other players. Motor6D.Transform hidden props are patched in v726.
-		-- Math: Part1WorldCF = Part0WorldCF * C0 * Transform * C1:Inverse()
-		-- With Transform = identity, pose is encoded in C0 directly: C0 = originalC0 * animTransform
-		local originalC0 = c0
 		Util.LinkDestroyI2C(motor, RunService.PreRender:Connect(function()
 			local scale = char:GetScale()
-			local animTransform = Util.ScaleCFrame(motor:GetAttribute("Transform") or CFrame.identity, scale)
-			-- Save unscaled transform for next frame
 			motor:SetAttribute("Transform", Util.ScaleCFrame(motor.Transform, 1 / scale))
-			-- Bake into C0 so it replicates (virtual Motor6D trick)
-			motor.C0 = originalC0 * animTransform
-			-- Keep Transform at identity so C0 is the sole driver
-			motor.Transform = CFrame.identity
+			motor.Transform = Util.ScaleCFrame(motor:GetAttribute("Transform") or CFrame.identity, scale)
 		end))
 	end
 
@@ -4117,8 +4064,6 @@ Reanimate.CreateCharacter = function(InitCFrame)
 	Reanimate.Camera.CFrame, Reanimate.Camera.Focus = Camera.CFrame, Camera.Focus
 	Reanimate.Camera:OnReset()
 	RC = CreateHumanoidCharacter()
-	-- Copy the real character's appearance so others see the correct avatar (not red blocks)
-	ApplyCharacterAppearance(RC, Player.Character)
 	RC.ModelStreamingMode = "Persistent"
 	Player.ReplicationFocus = workspace
 	local ltmparts = Reanimate.CharacterLTMs
@@ -4437,9 +4382,6 @@ else
 	end
 end
 
--- v726 patch note: ReplicateCurrentOffset6D and ReplicateCurrentAngle6D are removed.
--- We keep the pcalls for older clients (harmless no-ops when patched).
--- Mode 5 (AlignConstraint) handles replication via ghost parts instead.
 Util.SetMotor6DTransform = function(motor, transform)
 	local name = motor.Name
 	motor.MaxVelocity = 9e9
@@ -4449,8 +4391,6 @@ Util.SetMotor6DTransform = function(motor, transform)
 	local newangle = axis * angle
 	pcall(sethiddenproperty, motor, "ReplicateCurrentOffset6D", transform.Position)
 	pcall(sethiddenproperty, motor, "ReplicateCurrentAngle6D", newangle)
-	-- Also set Transform directly for local visual correctness
-	pcall(function() motor.Transform = transform end)
 end
 Util.SetMotor6DOffset = function(motor, offset)
 	Util.SetMotor6DTransform(motor, motor.C0:Inverse() * offset * motor.C1)
@@ -4623,14 +4563,12 @@ function LimbReanimator.SetRootPartMode(mode)
 end
 function LimbReanimator.Config(parent)
 	UI.CreateText(parent, "as mentioned in the README, this only works for SOME games,\nbecause 'modern' games create the Animator automatically which breaks limb reanimation", 10, Enum.TextXAlignment.Center)
-	local dmode = UI.CreateDropdown(parent, "RootPart Mode", {"RootPart in very void", "RootPart in void", "Keep RootPart Streamed", "CurrentAngle Style", "RootPart is Torso", "AlignConstraint (v726+)"}, LimbReanimator.Mode + 1)
+	local dmode = UI.CreateDropdown(parent, "RootPart Mode", {"RootPart in very void", "RootPart in void", "Keep RootPart Streamed", "CurrentAngle Style", "RootPart is Torso"}, LimbReanimator.Mode + 1)
 	local dvel = UI.CreateDropdown(parent, "RootPart Velocity", {"No Velocity", "Follow Character", "Fling-like"}, LimbReanimator.Velocity + 1)
 	local dinit = UI.CreateDropdown(parent, "Init Mode", {"Reset Character", "CDSB + Reset", "CDSB + SSE + Kill"}, LimbReanimator.InitMode + 1)
 	dmode.Changed:Connect(function(val)
 		LimbReanimator.Mode = val - 1
 		SaveData.Reanimator.LimbMode = val - 1
-		-- Rebuild AlignConstraint rigs if switching to/from mode 5
-		task.defer(SetupAlignRigs)
 	end)
 	dvel.Changed:Connect(function(val)
 		LimbReanimator.Velocity = val - 1
@@ -4713,59 +4651,6 @@ function LimbReanimator.Start()
 
 	local BaseParts = {}
 	local UnknownMotor6Ds = {}
-	-- v726 AlignConstraint mode: ghost parts + constraints per mapped limb
-	-- Used when Mode == 5 (AlignConstraint) to replicate without Motor6D hidden props
-	local AlignRigs = {} -- [map] = {Ghost, AP, AO, Att0, Att1, Part}
-	local function TeardownAlignRigs()
-		for _, rig in AlignRigs do
-			pcall(function() rig.Ghost:Destroy() end)
-			pcall(function() rig.AP:Destroy() end)
-			pcall(function() rig.AO:Destroy() end)
-			pcall(function() rig.Att0:Destroy() end)
-			pcall(function() rig.Att1:Destroy() end)
-		end
-		table.clear(AlignRigs)
-	end
-	local function SetupAlignRigs()
-		TeardownAlignRigs()
-		if LimbReanimator.Mode ~= 5 then return end
-		for _, map in LimbMapping do
-			local v = map.Reference
-			if v and v.Part1 and v.Part0 then
-				local realPart = v.Part1
-				local ghost = Instance.new("Part")
-				ghost.Anchored = true
-				ghost.CanCollide = false
-				ghost.CanTouch = false
-				ghost.CanQuery = false
-				ghost.Transparency = 1
-				ghost.Size = Vector3.new(0.1, 0.1, 0.1)
-				ghost.Name = "_AlignTarget_" .. (map.Part1 or "?")
-				ghost.CFrame = realPart.CFrame
-				ghost.Parent = workspace
-				local att0 = Instance.new("Attachment", realPart)
-				local att1 = Instance.new("Attachment", ghost)
-				local ap = Instance.new("AlignPosition")
-				ap.Attachment0 = att0
-				ap.Attachment1 = att1
-				ap.MaxForce = math.huge
-				ap.MaxVelocity = math.huge
-				ap.Responsiveness = 200
-				ap.Parent = realPart
-				local ao = Instance.new("AlignOrientation")
-				ao.Attachment0 = att0
-				ao.Attachment1 = att1
-				ao.MaxTorque = math.huge
-				ao.MaxAngularVelocity = math.huge
-				ao.Responsiveness = 200
-				ao.Parent = realPart
-				AlignRigs[map] = {
-					Ghost = ghost, AP = ap, AO = ao,
-					Att0 = att0, Att1 = att1, Part = realPart,
-				}
-			end
-		end
-	end
 	local CharOnDesc = function(v)
 		if v:IsA("BasePart") then
 			if not table.find(BaseParts, v) then
@@ -4857,7 +4742,6 @@ function LimbReanimator.Start()
 		lastspawn = os.clock()
 		table.clear(BaseParts)
 		table.clear(UnknownMotor6Ds)
-		TeardownAlignRigs()
 		for _,map in LimbMapping do
 			map.Reference = nil
 		end
@@ -4881,8 +4765,6 @@ function LimbReanimator.Start()
 	end)
 	Player.CharacterAdded:Wait()
 	Reanimate.CreateCharacter(InitCFrame)
-	-- Build AlignConstraint rigs if mode 5 is active
-	task.defer(SetupAlignRigs)
 
 	local lastrep = 0
 	local function UpdateTransforms(ReanimCharacter, RootPart, rootcf, rootvel, flingtarget, flingcf)
@@ -4942,14 +4824,6 @@ function LimbReanimator.Start()
 						map.CFrame = cf
 					end
 					Util.SetMotor6DOffset(v, map.CFrame)
-					-- v726 Mode 5: update ghost target for AlignConstraint replication.
-					-- AlignConstraint pulls the real limb to the ghost position via physics.
-					-- No extra velocity here — that was what made you fly.
-					local rig = AlignRigs[map]
-					if rig and LimbReanimator.Mode == 5 and v.Part0 then
-						local targetWorldCF = v.Part0.CFrame * v.C0 * map.CFrame * v.C1:Inverse()
-						rig.Ghost.CFrame = targetWorldCF
-					end
 				end
 			end
 		end
@@ -4994,38 +4868,25 @@ function LimbReanimator.Start()
 				v.Velocity = Vector3.zero
 				v.RotVelocity = Vector3.zero
 				if not v:FindFirstAncestorWhichIsA("Tool") then
-					-- v726 fix: Motor6D replication is patched so we can't replicate
-					-- the real character's pose to others anymore. Instead, hide the real
-					-- character from EVERYONE (Transparency=1 replicates) and show the
-					-- fake ReanimCharacter instead (which replicates via normal physics).
-					v.Transparency = 1
-					v.LocalTransparencyModifier = 0
+					local lltm = ltm
+					if Reanimate.FirstPersonBody then
+						lltm = 0
+						if v.Name == "Head" then
+							lltm = ltm
+						else
+							local lol = v:FindFirstChild("AccessoryWeld")
+							if lol and lol:IsA("Weld") and lol.Part1 and lol.Part1.Name == "Head" then
+								lltm = ltm
+							end
+						end
+					end
+					v.LocalTransparencyModifier = lltm
 				end
 			end
 			for _,v in ReanimCharacter:GetChildren() do
 				if v:IsA("BasePart") then
 					if table.find(LimbNames, v.Name) then
-						if ReanimOkay then
-							-- Make fake char visible to ALL other players (Transparency replicates).
-							-- LocalTransparencyModifier controls local visibility (FP camera, etc.)
-							v.Transparency = 0
-							local lltm = ltm
-							if Reanimate.FirstPersonBody then
-								lltm = 0
-								if v.Name == "Head" then
-									lltm = ltm
-								else
-									local lol = v:FindFirstChild("AccessoryWeld")
-									if lol and lol:IsA("Weld") and lol.Part1 and lol.Part1.Name == "Head" then
-										lltm = ltm
-									end
-								end
-							end
-							v.LocalTransparencyModifier = lltm
-						else
-							v.Transparency = Reanimate.PlaceholderTransparency
-							v.LocalTransparencyModifier = 0
-						end
+						v.Transparency = ReanimOkay and 1 or Reanimate.PlaceholderTransparency
 					end
 				end
 			end
@@ -5092,15 +4953,7 @@ function LimbReanimator.Start()
 		end
 	end
 	CharConn:Disconnect()
-	TeardownAlignRigs()
-	-- Restore real character visibility when reanim stops
 	if Player.Character then
-		for _, v in Player.Character:GetDescendants() do
-			if v:IsA("BasePart") then
-				v.Transparency = 0
-				v.LocalTransparencyModifier = 0
-			end
-		end
 		local h = Player.Character:FindFirstChild("Humanoid")
 		if h then
 			h:SetStateEnabled(Enum.HumanoidStateType.Dead, true)
@@ -5543,8 +5396,6 @@ function HatReanimator.Start()
 		local handle = hat:FindFirstChild("Handle")
 		local mesh, tex = GetHatMeshAndTexture(hat)
 		if handle and mesh and tex then
-			-- v726: guard against AccessoryWeld being re-created if BAS is patched
-			GuardHatHandleWelds(handle)
 			for _,ref in HatRefs do
 				if not ref.Hat then
 					if ref.Name == hat.Name and ref.MeshId == mesh and ref.TextureId == tex then
@@ -5993,43 +5844,8 @@ function HatReanimator.Start()
 		InCharacter = 3,
 		Equipped = 4,
 	}
-	-- v726: BackendAccoutrementState is patched/removed.
-	-- Detect this on first call and fall back to manually breaking AccessoryWelds.
-	local _BASPatched = false
 	local function SetAccoutrementState(hat, state)
-		if not _BASPatched then
-			local ok = pcall(sethiddenproperty, hat, "BackendAccoutrementState", state)
-			if not ok then
-				_BASPatched = true
-			end
-		end
-		if _BASPatched then
-			-- Fallback: when we want hat IN workspace (states None/InWorkspace),
-			-- destroy any AccessoryWeld so the game can't re-attach it.
-			if state == BackendAccoutrementState.None
-				or state == BackendAccoutrementState.InWorkspace
-			then
-				local handle = hat:FindFirstChild("Handle")
-				if handle then
-					for _, weld in handle:GetChildren() do
-						if weld:IsA("Weld") and weld.Name == "AccessoryWeld" then
-							weld:Destroy()
-						end
-					end
-				end
-			end
-		end
-	end
-
-	-- Guard: if BackendAccoutrementState is patched, continuously destroy any AccessoryWeld
-	-- that the game tries to re-create on hat handles (so hats stay in workspace).
-	local function GuardHatHandleWelds(handle)
-		if not handle then return end
-		handle.ChildAdded:Connect(function(v)
-			if _BASPatched and v:IsA("Weld") and v.Name == "AccessoryWeld" then
-				task.defer(v.Destroy, v)
-			end
-		end)
+		sethiddenproperty(hat, "BackendAccoutrementState", state)
 	end
 
 	local IsRespawning = false
