@@ -7930,7 +7930,7 @@ end
 -- NEW FUNCTION: Download entire folder via list.txt
 -- =============================================
 local function AssetDownloadFolder(githubFolderRelativePath)
-	-- Example: "PiPi's Free Shop/"
+	-- githubFolderRelativePath example: "PiPi's Free Shop/" or "Pipis/"
 	if not githubFolderRelativePath or githubFolderRelativePath == "" then
 		Util.UINotify("Invalid folder path")
 		return false
@@ -7960,11 +7960,10 @@ local function AssetDownloadFolder(githubFolderRelativePath)
 	for _, filename in fileList do
 		if filename:match("%.[^%.]+$") then  -- has file extension
 			local fullSource = baseUrl .. filename
-				local path = AssetGetPathFromFilename(filename)   -- <-- This is important!
-				if not isfile(path) then
-					queued += 1
-					AssetDownloadAgent(fullSource, filename, path)
-				end
+			local path = AssetGetPathFromFilename(filename)
+			if not isfile(path) then
+				queued += 1
+				AssetDownloadAgent(fullSource, filename, path)
 			end
 		end
 	end
