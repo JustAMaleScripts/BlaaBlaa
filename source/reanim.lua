@@ -9761,6 +9761,7 @@ local d = function()
 						"Thanks, JustAMale.",
 					}))
 					task.wait(2)
+				end
 			end
 		end,
 		}
