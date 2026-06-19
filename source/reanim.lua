@@ -10,7 +10,6 @@ $$      $$$$$$"""$$$ $$$"""$$$ $$$"""$$$ $$$"""$$$ $$$"""$$$ $$$"""$$$
        Code:    STEVETHEREALONE
                 BoredGal (mostly patches..)
 				JustAMale (The AI Slop User, also Known as Mr AI)
-				Claude (Prompt: I'm indian fixer, how may I help you lol)
        GFX:     STEVETHEREALONE
                 AALib
                 some random generators
@@ -4936,25 +4935,38 @@ function LimbReanimator.Start()
 				v.Velocity = Vector3.zero
 				v.RotVelocity = Vector3.zero
 				if not v:FindFirstAncestorWhichIsA("Tool") then
-					local lltm = ltm
-					if Reanimate.FirstPersonBody then
-						lltm = 0
-						if v.Name == "Head" then
-							lltm = ltm
-						else
-							local lol = v:FindFirstChild("AccessoryWeld")
-							if lol and lol:IsA("Weld") and lol.Part1 and lol.Part1.Name == "Head" then
-								lltm = ltm
-							end
-						end
-					end
-					v.LocalTransparencyModifier = lltm
+					-- v726 fix: Motor6D replication is patched so we can't replicate
+					-- the real character's pose to others anymore. Instead, hide the real
+					-- character from EVERYONE (Transparency=1 replicates) and show the
+					-- fake ReanimCharacter instead (which replicates via normal physics).
+					v.Transparency = 1
+					v.LocalTransparencyModifier = 0
 				end
 			end
 			for _,v in ReanimCharacter:GetChildren() do
 				if v:IsA("BasePart") then
 					if table.find(LimbNames, v.Name) then
-						v.Transparency = ReanimOkay and 1 or Reanimate.PlaceholderTransparency
+						if ReanimOkay then
+							-- Make fake char visible to ALL other players (Transparency replicates).
+							-- LocalTransparencyModifier controls local visibility (FP camera, etc.)
+							v.Transparency = 0
+							local lltm = ltm
+							if Reanimate.FirstPersonBody then
+								lltm = 0
+								if v.Name == "Head" then
+									lltm = ltm
+								else
+									local lol = v:FindFirstChild("AccessoryWeld")
+									if lol and lol:IsA("Weld") and lol.Part1 and lol.Part1.Name == "Head" then
+										lltm = ltm
+									end
+								end
+							end
+							v.LocalTransparencyModifier = lltm
+						else
+							v.Transparency = Reanimate.PlaceholderTransparency
+							v.LocalTransparencyModifier = 0
+						end
 					end
 				end
 			end
@@ -5022,7 +5034,14 @@ function LimbReanimator.Start()
 	end
 	CharConn:Disconnect()
 	TeardownAlignRigs()
+	-- Restore real character visibility when reanim stops
 	if Player.Character then
+		for _, v in Player.Character:GetDescendants() do
+			if v:IsA("BasePart") then
+				v.Transparency = 0
+				v.LocalTransparencyModifier = 0
+			end
+		end
 		local h = Player.Character:FindFirstChild("Humanoid")
 		if h then
 			h:SetStateEnabled(Enum.HumanoidStateType.Dead, true)
