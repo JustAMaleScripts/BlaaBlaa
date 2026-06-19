@@ -7927,10 +7927,9 @@ local function AssetEnsure(list)
 end
 
 -- =============================================
--- NEW FUNCTION: Download entire folder via list.txt
+-- AssetDownloadFolder - FIXED VERSION
 -- =============================================
 local function AssetDownloadFolder(githubFolderRelativePath)
-	-- githubFolderRelativePath example: "PiPi's Free Shop/" or "Pipis/"
 	if not githubFolderRelativePath or githubFolderRelativePath == "" then
 		Util.UINotify("Invalid folder path")
 		return false
@@ -7939,7 +7938,6 @@ local function AssetDownloadFolder(githubFolderRelativePath)
 	local safePath = githubFolderRelativePath:gsub(" ", "%%20"):gsub("'", "%%27")
 	local baseUrl = "https://raw.githubusercontent.com/JustAMaleScripts/BlaaBlaa/main/community/" .. safePath
 	
-	-- Try to fetch list.txt from inside the folder
 	local listSource = baseUrl .. "list.txt"
 	local s, resp = pcall(request, { Method = "GET", Url = listSource })
 	
@@ -7958,7 +7956,7 @@ local function AssetDownloadFolder(githubFolderRelativePath)
 	
 	local queued = 0
 	for _, filename in fileList do
-		if filename:match("%.[^%.]+$") then  -- has file extension
+		if filename:match("%.[^%.]+$") then
 			local fullSource = baseUrl .. filename
 			local path = AssetGetPathFromFilename(filename)
 			if not isfile(path) then
