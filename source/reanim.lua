@@ -10,6 +10,7 @@ $$      $$$$$$"""$$$ $$$"""$$$ $$$"""$$$ $$$"""$$$ $$$"""$$$ $$$"""$$$
        Code:    STEVETHEREALONE
                 BoredGal (mostly patches..)
 				JustAMale (The AI Slop User, also Known as Mr AI)
+				Claude (Most AI Coding.)
        GFX:     STEVETHEREALONE
                 AALib
                 some random generators
@@ -3202,6 +3203,52 @@ pcall(function()
 	end
 end)
 
+-- Copies real character's skin/shirt/pants/face onto the fake character
+-- so when Transparency=0 others see the correct avatar, not red blocks.
+local function ApplyCharacterAppearance(fakeChar, realChar)
+	if not realChar then return end
+	local limbNames = {"Head", "Torso", "Left Arm", "Right Arm", "Left Leg", "Right Leg", "HumanoidRootPart"}
+	for _, name in limbNames do
+		local realPart = realChar:FindFirstChild(name)
+		local fakePart = fakeChar:FindFirstChild(name)
+		if realPart and fakePart and realPart:IsA("BasePart") then
+			fakePart.Color = realPart.Color
+			fakePart.Material = realPart.Material
+			-- Copy mesh, decals, surface appearances
+			for _, v in realPart:GetChildren() do
+				if v:IsA("SpecialMesh") or v:IsA("DataModelMesh") then
+					local old = fakePart:FindFirstChildOfClass("SpecialMesh") or fakePart:FindFirstChildOfClass("DataModelMesh")
+					if old then old:Destroy() end
+					v:Clone().Parent = fakePart
+				elseif v:IsA("Decal") or v:IsA("Texture") or v:IsA("SurfaceAppearance") then
+					local old = fakePart:FindFirstChild(v.Name)
+					if old then old:Destroy() end
+					v:Clone().Parent = fakePart
+				end
+			end
+		end
+	end
+	-- Copy clothing and body colors
+	local copyClasses = {"Shirt", "Pants", "ShirtGraphic", "BodyColors"}
+	for _, className in copyClasses do
+		local old = fakeChar:FindFirstChildOfClass(className)
+		if old then old:Destroy() end
+		local src = realChar:FindFirstChildOfClass(className)
+		if src then src:Clone().Parent = fakeChar end
+	end
+	-- Copy face decal
+	local realHead = realChar:FindFirstChild("Head")
+	local fakeHead = fakeChar:FindFirstChild("Head")
+	if realHead and fakeHead then
+		local realFace = realHead:FindFirstChild("face") or realHead:FindFirstChildOfClass("Decal")
+		local fakeFace = fakeHead:FindFirstChild("face") or fakeHead:FindFirstChildOfClass("Decal")
+		if realFace then
+			if fakeFace then fakeFace:Destroy() end
+			realFace:Clone().Parent = fakeHead
+		end
+	end
+end
+
 local function CreateHumanoidCharacter()
 	local char = Util.Instance("Model")
 	char.Name = "(C) BlaaBlaa V" .. UhhhhhhVersion
@@ -3261,10 +3308,20 @@ local function CreateHumanoidCharacter()
 		motor.C0 = c0
 		motor.C1 = c1
 		motor.MaxVelocity = 0
+		-- Virtual Motor6D: bake the animation transform into C0 instead of Transform.
+		-- C0 IS replicated to other players. Motor6D.Transform hidden props are patched in v726.
+		-- Math: Part1WorldCF = Part0WorldCF * C0 * Transform * C1:Inverse()
+		-- With Transform = identity, pose is encoded in C0 directly: C0 = originalC0 * animTransform
+		local originalC0 = c0
 		Util.LinkDestroyI2C(motor, RunService.PreRender:Connect(function()
 			local scale = char:GetScale()
+			local animTransform = Util.ScaleCFrame(motor:GetAttribute("Transform") or CFrame.identity, scale)
+			-- Save unscaled transform for next frame
 			motor:SetAttribute("Transform", Util.ScaleCFrame(motor.Transform, 1 / scale))
-			motor.Transform = Util.ScaleCFrame(motor:GetAttribute("Transform") or CFrame.identity, scale)
+			-- Bake into C0 so it replicates (virtual Motor6D trick)
+			motor.C0 = originalC0 * animTransform
+			-- Keep Transform at identity so C0 is the sole driver
+			motor.Transform = CFrame.identity
 		end))
 	end
 
@@ -4060,6 +4117,8 @@ Reanimate.CreateCharacter = function(InitCFrame)
 	Reanimate.Camera.CFrame, Reanimate.Camera.Focus = Camera.CFrame, Camera.Focus
 	Reanimate.Camera:OnReset()
 	RC = CreateHumanoidCharacter()
+	-- Copy the real character's appearance so others see the correct avatar (not red blocks)
+	ApplyCharacterAppearance(RC, Player.Character)
 	RC.ModelStreamingMode = "Persistent"
 	Player.ReplicationFocus = workspace
 	local ltmparts = Reanimate.CharacterLTMs
