@@ -7927,7 +7927,7 @@ local function AssetEnsure(list)
 end
 
 -- =============================================
--- AssetDownloadFolder - FIXED VERSION
+-- AssetDownloadFolder (Clean)
 -- =============================================
 local function AssetDownloadFolder(githubFolderRelativePath)
 	if not githubFolderRelativePath or githubFolderRelativePath == "" then
