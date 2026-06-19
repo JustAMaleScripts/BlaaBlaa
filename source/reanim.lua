@@ -10,6 +10,7 @@ $$      $$$$$$"""$$$ $$$"""$$$ $$$"""$$$ $$$"""$$$ $$$"""$$$ $$$"""$$$
        Code:    STEVETHEREALONE
                 BoredGal (mostly patches..)
 				JustAMale (The AI Slop User, also Known as Mr AI)
+				Claude (Fixed Something and Coolest AI to Code.)
        GFX:     STEVETHEREALONE
                 AALib
                 some random generators
@@ -818,8 +819,8 @@ else
 		AnchorPoint = Vector2.new(1, 0.5),
 	}):Play()
 	local scrolltextratio = scrolltext.Size.X.Offset / scrolltext.Size.Y.Offset
-	local Triforce1 = Util.MakeTriforce(3, Color3.new(1, 0.7, 0), 4)
-	local Triforce2 = Util.MakeTriforce(3, Color3.fromRGB(0, 0, 50), 4)
+	local Triforce1 = Util.MakeTriforce(3, Color3.fromRGB(0, 120, 255), 4)
+	local Triforce2 = Util.MakeTriforce(3, Color3.fromRGB(0, 0, 80), 4)
 	Triforce1.ZIndex = 2
 	Triforce2.ZIndex = 1
 	Triforce1.Parent = UIMainFrame
@@ -1105,6 +1106,8 @@ local function SetUITheme(index)
 		{Fore = Color3.fromHex("F7ABE8"), Back = Color3.fromHex("75284B"), Text = Color3.new(1, 1, 1)},
 		-- Tommorow Night 80s
 		{Fore = Color3.fromHex("272727"), Back = Color3.fromHex("2D2D2D"), Text = Color3.fromHex("BEBEBE"), SndClick = "rbxassetid://86097124503088"},
+		-- Blue
+		{Fore = Color3.fromRGB(0, 120, 255), Back = Color3.fromRGB(0, 10, 40), Text = Color3.fromRGB(150, 210, 255)},
 	}
 	local theme = {nil, nil, Color3.new(1, 1, 1), "rbxassetid://118806752369227"}
 	local function processtable(t)
@@ -3045,6 +3048,7 @@ UI.CreateDropdown(MainPage, "UI Theme", {
 	"Cherry Blossom",
 	"Sakura",
 	"Tommorow Night 80s", -- my personal IDE theme
+	"Ocean",
 	"User Defined (see README)",
 }, SaveData.UITheme).Changed:Connect(function(val)
 	SaveData.UITheme = val
