@@ -7960,10 +7960,11 @@ local function AssetDownloadFolder(githubFolderRelativePath)
 	for _, filename in fileList do
 		if filename:match("%.[^%.]+$") then  -- has file extension
 			local fullSource = baseUrl .. filename
-			local path = AssetGetPathFromFilename(filename)
-			if not isfile(path) then
-				queued += 1
-				AssetDownloadAgent(fullSource, filename, path)
+				local path = AssetGetPathFromFilename(filename)   -- <-- This is important!
+				if not isfile(path) then
+					queued += 1
+					AssetDownloadAgent(fullSource, filename, path)
+				end
 			end
 		end
 	end
@@ -9411,6 +9412,13 @@ local function GetMarketList()
 					aitemu.Source = "https://raw.githubusercontent.com/JustAMaleScripts/BlaaBlaa/main/community/" .. v
 					aitemu.File = string.gsub(v, "/", ".")
 					continue
+				if k == "type" then
+    				aitemu.Type = v
+    				continue
+				end
+				if k == "path" then
+    				aitemu.Path = v
+    				continue
 				end
 			end
 			if next(aitemu) == nil then
@@ -9612,14 +9620,22 @@ local function RefreshOnlineUserModules()
 			UI.CreateText(page, "By " .. (aitemu.User or "Uncknown"), 15, Enum.TextXAlignment.Left)
 			UI.CreateText(page, aitemu.Description, 15, Enum.TextXAlignment.Left)
 			UI.CreateSeparator(page)
-			local download, downloadtext = UI.CreateButton(page, "Buy Module for " .. (aitemu.Cost or "670 B"), 20)
+			local download, downloadtext = UI.CreateButton(page, 
+				(aitemu.Type == "folder" and "Download Entire Folder" or "Buy Module for " .. (aitemu.Cost or "670 B")), 20)
 			local path = "BlaaBlaaReanim/Modules/" .. aitemu.File
 			if isfile(path) then
 				downloadtext.Text = "Already In Modules"
 			end
 			download.Activated:Connect(function()
-				AssetDownloadAgent(aitemu.Source, aitemu.File, path)
-				downloadtext.Text = "Module Has been Summoned"
+				if aitemu.Type == "folder" and aitemu.Path then
+					AssetDownloadFolder(aitemu.Path)
+					downloadtext.Text = "Folder Modules Has been Summoned"
+				else
+					-- single file (original behavior)
+					local targetPath = AssetGetPathFromFilename(aitemu.File)
+					AssetDownloadAgent(aitemu.Source, aitemu.File, targetPath)
+					downloadtext.Text = "Module Has been Summoned"
+				end
 			end)
 			MarkettePage.Interactable = false
 			local tween = TweenService:Create(page, TweenInfo.new(0.5, Enum.EasingStyle.Cubic, Enum.EasingDirection.In), {
