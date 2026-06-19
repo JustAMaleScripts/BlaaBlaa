@@ -7971,6 +7971,7 @@ local function AssetDownloadFolder(githubFolderRelativePath)
 	Util.UINotify("Queued " .. queued .. " files from " .. githubFolderRelativePath)
 	return queued > 0
 end
+
 local function ProtectedChat(content)
 	pcall(function()
 		TextChatService:FindFirstChildOfClass("ChatInputBarConfiguration").TargetTextChannel:SendAsync(content, Util.RandomString(64))
