@@ -7917,6 +7917,49 @@ local function AssetEnsure(list)
 	end
 	return ok
 end
+local function AssetDownloadFolder(githubFolderRelativePath)
+	-- githubFolderRelativePath example: "PiPi's Free Shop/"
+	if not githubFolderRelativePath or githubFolderRelativePath == "" then
+		Util.UINotify("Invalid folder path")
+		return false
+	end
+	
+	-- Build base raw URL like MARKET/ does
+	local baseUrl = "https://raw.githubusercontent.com/JustAMaleScripts/BlaaBlaa/main/community/" .. 
+		githubFolderRelativePath:gsub(" ", "%%20"):gsub("'", "%%27")
+	
+	-- First, try to get a list.txt inside the folder (recommended approach)
+	local listSource = baseUrl .. "list.txt"
+	local s, resp = pcall(request, { Method = "GET", Url = listSource })
+	
+	local fileList = {}
+	if s and resp and resp.StatusCode == 200 then
+		for line in resp.Body:gmatch("[^\r\n]+") do
+			line = line:match("^%s*(.-)%s*$")
+			if line ~= "" and not line:match("^#") then  -- ignore comments
+				table.insert(fileList, line)
+			end
+		end
+	else
+		Util.UINotify("No list.txt found in folder. Using fallback...")
+		-- Fallback: you can hardcode or extend later
+	end
+	
+	local queued = 0
+	for _, filename in fileList do
+		if filename:match("%.[^%.]+$") then  -- has extension
+			local fullSource = baseUrl .. filename
+			local path = AssetGetPathFromFilename(filename)
+			if not isfile(path) then
+				queued += 1
+				AssetDownloadAgent(fullSource, filename, path)
+			end
+		end
+	end
+	
+	Util.UINotify("Queued " .. queued .. " files from " .. githubFolderRelativePath)
+	return queued > 0
+end
 local function ProtectedChat(content)
 	pcall(function()
 		TextChatService:FindFirstChildOfClass("ChatInputBarConfiguration").TargetTextChannel:SendAsync(content, Util.RandomString(64))
