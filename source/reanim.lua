@@ -11,6 +11,7 @@ $$      $$$$$$"""$$$ $$$"""$$$ $$$"""$$$ $$$"""$$$ $$$"""$$$ $$$"""$$$
                 BoredGal (mostly patches..)
 				JustAMale (The AI Slop User, also Known as Mr AI)
 				Claude (Prompt: Added your ocean! lol)
+				Grok (Prompt: Added your AssetDownloadFolderAgent! Lolz!)
        GFX:     STEVETHEREALONE
                 AALib
                 some random generators
