@@ -7845,6 +7845,7 @@ local function AssetGetPathFromFilename(filename)
 end
 local _Assetdownloading = {}
 local _Assetdownloadingcount, _Assetdownloadingfail = 0, 0
+
 local function _UpdateDownloadStatus()
 	local prog = 1 / ((_Assetdownloadingcount + _Assetdownloadingfail) / 2 + 1)
 	if _Assetdownloadingcount > 0 then
@@ -7857,36 +7858,40 @@ local function _UpdateDownloadStatus()
 		end
 	end
 end
+
 local function AssetDownloadAgent(source, filename, path)
 	if isfile(path) then return true end
 	if _Assetdownloading[filename] then return false end
 	_Assetdownloading[filename] = true
+	
 	task.spawn(function()
 		_Assetdownloadingcount += 1
 		_UpdateDownloadStatus()
-		--Util.Notify("Downloading " .. filename .. "...")
+		
 		local s, resp = pcall(request, {
 			Method = "GET",
 			Url = source,
 		})
+		
 		if s and resp and resp.StatusCode == 200 then
 			_Assetdownloadingcount -= 1
 			_UpdateDownloadStatus()
 			pcall(writefile, path, resp.Body)
-			task.wait(10)
 		else
 			_Assetdownloadingcount -= 1
 			_Assetdownloadingfail += 1
 			_UpdateDownloadStatus()
-			--Util.Notify("Failed to download " .. filename .. "!")
-			task.wait(10)
-			_Assetdownloadingfail -= 1
-			_UpdateDownloadStatus()
 		end
+		
+		task.wait(10)
+		_Assetdownloadingfail = math.max(0, _Assetdownloadingfail - 1)
+		_UpdateDownloadStatus()
+		
 		_Assetdownloading[filename] = nil
 	end)
 	return false
 end
+
 local function AssetDownload(filename)
 	local source = "https://raw.githubusercontent.com/STEVE-916-create/Uhhhhhh/main/content/" .. filename
 	local split = string.split(filename, "@")
@@ -7900,6 +7905,7 @@ local function AssetDownload(filename)
 	local path = AssetGetPathFromFilename(filename)
 	return AssetDownloadAgent(source, filename, path)
 end
+
 local function AssetGetContentId(filename)
 	local path = AssetGetPathFromFilename(filename)
 	if not isfile(path) then return "" end
@@ -7909,27 +7915,31 @@ local function AssetGetContentId(filename)
 	end
 	return ""
 end
+
 local function AssetEnsure(list)
 	local ok = true
-	for _,filename in list do
+	for _, filename in list do
 		if not AssetDownload(filename) then
 			ok = false
 		end
 	end
 	return ok
 end
+
+-- =============================================
+-- NEW FUNCTION: Download entire folder via list.txt
+-- =============================================
 local function AssetDownloadFolder(githubFolderRelativePath)
-	-- githubFolderRelativePath example: "PiPi's Free Shop/"
+	-- Example: "PiPi's Free Shop/"
 	if not githubFolderRelativePath or githubFolderRelativePath == "" then
 		Util.UINotify("Invalid folder path")
 		return false
 	end
 	
-	-- Build base raw URL like MARKET/ does
-	local baseUrl = "https://raw.githubusercontent.com/JustAMaleScripts/BlaaBlaa/main/community/" .. 
-		githubFolderRelativePath:gsub(" ", "%%20"):gsub("'", "%%27")
+	local safePath = githubFolderRelativePath:gsub(" ", "%%20"):gsub("'", "%%27")
+	local baseUrl = "https://raw.githubusercontent.com/JustAMaleScripts/BlaaBlaa/main/community/" .. safePath
 	
-	-- First, try to get a list.txt inside the folder (recommended approach)
+	-- Try to fetch list.txt from inside the folder
 	local listSource = baseUrl .. "list.txt"
 	local s, resp = pcall(request, { Method = "GET", Url = listSource })
 	
@@ -7937,18 +7947,18 @@ local function AssetDownloadFolder(githubFolderRelativePath)
 	if s and resp and resp.StatusCode == 200 then
 		for line in resp.Body:gmatch("[^\r\n]+") do
 			line = line:match("^%s*(.-)%s*$")
-			if line ~= "" and not line:match("^#") then  -- ignore comments
+			if line ~= "" and not line:match("^#") then
 				table.insert(fileList, line)
 			end
 		end
 	else
-		Util.UINotify("No list.txt found in folder. Using fallback...")
-		-- Fallback: you can hardcode or extend later
+		Util.UINotify("No list.txt found in folder: " .. githubFolderRelativePath)
+		return false
 	end
 	
 	local queued = 0
 	for _, filename in fileList do
-		if filename:match("%.[^%.]+$") then  -- has extension
+		if filename:match("%.[^%.]+$") then  -- has file extension
 			local fullSource = baseUrl .. filename
 			local path = AssetGetPathFromFilename(filename)
 			if not isfile(path) then
