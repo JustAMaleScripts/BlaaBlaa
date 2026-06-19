@@ -10,7 +10,7 @@ $$      $$$$$$"""$$$ $$$"""$$$ $$$"""$$$ $$$"""$$$ $$$"""$$$ $$$"""$$$
        Code:    STEVETHEREALONE
                 BoredGal (mostly patches..)
 				JustAMale (The AI Slop User, also Known as Mr AI)
-				Claude (HUGE Fixes Anything, also genius. Thanks!)
+				Claude (Prompt: I'm indian fixer, how may I help you lol)
        GFX:     STEVETHEREALONE
                 AALib
                 some random generators
@@ -25,7 +25,7 @@ Thou shalth not steal. Point at this source if you used a snippet here.
 if _G.UhhhhhhLoaded then return end
 _G.UhhhhhhLoaded = true
 
-local UhhhhhhVersion = "1.0.1 ALPHA"
+local UhhhhhhVersion = "1.0 ALPHA"
 
 local Debris = cloneref(game:GetService("Debris"))
 local CoreGui = cloneref(game:GetService("CoreGui"))
@@ -4380,7 +4380,8 @@ else
 end
 
 -- v726 patch note: ReplicateCurrentOffset6D and ReplicateCurrentAngle6D are removed.
--- We keep the pcalls for older clients, and fall back to direct Transform + Part1 CFrame.
+-- We keep the pcalls for older clients (harmless no-ops when patched).
+-- Mode 5 (AlignConstraint) handles replication via ghost parts instead.
 Util.SetMotor6DTransform = function(motor, transform)
 	local name = motor.Name
 	motor.MaxVelocity = 9e9
@@ -4388,16 +4389,10 @@ Util.SetMotor6DTransform = function(motor, transform)
 	motor:SetDesiredAngle(angle)
 	local axis, angle = transform:ToAxisAngle()
 	local newangle = axis * angle
-	-- Legacy (patched in v726, harmless pcalls):
 	pcall(sethiddenproperty, motor, "ReplicateCurrentOffset6D", transform.Position)
 	pcall(sethiddenproperty, motor, "ReplicateCurrentAngle6D", newangle)
-	-- v726 fallback: set Transform directly for local visuals,
-	-- and directly move Part1 so other players see it via physics replication.
+	-- Also set Transform directly for local visual correctness
 	pcall(function() motor.Transform = transform end)
-	if motor.Part0 and motor.Part1 and not motor.Part1:IsGrounded() then
-		local targetCF = motor.Part0.CFrame * motor.C0 * transform * motor.C1:Inverse()
-		motor.Part1.CFrame = targetCF
-	end
 end
 Util.SetMotor6DOffset = function(motor, offset)
 	Util.SetMotor6DTransform(motor, motor.C0:Inverse() * offset * motor.C1)
@@ -4889,15 +4884,13 @@ function LimbReanimator.Start()
 						map.CFrame = cf
 					end
 					Util.SetMotor6DOffset(v, map.CFrame)
-					-- v726 Mode 5: update ghost target for AlignConstraint replication
+					-- v726 Mode 5: update ghost target for AlignConstraint replication.
+					-- AlignConstraint pulls the real limb to the ghost position via physics.
+					-- No extra velocity here — that was what made you fly.
 					local rig = AlignRigs[map]
 					if rig and LimbReanimator.Mode == 5 and v.Part0 then
 						local targetWorldCF = v.Part0.CFrame * v.C0 * map.CFrame * v.C1:Inverse()
 						rig.Ghost.CFrame = targetWorldCF
-						if rig.Part:IsDescendantOf(workspace) and not rig.Part:IsGrounded() then
-							local netless = Reanimate.NetlessVelocity or 25.01
-							rig.Part.AssemblyLinearVelocity = Vector3.new(0, netless, 0)
-						end
 					end
 				end
 			end
