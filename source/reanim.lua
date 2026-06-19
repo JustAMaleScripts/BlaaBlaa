@@ -9823,7 +9823,6 @@ local d = function()
 					task.wait(2)
 				end
 			end
-		end,
 		}
 		shuff(lol)
 		for i=1, #lol do
