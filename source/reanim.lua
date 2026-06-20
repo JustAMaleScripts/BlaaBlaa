@@ -8061,6 +8061,59 @@ DancesPage.ZIndex = 1
 DancesPage.Position = UDim2.new(0.5, 360, 0.5, 0)
 DancesPage.Interactable = false
 DancesPage.Visible = false
+-- Extend height to fit bottom button bar
+DancesPage.Size = UDim2.new(0, 360, 0, 232)
+DancesPage.List.Size = UDim2.new(1, 0, 1, -58)
+-- Bottom button bar
+local _DancesBottomBar = Instance.new("Frame", DancesPage)
+_DancesBottomBar.Name = "BottomBar"
+_DancesBottomBar.AnchorPoint = Vector2.new(0, 1)
+_DancesBottomBar.Position = UDim2.new(0, 0, 1, 0)
+_DancesBottomBar.Size = UDim2.new(1, 0, 0, 27)
+_DancesBottomBar.BackgroundTransparency = 1
+_DancesBottomBar.BorderSizePixel = 0
+local _DBBLayout = Instance.new("UIListLayout", _DancesBottomBar)
+_DBBLayout.FillDirection = Enum.FillDirection.Horizontal
+_DBBLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+_DBBLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+_DBBLayout.Padding = UDim.new(0, 4)
+-- Favorites button
+local _FavBtn = Instance.new("TextButton", _DancesBottomBar)
+_FavBtn.Size = UDim2.new(0.48, -2, 0, 23)
+_FavBtn.BorderSizePixel = 0
+_FavBtn.Font = Enum.Font.Code
+_FavBtn.TextSize = 14
+_FavBtn.Text = "★ Favorites"
+Stylize(_FavBtn)
+_FavBtn.Activated:Connect(function()
+	DanceCatFilter = DanceCatFilter == "★" and "All" or "★"
+	ApplyDanceFilter()
+end)
+AddToRenderStep(function(t)
+	_FavBtn.BackgroundColor3 = DanceCatFilter == "★" and GetUIColor(t) or GetUIBGColor(t)
+	_FavBtn.TextColor3 = DanceCatFilter == "★" and GetUIBGColor(t) or GetUIColor(t)
+end, _FavBtn)
+-- Animation Creator button
+local _ACBtn = Instance.new("TextButton", _DancesBottomBar)
+_ACBtn.Size = UDim2.new(0.48, -2, 0, 23)
+_ACBtn.BorderSizePixel = 0
+_ACBtn.Font = Enum.Font.Code
+_ACBtn.TextSize = 14
+_ACBtn.Text = "✦ Anim Creator"
+Stylize(_ACBtn)
+_ACBtn.Activated:Connect(function()
+	if AnimCreatorPage then
+		DancesPage.Interactable = false
+		AnimCreatorPage.Visible = true
+		local tween = TweenService:Create(AnimCreatorPage, TweenInfo.new(0.4, Enum.EasingStyle.Cubic, Enum.EasingDirection.In), {
+			Position = UDim2.new(0.5, 0, 0.5, 0),
+		})
+		tween:Play()
+		tween.Completed:Connect(function()
+			AnimCreatorPage.Interactable = true
+		end)
+	end
+end)
 UI.CreateButton(MainPage, "Dances &gt;", 20).Activated:Connect(function()
 	DancesPage.Interactable = false
 	DancesPage.Visible = true
@@ -8781,6 +8834,7 @@ end
 -- ANIMATION CREATOR
 -- ============================================================
 local AddModule -- forward ref (defined after this block)
+local AnimCreatorPage -- forward ref (assigned inside do block below)
 do
 	local LIMBS = {"Neck", "Left Shoulder", "Right Shoulder", "Left Hip", "Right Hip", "RootJoint"}
 	local LIMB_DISPLAY = {"Head (Neck)", "L.Arm (Shoulder)", "R.Arm (Shoulder)", "L.Leg (Hip)", "R.Leg (Hip)", "Root (RootJoint)"}
@@ -8906,7 +8960,7 @@ do
 	end
 
 	-- Open Animation Creator page
-	local AnimCreatorPage = UI.CreatePage()
+	AnimCreatorPage = UI.CreatePage()
 	AnimCreatorPage.ZIndex = 3
 	AnimCreatorPage.Position = UDim2.new(0.5, 360, 0.5, 0)
 	AnimCreatorPage.Interactable = false
@@ -9143,21 +9197,6 @@ do
 	end
 	CreatorRefreshUI()
 
-	-- Open button inside DancesPage
-	local acOpenBtn, _ = UI.CreateButton(DancesPage.List, "✦ Animation Creator >", 18)
-	acOpenBtn.Parent.LayoutOrder = -2  -- above category bar
-	acOpenBtn.Parent:SetAttribute("DanceCategory", nil)  -- skip filter
-	acOpenBtn.Activated:Connect(function()
-		DancesPage.Interactable = false
-		AnimCreatorPage.Visible = true
-		local tween = TweenService:Create(AnimCreatorPage, TweenInfo.new(0.4, Enum.EasingStyle.Cubic, Enum.EasingDirection.In), {
-			Position = UDim2.new(0.5, 0, 0.5, 0),
-		})
-		tween:Play()
-		tween.Completed:Connect(function()
-			AnimCreatorPage.Interactable = true
-		end)
-	end)
 end
 
 AddModule = function(func)
