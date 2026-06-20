@@ -10,7 +10,7 @@ $$      $$$$$$"""$$$ $$$"""$$$ $$$"""$$$ $$$"""$$$ $$$"""$$$ $$$"""$$$
        Code:    STEVETHEREALONE
                 BoredGal (mostly patches..)
 				JustAMale (The AI Slop User, also Known as Mr AI)
-				Claude (Prompt: Fixed alot, also no grok in here lolz >:3)
+				Claude (Prompt: Added your skins! lol)
        GFX:     STEVETHEREALONE
                 AALib
                 some random generators
@@ -1108,6 +1108,10 @@ local function SetUITheme(index)
 		{Fore = Color3.fromHex("272727"), Back = Color3.fromHex("2D2D2D"), Text = Color3.fromHex("BEBEBE"), SndClick = "rbxassetid://86097124503088"},
 		-- Blue
 		{Fore = Color3.fromRGB(0, 120, 255), Back = Color3.fromRGB(0, 10, 40), Text = Color3.fromRGB(150, 210, 255), SndClick = "rbxassetid://9114175929"},
+		-- Pipis
+		{Fore = Color3.fromHex("B0977A"), Back = Color3.fromHex("2A2018"), Text = Color3.fromHex("F0E8D6")},
+		-- NitroX
+		{Fore = Color3.fromHex("3ECC3E"), Back = Color3.fromHex("0A120A"), Text = Color3.fromHex("AAEAAA")},
 	}
 	local theme = {nil, nil, Color3.new(1, 1, 1), "rbxassetid://118806752369227"}
 	local function processtable(t)
@@ -3049,6 +3053,8 @@ UI.CreateDropdown(MainPage, "UI Theme", {
 	"Sakura",
 	"Tommorow Night 80s", -- my personal IDE theme
 	"Ocean",
+	"Pipis",
+	"NitroX",
 	"User Defined (see README)",
 }, SaveData.UITheme).Changed:Connect(function(val)
 	SaveData.UITheme = val
