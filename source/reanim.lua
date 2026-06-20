@@ -443,6 +443,8 @@ do
 		"what-is-love.mp3",
 		"scatman.mp3",
 		"around-the-world.mp3",
+		"cs2-theme.mp3",
+		"rock-that-body.mp3",
 		"lightinursoul.graphic.png",
 		"letriangul.graphic.png",
 	}
@@ -695,6 +697,8 @@ MusicPlayer.Database = {
 	{"BlaaBlaaReanim/Assets/what-is-love.mp3", "Haddaway - What is Love?"},
 	{"BlaaBlaaReanim/Assets/scatman.mp3", "Scatman John - Scatman (ski-ba-bop-ba-dop-bop)"},
 	{"BlaaBlaaReanim/Assets/around-the-world.mp3", "Daft Punk - Around The World"},
+	{"BlaaBlaaReanim/Assets/cs2-theme.mp3", "Counter Strike 2 - Main Theme"},
+	{"BlaaBlaaReanim/Assets/rock-that-body.mp3", "BlackEyedPeas - Rock That Body"},
 }
 pcall(function()
 	local future = table.clone(MusicPlayer.Database)
