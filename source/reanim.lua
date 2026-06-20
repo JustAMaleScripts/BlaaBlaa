@@ -10,8 +10,8 @@ $$      $$$$$$"""$$$ $$$"""$$$ $$$"""$$$ $$$"""$$$ $$$"""$$$ $$$"""$$$
        Code:    STEVETHEREALONE
                 BoredGal (mostly patches..)
 				JustAMale (The AI Slop User, also Known as Mr AI)
-				Claude (Prompt: I fixed your Grok's Code so the Grok even doesn't know how to code.. :p)
-				Grok (Prompt: Added your AssetDownloadFolderAgent! But I'm fixed... HELP ME)
+				Claude (Prompt: Added your ocean! lol and also... Fixed AssetDownloadFolderAgent! lol.)
+				Grok (Prompt: I'm cooked...)
        GFX:     STEVETHEREALONE
                 AALib
                 some random generators
@@ -7927,7 +7927,7 @@ local function AssetEnsure(list)
 end
 
 -- =============================================
--- AssetDownloadFolder (GitHub Contents API)
+-- AssetDownloadFolder (GitHub Contents API, parallel)
 -- =============================================
 local function AssetDownloadFolder(githubFolderRelativePath)
 	if not githubFolderRelativePath or githubFolderRelativePath == "" then
@@ -7935,38 +7935,38 @@ local function AssetDownloadFolder(githubFolderRelativePath)
 		return false
 	end
 
-	local queued = 0
+	Util.UINotify("Fetching folder contents...")
+	local baseApi = "https://api.github.com/repos/JustAMaleScripts/BlaaBlaa/contents/community/"
+	local safePath = githubFolderRelativePath:gsub(" ", "%%20"):gsub("'", "%%27")
 
-	-- Recursively enumerate a GitHub folder via the Contents API
-	local function enumFolder(apiSubPath)
-		local apiUrl = "https://api.github.com/repos/JustAMaleScripts/BlaaBlaa/contents/community/" .. apiSubPath
-		local s, resp = pcall(request, { Method = "GET", Url = apiUrl, Headers = { Accept = "application/vnd.github.v3+json" } })
+	-- Choose local path: files inside a Modules/ subfolder go to BlaaBlaaReanim/Modules/
+	local function resolveLocalPath(filename, subfolderName)
+		if subfolderName and subfolderName:lower() == "modules" then
+			return "BlaaBlaaReanim/Modules/" .. filename
+		end
+		return AssetGetPathFromFilename(filename)
+	end
+
+	local function enumFolder(apiSubPath, subfolderName)
+		local s, resp = pcall(request, { Method = "GET", Url = baseApi .. apiSubPath, Headers = { Accept = "application/vnd.github.v3+json" } })
 		if not s or not resp or resp.StatusCode ~= 200 then return end
-
-		-- Simple JSON array parse: grab every "type"/"name"/"download_url" trio
 		for entry in resp.Body:gmatch("{[^}]+}") do
 			local etype = entry:match('"type"%s*:%s*"([^"]+)"')
 			local ename = entry:match('"name"%s*:%s*"([^"]+)"')
 			local eurl  = entry:match('"download_url"%s*:%s*"([^"]+)"')
 			if etype == "dir" and ename then
-				enumFolder(apiSubPath .. ename .. "/")
+				-- spawn each subfolder in parallel so they don't block each other
+				task.spawn(enumFolder, apiSubPath .. ename .. "/", ename)
 			elseif etype == "file" and ename and eurl then
-				-- eurl comes back with escaped slashes sometimes; unescape
 				eurl = eurl:gsub("\\/", "/")
-				local path = AssetGetPathFromFilename(ename)
-				if not isfile(path) then
-					queued += 1
-					AssetDownloadAgent(eurl, ename, path)
-				end
+				local path = resolveLocalPath(ename, subfolderName)
+				AssetDownloadAgent(eurl, ename, path)
 			end
 		end
 	end
 
-	local safePath = githubFolderRelativePath:gsub(" ", "%%20"):gsub("'", "%%27")
-	enumFolder(safePath)
-
-	Util.UINotify("Queued " .. queued .. " files from " .. githubFolderRelativePath)
-	return queued > 0
+	task.spawn(enumFolder, safePath, nil)
+	return true
 end
 
 local function ProtectedChat(content)
@@ -9254,7 +9254,7 @@ local function ForceModuleReload(force)
 	InitLogsText.Text ..= "\n[LOG] Loading user modules..."
 	for _,path in listfiles("BlaaBlaaReanim/Modules/") do
 		if isfile(path) then
-			local x = path:sub(23)
+			local x = path:sub(24)
 			xpcall(function()
 				InitLogsText.Text ..= "\n[LOG] Reading local USER " .. x .. "..."
 				local data = readfile(path)
@@ -9440,7 +9440,7 @@ local function RefreshUserModules()
 	local _, file2name, file2aitemu = GetMarketList()
 	for _,path in listfiles("BlaaBlaaReanim/Modules/") do
 		if isfile(path) then
-			local x = path:sub(23)
+			local x = path:sub(24)
 			local item = UI.CreateItemListItem(LocalPage.List)
 			local name = file2name[x] or x
 			UI.CreateText(item, name .. " &gt;", 20, Enum.TextXAlignment.Left)
