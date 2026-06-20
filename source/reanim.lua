@@ -10,8 +10,8 @@ $$      $$$$$$"""$$$ $$$"""$$$ $$$"""$$$ $$$"""$$$ $$$"""$$$ $$$"""$$$
        Code:    STEVETHEREALONE
                 BoredGal (mostly patches..)
 				JustAMale (The AI Slop User, also Known as Mr AI)
-				Claude (Prompt: Added your ocean! lol)
-				Grok (Prompt: Added your AssetDownloadFolderAgent! Lolz!)
+				Claude (Prompt: I fixed your Grok's Code so the Grok even doesn't know how to code.. :p)
+				Grok (Prompt: Added your AssetDownloadFolderAgent! But I'm fixed... HELP ME)
        GFX:     STEVETHEREALONE
                 AALib
                 some random generators
@@ -7927,45 +7927,44 @@ local function AssetEnsure(list)
 end
 
 -- =============================================
--- AssetDownloadFolder (Clean)
+-- AssetDownloadFolder (GitHub Contents API)
 -- =============================================
 local function AssetDownloadFolder(githubFolderRelativePath)
 	if not githubFolderRelativePath or githubFolderRelativePath == "" then
 		Util.UINotify("Invalid folder path")
 		return false
 	end
-	
-	local safePath = githubFolderRelativePath:gsub(" ", "%%20"):gsub("'", "%%27")
-	local baseUrl = "https://raw.githubusercontent.com/JustAMaleScripts/BlaaBlaa/main/community/" .. safePath
-	
-	local listSource = baseUrl .. "list.txt"
-	local s, resp = pcall(request, { Method = "GET", Url = listSource })
-	
-	local fileList = {}
-	if s and resp and resp.StatusCode == 200 then
-		for line in resp.Body:gmatch("[^\r\n]+") do
-			line = line:match("^%s*(.-)%s*$")
-			if line ~= "" and not line:match("^#") then
-				table.insert(fileList, line)
-			end
-		end
-	else
-		Util.UINotify("No list.txt found in folder: " .. githubFolderRelativePath)
-		return false
-	end
-	
+
 	local queued = 0
-	for _, filename in fileList do
-		if filename:match("%.[^%.]+$") then
-			local fullSource = baseUrl .. filename
-			local path = AssetGetPathFromFilename(filename)
-			if not isfile(path) then
-				queued += 1
-				AssetDownloadAgent(fullSource, filename, path)
+
+	-- Recursively enumerate a GitHub folder via the Contents API
+	local function enumFolder(apiSubPath)
+		local apiUrl = "https://api.github.com/repos/JustAMaleScripts/BlaaBlaa/contents/community/" .. apiSubPath
+		local s, resp = pcall(request, { Method = "GET", Url = apiUrl, Headers = { Accept = "application/vnd.github.v3+json" } })
+		if not s or not resp or resp.StatusCode ~= 200 then return end
+
+		-- Simple JSON array parse: grab every "type"/"name"/"download_url" trio
+		for entry in resp.Body:gmatch("{[^}]+}") do
+			local etype = entry:match('"type"%s*:%s*"([^"]+)"')
+			local ename = entry:match('"name"%s*:%s*"([^"]+)"')
+			local eurl  = entry:match('"download_url"%s*:%s*"([^"]+)"')
+			if etype == "dir" and ename then
+				enumFolder(apiSubPath .. ename .. "/")
+			elseif etype == "file" and ename and eurl then
+				-- eurl comes back with escaped slashes sometimes; unescape
+				eurl = eurl:gsub("\\/", "/")
+				local path = AssetGetPathFromFilename(ename)
+				if not isfile(path) then
+					queued += 1
+					AssetDownloadAgent(eurl, ename, path)
+				end
 			end
 		end
 	end
-	
+
+	local safePath = githubFolderRelativePath:gsub(" ", "%%20"):gsub("'", "%%27")
+	enumFolder(safePath)
+
 	Util.UINotify("Queued " .. queued .. " files from " .. githubFolderRelativePath)
 	return queued > 0
 end
@@ -9581,7 +9580,7 @@ local function RefreshOnlineUserModules()
 	Util.ClearAllChildrenGui(MarkettePage.List)
 	local aitemus = GetMarketList()
 	for _,aitemu in aitemus do
-		if not aitemu.Name or not aitemu.Description then continue end
+		if not aitemu.Name or not aitemu.Description or (not aitemu.File and not aitemu.Path) then continue end
 		local item = UI.CreateItemListItem(MarkettePage.List)
 		UI.CreateText(item, aitemu.Name .. " &gt;", 20, Enum.TextXAlignment.Left)
 		UI.CreateText(item, "By " .. (aitemu.User or "Uncknown"), 12, Enum.TextXAlignment.Left)
@@ -9612,9 +9611,11 @@ local function RefreshOnlineUserModules()
 			UI.CreateSeparator(page)
 			local download, downloadtext = UI.CreateButton(page, 
 				(aitemu.Type == "folder" and "Download Entire Folder" or "Buy Module for " .. (aitemu.Cost or "670 B")), 20)
-			local path = "BlaaBlaaReanim/Modules/" .. aitemu.File
-			if isfile(path) then
-				downloadtext.Text = "Already In Modules"
+			if aitemu.Type ~= "folder" and aitemu.File then
+				local path = "BlaaBlaaReanim/Modules/" .. aitemu.File
+				if isfile(path) then
+					downloadtext.Text = "Already In Modules"
+				end
 			end
 			download.Activated:Connect(function()
 				if aitemu.Type == "folder" and aitemu.Path then
