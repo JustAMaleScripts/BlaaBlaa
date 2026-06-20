@@ -9420,9 +9420,9 @@ local function GetMarketList()
 		
 		file2name, file2aitemu = {}, {}
 		for _,item in aitemus do
-			if item.Name and item.File then
-				file2name[item.File] = item.Name
-				file2aitemu[item.File] = item
+			if item.Name then
+				file2name[item.File or item.Path or ""] = item.Name
+				file2aitemu[item.File or item.Path or ""] = item
 			end
 		end
 	end
