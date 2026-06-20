@@ -10,7 +10,7 @@ $$      $$$$$$"""$$$ $$$"""$$$ $$$"""$$$ $$$"""$$$ $$$"""$$$ $$$"""$$$
        Code:    STEVETHEREALONE
                 BoredGal (mostly patches..)
 				JustAMale (The AI Slop User, also Known as Mr AI)
-				Claude (Prompt: Added your skins! lol)
+				Claude (Prompt: Added your more a LOT of features and includes animation editor! lol)
        GFX:     STEVETHEREALONE
                 AALib
                 some random generators
@@ -8080,6 +8080,59 @@ DancesPage.Back.Activated:Connect(function()
 		DancesPage.Visible = false
 	end)
 end)
+
+-- ============================================================
+-- DANCE CATEGORY FILTER + FAVORITES
+-- ============================================================
+local DanceCatFilter = "All"
+local DanceCats = {"All", "★", "Dance", "Emote", "Meme", "Other"}
+local function ApplyDanceFilter()
+	local search = DancesPage.Search.Box.Text:lower()
+	for _, v in DancesPage.List:GetChildren() do
+		if not v:IsA("GuiObject") then continue end
+		local cat = v:GetAttribute("DanceCategory")
+		if not cat then v.Visible = true continue end -- non-item UI (category bar etc.)
+		local hash = v:GetAttribute("DanceHash") or ""
+		local nameMatch = search == "" or v.Name:lower():find(search, 1, true)
+		local catMatch = DanceCatFilter == "All"
+			or (DanceCatFilter == "★" and SaveData.Favorites[hash])
+			or (cat == DanceCatFilter)
+		v.Visible = nameMatch and catMatch and true or false
+	end
+end
+-- Override/supplement the built-in search to also respect category
+DancesPage.Search.Box:GetPropertyChangedSignal("Text"):Connect(ApplyDanceFilter)
+
+-- Category bar pinned at top of list (LayoutOrder = -1)
+local _DanceCatBar = Instance.new("Frame", DancesPage.List)
+_DanceCatBar.Name = "__CatBar"
+_DanceCatBar.Size = UDim2.new(1, 0, 0, 22)
+_DanceCatBar.BackgroundTransparency = 1
+_DanceCatBar.LayoutOrder = -1
+local _DanceCatBarLayout = Instance.new("UIListLayout", _DanceCatBar)
+_DanceCatBarLayout.FillDirection = Enum.FillDirection.Horizontal
+_DanceCatBarLayout.Padding = UDim.new(0, 2)
+_DanceCatBarLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+local _DanceCatBtnW = {All=28, ["★"]=20, Dance=38, Emote=40, Meme=34, Other=38}
+for _, cat in DanceCats do
+	local btn = Instance.new("TextButton", _DanceCatBar)
+	btn.Size = UDim2.new(0, _DanceCatBtnW[cat] or 36, 0, 18)
+	btn.BackgroundTransparency = 0
+	btn.Font = Enum.Font.Code
+	btn.TextSize = 11
+	btn.Text = cat
+	btn.BorderSizePixel = 0
+	Stylize(btn)
+	btn.Activated:Connect(function()
+		DanceCatFilter = cat
+		ApplyDanceFilter()
+	end)
+	AddToRenderStep(function(t)
+		btn.BackgroundColor3 = DanceCatFilter == cat and GetUIColor(t) or GetUIBGColor(t)
+		btn.TextColor3 = DanceCatFilter == cat and GetUIBGColor(t) or GetUIColor(t)
+	end, btn)
+end
+
 local KeybindsPage = UI.CreateItemListPage()
 KeybindsPage.ZIndex = 1
 KeybindsPage.Position = UDim2.new(0.5, 360, 0.5, 0)
@@ -8150,6 +8203,7 @@ local Keybinds = {}
 local KeybindsPerPage = {"Z", "X", "C", "V", "B", "N", "G", "H", "J", "K", "L", "R", "T", "U", "P"}
 local KeybindPaging = 0
 local RefreshKeybinds = nil
+local UpdateKeybindHUD = nil -- forward ref; defined after KeybindsPage setup
 local function HandleKeybind(key)
 	if table.find(KeybindsPerPage, key) then
 		if CurrentDance then
@@ -8194,7 +8248,110 @@ RefreshKeybinds = function()
 			end)
 		end
 	end
+	if UpdateKeybindHUD then UpdateKeybindHUD() end
 end
+
+-- ============================================================
+-- KEYBIND MINIMAP HUD + DUMMY BILLBOARD
+-- ============================================================
+local KeybindHUD = Instance.new("Frame", SCREENGUI)
+KeybindHUD.Name = "KeybindHUD"
+KeybindHUD.AnchorPoint = Vector2.new(1, 1)
+KeybindHUD.Position = UDim2.new(1, -6, 1, -6)
+KeybindHUD.Size = UDim2.new(0, 170, 0, 10)
+KeybindHUD.AutomaticSize = Enum.AutomaticSize.Y
+KeybindHUD.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+KeybindHUD.BackgroundTransparency = 0.45
+KeybindHUD.BorderSizePixel = 0
+KeybindHUD.Visible = false
+local _KBHUDL = Instance.new("UIListLayout", KeybindHUD)
+_KBHUDL.FillDirection = Enum.FillDirection.Vertical
+_KBHUDL.Padding = UDim.new(0, 1)
+local _KBHUDPad = Instance.new("UIPadding", KeybindHUD)
+_KBHUDPad.PaddingTop = UDim.new(0, 3)
+_KBHUDPad.PaddingBottom = UDim.new(0, 3)
+_KBHUDPad.PaddingLeft = UDim.new(0, 4)
+_KBHUDPad.PaddingRight = UDim.new(0, 4)
+
+local function _KBHUDLabel(text, color, size)
+	local lbl = Instance.new("TextLabel", KeybindHUD)
+	lbl.Size = UDim2.new(1, 0, 0, size + 2)
+	lbl.BackgroundTransparency = 1
+	lbl.Font = Enum.Font.Code
+	lbl.TextSize = size
+	lbl.TextColor3 = color
+	lbl.Text = text
+	lbl.TextXAlignment = Enum.TextXAlignment.Left
+	lbl.TextTruncate = Enum.TextTruncate.AtEnd
+	return lbl
+end
+
+UpdateKeybindHUD = function()
+	KeybindHUD:ClearAllChildren()
+	local layout = Instance.new("UIListLayout", KeybindHUD)
+	layout.FillDirection = Enum.FillDirection.Vertical
+	layout.Padding = UDim.new(0, 1)
+	local pad = Instance.new("UIPadding", KeybindHUD)
+	pad.PaddingTop = UDim.new(0, 3)
+	pad.PaddingBottom = UDim.new(0, 3)
+	pad.PaddingLeft = UDim.new(0, 4)
+	pad.PaddingRight = UDim.new(0, 4)
+
+	local pages = math.max(1, 1 + ((#DanceableDances - 1) // #KeybindsPerPage))
+	_KBHUDLabel("Keybinds  pg " .. (KeybindPaging + 1) .. "/" .. pages, Color3.fromRGB(255, 230, 80), 11)
+
+	-- currently playing
+	if _CurrentDance then
+		_KBHUDLabel("▶ " .. _CurrentDance.Name, Color3.fromRGB(120, 255, 120), 10)
+	end
+
+	-- divider
+	local div = Instance.new("Frame", KeybindHUD)
+	div.Size = UDim2.new(1, 0, 0, 1)
+	div.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+	div.BackgroundTransparency = 0
+	div.BorderSizePixel = 0
+
+	local offset = KeybindPaging * #KeybindsPerPage
+	for i = 1, #KeybindsPerPage do
+		local key = KeybindsPerPage[i]
+		local dance = DanceableDances[offset + i]
+		if dance then
+			local active = CurrentDance == dance
+			_KBHUDLabel(key .. " · " .. dance.Name, active and Color3.fromRGB(100, 255, 100) or Color3.fromRGB(190, 190, 190), 10)
+		end
+	end
+
+	KeybindHUD.Visible = SaveData.KeybindsEnabled
+end
+-- forward-declare so RefreshKeybinds can call it
+UpdateKeybindHUD()
+
+local function UpdateDummyBillboard(rc, danceName)
+	if not rc then return end
+	local root = rc:FindFirstChild("HumanoidRootPart") or rc:FindFirstChild("Torso")
+	if not root then return end
+	local existing = root:FindFirstChild("__DanceBillboard")
+	if existing then existing:Destroy() end
+	if not danceName then return end
+	local bb = Instance.new("BillboardGui", root)
+	bb.Name = "__DanceBillboard"
+	bb.Size = UDim2.new(0, 130, 0, 22)
+	bb.StudsOffset = Vector3.new(0, 3.8, 0)
+	bb.AlwaysOnTop = true
+	bb.LightInfluence = 0
+	local lbl = Instance.new("TextLabel", bb)
+	lbl.Size = UDim2.new(1, 0, 1, 0)
+	lbl.BackgroundTransparency = 1
+	lbl.Font = Enum.Font.Code
+	lbl.TextSize = 12
+	lbl.TextColor3 = Color3.fromRGB(255, 255, 255)
+	lbl.TextStrokeTransparency = 0
+	lbl.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+	lbl.Text = "♪ " .. danceName
+	lbl.TextTruncate = Enum.TextTruncate.AtEnd
+end
+
 local ContextActions = {}
 ContextActions._Actions = {}
 ContextActions._ActionsMap = {}
@@ -8389,9 +8546,14 @@ end)
 if type(SaveData.ModuleConfigs) ~= "table" then
 	SaveData.ModuleConfigs = {}
 end
+if type(SaveData.Favorites) ~= "table" then
+	SaveData.Favorites = {}
+end
 local function GiveFunctionsToFunction(func)
 	local env = b_getfenv(func)
 	env.RandomString = Util.RandomString
+	env.Util_SetMotor6DTransform = Util.SetMotor6DTransform
+	env.Util_SetMotor6DOffset = Util.SetMotor6DOffset
 	env.Util_CreateText = UI.CreateText
 	env.Util_CreateButton = UI.CreateButton
 	env.Util_CreateSwitch = UI.CreateSwitch
@@ -8539,6 +8701,26 @@ local function AddDance(m)
 		msname.Name = "LabelName"
 		msdesc.Name = "LabelDesc"
 		item.Parent.Name = m.Name .. " " .. m.Description
+		item.Parent:SetAttribute("DanceCategory", m.Category or "Dance")
+		item.Parent:SetAttribute("DanceHash", m.Hash)
+		local starBtn = Instance.new("TextButton", item)
+		starBtn.Name = "FavStar"
+		starBtn.AnchorPoint = Vector2.new(1, 0.5)
+		starBtn.Position = UDim2.new(1, -3, 0.5, 0)
+		starBtn.Size = UDim2.new(0, 22, 0, 22)
+		starBtn.BackgroundTransparency = 1
+		starBtn.Font = Enum.Font.Code
+		starBtn.TextSize = 16
+		starBtn.ZIndex = item.ZIndex + 1
+		starBtn.Text = SaveData.Favorites[m.Hash] and "★" or "☆"
+		AddToRenderStep(function(t)
+			starBtn.TextColor3 = SaveData.Favorites[m.Hash] and Color3.fromRGB(255, 215, 0) or GetUIColor(t)
+		end, starBtn)
+		Util.LinkDestroyI2C(item, starBtn.Activated:Connect(function()
+			SaveData.Favorites[m.Hash] = (not SaveData.Favorites[m.Hash]) or nil
+			starBtn.Text = SaveData.Favorites[m.Hash] and "★" or "☆"
+			ApplyDanceFilter()
+		end))
 		Util.LinkDestroyI2C(item, item.Activated:Connect(function()
 			local page = UI.CreatePage()
 			page.ZIndex = 2
@@ -8588,7 +8770,391 @@ local function AddDance(m)
 		return m.Name
 	end
 end
-local function AddModule(func)
+
+-- ============================================================
+-- ANIMATION CREATOR
+-- ============================================================
+local AddModule -- forward ref (defined after this block)
+do
+	local LIMBS = {"Neck", "Left Shoulder", "Right Shoulder", "Left Hip", "Right Hip", "RootJoint"}
+	local LIMB_DISPLAY = {"Head (Neck)", "L.Arm (Shoulder)", "R.Arm (Shoulder)", "L.Leg (Hip)", "R.Leg (Hip)", "Root (RootJoint)"}
+
+	local CreatorAnim = {Name = "My Dance", Duration = 2, Keyframes = {}}
+	local CreatorSelKFIdx = nil
+	local CreatorSelLimb = LIMBS[1]
+	local CreatorPlaying = false
+	local CreatorPlayT = 0
+	local _CreatorPrevDance = nil
+	local CreatorRefreshUI = nil -- forward
+
+	-- Interpolate between two pose values
+	local function _CreatorInterp(p1, p2, alpha, axis)
+		local v1 = p1 and p1[axis] or 0
+		local v2 = p2 and p2[axis] or 0
+		return v1 + (v2 - v1) * alpha
+	end
+
+	-- Build a live dance module from CreatorAnim for preview
+	local function _CreatorBuildModule()
+		local snapKFs = {}
+		for _, kf in CreatorAnim.Keyframes do
+			local poses = {}
+			for k, v in kf.Poses do poses[k] = {X=v.X, Y=v.Y, Z=v.Z} end
+			table.insert(snapKFs, {Time=kf.Time, Poses=poses})
+		end
+		table.sort(snapKFs, function(a, b) return a.Time < b.Time end)
+		local dur = CreatorAnim.Duration
+		return {
+			ModuleType = "DANCE",
+			Name = "(Preview) " .. CreatorAnim.Name,
+			Description = "Animation Creator preview",
+			Category = "Dance",
+			Assets = {},
+			_t = 0,
+			_kfs = snapKFs,
+			_dur = dur,
+			Config = function() end,
+			Init = function(self, rc) self._t = 0 end,
+			Update = function(self, dt, rc)
+				if #self._kfs == 0 then return end
+				self._t = (self._t + dt) % self._dur
+				local t = self._t
+				local kfs = self._kfs
+				local k1, k2 = kfs[#kfs], kfs[1]
+				for i = 1, #kfs - 1 do
+					if kfs[i].Time <= t and kfs[i+1].Time > t then
+						k1, k2 = kfs[i], kfs[i+1]
+						break
+					end
+				end
+				local span = k2.Time - k1.Time
+				local alpha = span > 0 and math.clamp((t - k1.Time) / span, 0, 1) or 0
+				local torso = rc:FindFirstChild("Torso")
+				if not torso then return end
+				for _, motorName in {"Neck","Left Shoulder","Right Shoulder","Left Hip","Right Hip","RootJoint"} do
+					local motor = torso:FindFirstChild(motorName)
+					if not motor then
+						motor = rc:FindFirstChild(motorName, true)
+					end
+					if motor then
+						local p1 = k1.Poses[motorName]
+						local p2 = k2.Poses[motorName]
+						if p1 or p2 then
+							local rx = math.rad(_CreatorInterp(p1, p2, alpha, "X"))
+							local ry = math.rad(_CreatorInterp(p1, p2, alpha, "Y"))
+							local rz = math.rad(_CreatorInterp(p1, p2, alpha, "Z"))
+							Util.SetMotor6DTransform(motor, CFrame.Angles(rx, ry, rz))
+						end
+					end
+				end
+			end,
+			Destroy = function(self, rc) end,
+		}
+	end
+
+	-- Serialize CreatorAnim to a saveable Lua module string
+	local function _CreatorSerialize()
+		local lines = {}
+		local function w(s) table.insert(lines, s) end
+		w("-- Generated by Uhhhhhh Reanim Animation Creator")
+		w(string.format("local _kfs = %s", (function()
+			local kfparts = {}
+			for _, kf in CreatorAnim.Keyframes do
+				local poses = {}
+				for motorName, rot in kf.Poses do
+					table.insert(poses, string.format("[%q]={X=%g,Y=%g,Z=%g}", motorName, rot.X, rot.Y, rot.Z))
+				end
+				table.insert(kfparts, string.format("{Time=%g,Poses={%s}}", kf.Time, table.concat(poses,",")))
+			end
+			return "{" .. table.concat(kfparts, ",") .. "}"
+		end)()))
+		w(string.format("local _dur = %g", CreatorAnim.Duration))
+		w("return {")
+		w(string.format('  ModuleType="DANCE", Name=%q,', CreatorAnim.Name))
+		w(string.format('  Description="Created with Animation Creator",'))
+		w('  Category="Dance", Assets={}, _t=0, _kfs=_kfs, _dur=_dur,')
+		w('  Config=function(self,page) end,')
+		w('  Init=function(self,rc) self._t=0 end,')
+		w('  Update=function(self,dt,rc)')
+		w('    if #self._kfs==0 then return end')
+		w('    self._t=(self._t+dt)%self._dur')
+		w('    local t=self._t local kfs=self._kfs')
+		w('    local k1,k2=kfs[#kfs],kfs[1]')
+		w('    for i=1,#kfs-1 do if kfs[i].Time<=t and kfs[i+1].Time>t then k1,k2=kfs[i],kfs[i+1] break end end')
+		w('    local span=k2.Time-k1.Time local alpha=span>0 and math.clamp((t-k1.Time)/span,0,1) or 0')
+		w('    local torso=rc:FindFirstChild("Torso") if not torso then return end')
+		w('    for _,mn in {"Neck","Left Shoulder","Right Shoulder","Left Hip","Right Hip","RootJoint"} do')
+		w('      local m=torso:FindFirstChild(mn) or rc:FindFirstChild(mn,true)')
+		w('      if m then')
+		w('        local p1=k1.Poses[mn] local p2=k2.Poses[mn]')
+		w('        if p1 or p2 then')
+		w('          local function iv(a,b,ax) local v1=a and a[ax] or 0 local v2=b and b[ax] or 0 return v1+(v2-v1)*alpha end')
+		w('          Util_SetMotor6DTransform(m,CFrame.Angles(math.rad(iv(p1,p2,"X")),math.rad(iv(p1,p2,"Y")),math.rad(iv(p1,p2,"Z"))))')
+		w('        end')
+		w('      end')
+		w('    end')
+		w('  end,')
+		w('  Destroy=function(self,rc) end,')
+		w('}')
+		return table.concat(lines, "\n")
+	end
+
+	-- Open Animation Creator page
+	local AnimCreatorPage = UI.CreatePage()
+	AnimCreatorPage.ZIndex = 3
+	AnimCreatorPage.Position = UDim2.new(0.5, 360, 0.5, 0)
+	AnimCreatorPage.Interactable = false
+	AnimCreatorPage.Visible = false
+
+	-- Back button
+	local acBack, _ = UI.CreateButton(AnimCreatorPage, " < Back", 20)
+	acBack.Activated:Connect(function()
+		AnimCreatorPage.Interactable = false
+		-- stop preview
+		if CreatorPlaying then
+			CreatorPlaying = false
+			CurrentDance = _CreatorPrevDance
+			_CreatorPrevDance = nil
+		end
+		local tween = TweenService:Create(AnimCreatorPage, TweenInfo.new(0.4, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out), {
+			Position = UDim2.new(0.5, 360, 0.5, 0),
+		})
+		tween:Play()
+		tween.Completed:Connect(function()
+			AnimCreatorPage.Visible = false
+			DancesPage.Interactable = true
+		end)
+	end)
+	UI.CreateText(AnimCreatorPage, "✦ Animation Creator", 20, Enum.TextXAlignment.Center)
+	UI.CreateSeparator(AnimCreatorPage)
+
+	-- Animation name textbox
+	UI.CreateText(AnimCreatorPage, "Animation Name:", 14, Enum.TextXAlignment.Left)
+	local acNameBox = UI.CreateTextbox(AnimCreatorPage, CreatorAnim.Name, "Name...", 16)
+	acNameBox.Changed:Connect(function()
+		CreatorAnim.Name = acNameBox.Text ~= "" and acNameBox.Text or "My Dance"
+	end)
+
+	-- Duration slider
+	local acDurSlider = UI.CreateSlider(AnimCreatorPage, "Duration (s)", CreatorAnim.Duration, 0.5, 10, 0.1)
+	acDurSlider.Changed:Connect(function(v)
+		CreatorAnim.Duration = v
+		-- clamp all keyframe times
+		for _, kf in CreatorAnim.Keyframes do
+			kf.Time = math.clamp(kf.Time, 0, v)
+		end
+		if CreatorRefreshUI then CreatorRefreshUI() end
+	end)
+
+	UI.CreateSeparator(AnimCreatorPage)
+
+	-- Limb selector
+	local acLimbDrop = UI.CreateDropdown(AnimCreatorPage, "Edit Limb", LIMB_DISPLAY, 1)
+	acLimbDrop.Changed:Connect(function(idx)
+		CreatorSelLimb = LIMBS[idx]
+		if CreatorRefreshUI then CreatorRefreshUI() end
+	end)
+
+	-- X/Y/Z rotation sliders
+	local acSliderX = UI.CreateSlider(AnimCreatorPage, "X  Pitch (°)", 0, -180, 180, 1)
+	local acSliderY = UI.CreateSlider(AnimCreatorPage, "Y  Yaw   (°)", 0, -180, 180, 1)
+	local acSliderZ = UI.CreateSlider(AnimCreatorPage, "Z  Roll  (°)", 0, -180, 180, 1)
+
+	local function _CreatorLoadPoseIntoSliders()
+		local kf = CreatorSelKFIdx and CreatorAnim.Keyframes[CreatorSelKFIdx]
+		if kf and kf.Poses[CreatorSelLimb] then
+			local p = kf.Poses[CreatorSelLimb]
+			acSliderX.Value = p.X
+			acSliderY.Value = p.Y
+			acSliderZ.Value = p.Z
+		else
+			acSliderX.Value = 0
+			acSliderY.Value = 0
+			acSliderZ.Value = 0
+		end
+	end
+
+	-- Set Pose button
+	local acSetPoseBtn, _ = UI.CreateButton(AnimCreatorPage, "Set Pose at Selected KF", 18)
+	acSetPoseBtn.Activated:Connect(function()
+		if not CreatorSelKFIdx then
+			Util.UINotify("Select or add a keyframe first")
+			return
+		end
+		local kf = CreatorAnim.Keyframes[CreatorSelKFIdx]
+		if not kf then return end
+		kf.Poses[CreatorSelLimb] = {X = acSliderX.Value, Y = acSliderY.Value, Z = acSliderZ.Value}
+		if CreatorRefreshUI then CreatorRefreshUI() end
+	end)
+
+	local acClearLimbBtn, _ = UI.CreateButton(AnimCreatorPage, "Clear Limb at KF", 18)
+	acClearLimbBtn.Activated:Connect(function()
+		if not CreatorSelKFIdx then return end
+		local kf = CreatorAnim.Keyframes[CreatorSelKFIdx]
+		if kf then kf.Poses[CreatorSelLimb] = nil end
+		_CreatorLoadPoseIntoSliders()
+		if CreatorRefreshUI then CreatorRefreshUI() end
+	end)
+
+	UI.CreateSeparator(AnimCreatorPage)
+	UI.CreateText(AnimCreatorPage, "Keyframes", 16, Enum.TextXAlignment.Left)
+
+	-- Keyframe list scroll canvas
+	local acKFCanvas = UI.CreateScrollCanvas(AnimCreatorPage, 90)
+	local acKFList = acKFCanvas -- scroll canvas acts as list parent
+
+	-- Time slider for adding keyframes
+	local acTimeSlider = UI.CreateSlider(AnimCreatorPage, "New KF Time (s)", 0, 0, 10, 0.05)
+
+	-- Add / Remove KF buttons
+	local acAddKFBtn, _ = UI.CreateButton(AnimCreatorPage, "Add Keyframe", 18)
+	acAddKFBtn.Activated:Connect(function()
+		local t = acTimeSlider.Value
+		-- check no duplicate time
+		for _, kf in CreatorAnim.Keyframes do
+			if math.abs(kf.Time - t) < 0.01 then
+				Util.UINotify("Keyframe already exists at " .. string.format("%.2f", t) .. "s")
+				return
+			end
+		end
+		table.insert(CreatorAnim.Keyframes, {Time = t, Poses = {}})
+		table.sort(CreatorAnim.Keyframes, function(a, b) return a.Time < b.Time end)
+		-- select the new one
+		for i, kf in CreatorAnim.Keyframes do
+			if math.abs(kf.Time - t) < 0.01 then CreatorSelKFIdx = i break end
+		end
+		if CreatorRefreshUI then CreatorRefreshUI() end
+	end)
+
+	local acRemKFBtn, _ = UI.CreateButton(AnimCreatorPage, "Remove Selected KF", 18)
+	acRemKFBtn.Activated:Connect(function()
+		if not CreatorSelKFIdx then return end
+		table.remove(CreatorAnim.Keyframes, CreatorSelKFIdx)
+		CreatorSelKFIdx = math.min(CreatorSelKFIdx, #CreatorAnim.Keyframes)
+		if CreatorSelKFIdx == 0 then CreatorSelKFIdx = nil end
+		if CreatorRefreshUI then CreatorRefreshUI() end
+	end)
+
+	UI.CreateSeparator(AnimCreatorPage)
+
+	-- Preview / Stop
+	local acPreviewBtn, acPreviewTxt = UI.CreateButton(AnimCreatorPage, "▶  Preview", 20)
+	acPreviewBtn.Activated:Connect(function()
+		if CreatorPlaying then
+			CreatorPlaying = false
+			acPreviewTxt.Text = "▶  Preview"
+			CurrentDance = _CreatorPrevDance
+			_CreatorPrevDance = nil
+		else
+			if #CreatorAnim.Keyframes < 2 then
+				Util.UINotify("Need at least 2 keyframes to preview")
+				return
+			end
+			CreatorPlaying = true
+			acPreviewTxt.Text = "■  Stop Preview"
+			_CreatorPrevDance = CurrentDance
+			local mod = _CreatorBuildModule()
+			GetModuleHash(mod)
+			table.insert(DanceableDances, mod)
+			CurrentDance = mod
+		end
+	end)
+
+	-- Save
+	local acSaveBtn, _ = UI.CreateButton(AnimCreatorPage, "💾  Save as Dance Module", 20)
+	acSaveBtn.Activated:Connect(function()
+		if #CreatorAnim.Keyframes < 2 then
+			Util.UINotify("Need at least 2 keyframes to save")
+			return
+		end
+		local filename = "Creator_" .. CreatorAnim.Name:gsub("[^%w_]", "_") .. ".lua"
+		local path = "BlaaBlaaReanim/Modules/" .. filename
+		local src = _CreatorSerialize()
+		local ok, err = pcall(writefile, path, src)
+		if not ok then
+			Util.UINotify("Save failed: " .. tostring(err))
+			return
+		end
+		-- load it immediately
+		local func, loaderr = loadstring(src, "CreatorAnim::" .. CreatorAnim.Name)
+		if not func then
+			Util.UINotify("Compile error: " .. tostring(loaderr))
+			return
+		end
+		local name, err2 = AddModule(func)
+		if name then
+			Util.UINotify("Saved + loaded: " .. name)
+			RefreshKeybinds()
+		else
+			Util.UINotify("Loaded but error: " .. tostring(err2))
+		end
+	end)
+
+	-- Clear All
+	local acClearBtn, _ = UI.CreateButton(AnimCreatorPage, "🗑  Clear All Keyframes", 18)
+	acClearBtn.Activated:Connect(function()
+		table.clear(CreatorAnim.Keyframes)
+		CreatorSelKFIdx = nil
+		if CreatorRefreshUI then CreatorRefreshUI() end
+		Util.UINotify("Cleared all keyframes")
+	end)
+
+	-- Refresh KF list UI
+	CreatorRefreshUI = function()
+		Util.ClearAllChildrenGui(acKFList)
+		local layout = Instance.new("UIListLayout", acKFList)
+		layout.FillDirection = Enum.FillDirection.Vertical
+		layout.Padding = UDim.new(0, 2)
+		for i, kf in CreatorAnim.Keyframes do
+			local limbCount = 0
+			for _ in kf.Poses do limbCount += 1 end
+			local label = string.format("KF %d  t=%.2fs  [%d limbs]", i, kf.Time, limbCount)
+			local btn = Instance.new("TextButton", acKFList)
+			btn.Size = UDim2.new(1, -4, 0, 18)
+			btn.BackgroundTransparency = CreatorSelKFIdx == i and 0 or 0.7
+			btn.Font = Enum.Font.Code
+			btn.TextSize = 11
+			btn.Text = (CreatorSelKFIdx == i and "→ " or "  ") .. label
+			btn.TextXAlignment = Enum.TextXAlignment.Left
+			btn.BorderSizePixel = 0
+			Stylize(btn)
+			btn.Activated:Connect(function()
+				CreatorSelKFIdx = i
+				acTimeSlider.Value = kf.Time
+				_CreatorLoadPoseIntoSliders()
+				CreatorRefreshUI()
+			end)
+		end
+		if #CreatorAnim.Keyframes == 0 then
+			local empty = Instance.new("TextLabel", acKFList)
+			empty.Size = UDim2.new(1, 0, 0, 18)
+			empty.BackgroundTransparency = 1
+			empty.Font = Enum.Font.Code
+			empty.TextSize = 11
+			empty.TextColor3 = Color3.fromRGB(150, 150, 150)
+			empty.Text = "(no keyframes yet)"
+		end
+	end
+	CreatorRefreshUI()
+
+	-- Open button inside DancesPage
+	local acOpenBtn, _ = UI.CreateButton(DancesPage.List, "✦ Animation Creator >", 18)
+	acOpenBtn.Parent.LayoutOrder = -2  -- above category bar
+	acOpenBtn.Parent:SetAttribute("DanceCategory", nil)  -- skip filter
+	acOpenBtn.Activated:Connect(function()
+		DancesPage.Interactable = false
+		AnimCreatorPage.Visible = true
+		local tween = TweenService:Create(AnimCreatorPage, TweenInfo.new(0.4, Enum.EasingStyle.Cubic, Enum.EasingDirection.In), {
+			Position = UDim2.new(0.5, 0, 0.5, 0),
+		})
+		tween:Play()
+		tween.Completed:Connect(function()
+			AnimCreatorPage.Interactable = true
+		end)
+	end)
+end
+
+AddModule = function(func)
 	GiveFunctionsToFunction(func)
 	local m = func()
 	if m and type(m) == "table" then
@@ -8693,6 +9259,8 @@ task.spawn(function()
 						ReanimCharacter:SetAttribute("IsDancing", nil)
 						ReanimCharacter:SetAttribute("DanceInternalName", nil)
 						SetOverrideDanceMusic(nil)
+						UpdateDummyBillboard(ReanimCharacter, _CurrentDance and _CurrentDance.Name)
+						UpdateKeybindHUD()
 					end
 					if _CurrentDance then
 						if ReanimCharacter:GetAttribute("IsDancing") then
