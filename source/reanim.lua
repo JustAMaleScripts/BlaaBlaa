@@ -10,8 +10,7 @@ $$      $$$$$$"""$$$ $$$"""$$$ $$$"""$$$ $$$"""$$$ $$$"""$$$ $$$"""$$$
        Code:    STEVETHEREALONE
                 BoredGal (mostly patches..)
 				JustAMale (The AI Slop User, also Known as Mr AI)
-				Claude (Prompt: Added your ocean! lol and also... Fixed AssetDownloadFolderAgent! lol.)
-				Grok (Prompt: I'm cooked...)
+				Claude (Prompt: Fixed alot, also no grok in here lolz >:3)
        GFX:     STEVETHEREALONE
                 AALib
                 some random generators
@@ -7831,15 +7830,16 @@ do
 	AnimLib.Animator = Animator
 end
 local function AssetGetPathFromFilename(filename)
+	if filename:sub(-4, -1) == ".lua" then
+		return "BlaaBlaaReanim/Modules/" .. filename
+	end
 	local filetype = "Unknown/"
 	if filename:sub(-4, -1) == ".mp3" then
 		filetype = "Sounds/"
 	elseif filename:sub(-5, -1) == ".anim" then
 		filetype = "Anims/"
-	elseif filename:sub(-4, -1) == ".png" then
-		filetype = "Images/"
-	elseif filename:sub(-4, -1) == ".rbxm" then
-		filetype = "Models/"
+	elseif filename:sub(-5, -1) == ".rbxm" then
+		filetype = "Unknown/"
 	end
 	return "BlaaBlaaReanim/Content/" .. filetype .. filename
 end
