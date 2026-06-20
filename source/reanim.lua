@@ -18,6 +18,8 @@ $$      $$$$$$"""$$$ $$$"""$$$ $$$"""$$$ $$$"""$$$ $$$"""$$$ $$$"""$$$
                 4mat
                 MASTER BOOT RECORD
 				some 1990s Musics
+				Counter-Strike 2
+				BlackEyedPeas
 
 Thou shalth not steal. Point at this source if you used a snippet here.
 ]]
@@ -9463,6 +9465,10 @@ UI.CreateText(CreditsPage, "u and rez REALLY need to collab again or smth", 12, 
 UI.CreateText(CreditsPage, "the scene is dead was (and still is) so cool!!!", 12, Enum.TextXAlignment.Center)
 UI.CreateText(CreditsPage, "<b>4mat</b>", 14, Enum.TextXAlignment.Center)
 UI.CreateText(CreditsPage, "pls dont kick dubmood's ass lol", 12, Enum.TextXAlignment.Center)
+UI.CreateText(CreditsPage, "<b>Counter Strike 2</b>", 14, Enum.TextXAlignment.Center)
+UI.CreateText(CreditsPage, "cs2-theme.mp3 — great main theme music", 12, Enum.TextXAlignment.Center)
+UI.CreateText(CreditsPage, "<b>BlackEyedPeas</b>", 14, Enum.TextXAlignment.Center)
+UI.CreateText(CreditsPage, "rock-that-body.mp3 — banger", 12, Enum.TextXAlignment.Center)
 UI.CreateText(CreditsPage, "<b>pouet.net</b>", 14, Enum.TextXAlignment.Center)
 UI.CreateText(CreditsPage, "other than rez' and anat's demos theres lots of good demos there", 12, Enum.TextXAlignment.Center)
 UI.CreateText(CreditsPage, "tho im considered a LAMER with no scene ID loool", 12, Enum.TextXAlignment.Center)
