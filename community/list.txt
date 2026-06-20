@@ -68,3 +68,9 @@ user = Brey
 desc = second suggest! also includes Blocktales, so shotout to Blocktales.
 type = folder
 path = Brey/
+
+name = Truly An Emote Pack
+user = Truly
+desc = trying to put in here, if they don't respond on...
+type = folder
+path = Truly/
