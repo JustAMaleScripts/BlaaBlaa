@@ -8056,6 +8056,8 @@ MovesetsPage.Back.Activated:Connect(function()
 		MovesetsPage.Visible = false
 	end)
 end)
+local DanceCatFilter = "All"    -- forward: defined fully after DancesPage.Back
+local ApplyDanceFilter          -- forward: assigned after DancesPage.Back
 local DancesPage = UI.CreateItemListPage()
 DancesPage.ZIndex = 1
 DancesPage.Position = UDim2.new(0.5, 360, 0.5, 0)
@@ -8143,14 +8145,14 @@ end)
 -- ============================================================
 -- DANCE CATEGORY FILTER + FAVORITES
 -- ============================================================
-local DanceCatFilter = "All"
+-- DanceCatFilter already declared above (forward ref)
 local DanceCats = {"All", "★", "Dance", "Emote", "Meme", "Other"}
-local function ApplyDanceFilter()
+ApplyDanceFilter = function()
 	local search = DancesPage.Search.Box.Text:lower()
 	for _, v in DancesPage.List:GetChildren() do
 		if not v:IsA("GuiObject") then continue end
 		local cat = v:GetAttribute("DanceCategory")
-		if not cat then v.Visible = true continue end -- non-item UI (category bar etc.)
+		if not cat then v.Visible = true continue end
 		local hash = v:GetAttribute("DanceHash") or ""
 		local nameMatch = search == "" or v.Name:lower():find(search, 1, true)
 		local catMatch = DanceCatFilter == "All"
