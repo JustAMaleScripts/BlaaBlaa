@@ -8058,6 +8058,7 @@ MovesetsPage.Back.Activated:Connect(function()
 end)
 local DanceCatFilter = "All"    -- forward: defined fully after DancesPage.Back
 local ApplyDanceFilter          -- forward: assigned after DancesPage.Back
+local AnimCreatorPage           -- forward: assigned inside Animation Creator do block
 local DancesPage = UI.CreateItemListPage()
 DancesPage.ZIndex = 1
 DancesPage.Position = UDim2.new(0.5, 360, 0.5, 0)
@@ -8836,7 +8837,6 @@ end
 -- ANIMATION CREATOR
 -- ============================================================
 local AddModule -- forward ref (defined after this block)
-local AnimCreatorPage -- forward ref (assigned inside do block below)
 do
 	local LIMBS = {"Neck", "Left Shoulder", "Right Shoulder", "Left Hip", "Right Hip", "RootJoint"}
 	local LIMB_DISPLAY = {"Head (Neck)", "L.Arm (Shoulder)", "R.Arm (Shoulder)", "L.Leg (Hip)", "R.Leg (Hip)", "Root (RootJoint)"}
