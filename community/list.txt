@@ -62,3 +62,9 @@ user = Pipis
 desc = Suggested me btw...
 type = folder
 path = Pipis/
+
+name = Brey's Blocktales Movesets
+user = Brey
+desc = second suggest! also includes Blocktales, so shotout to Blocktales.
+type = folder
+path = Brey/
