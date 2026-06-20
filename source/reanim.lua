@@ -9581,7 +9581,7 @@ local function RefreshOnlineUserModules()
 	Util.ClearAllChildrenGui(MarkettePage.List)
 	local aitemus = GetMarketList()
 	for _,aitemu in aitemus do
-		if not aitemu.Name or not aitemu.Description or not aitemu.File then continue end
+		if not aitemu.Name or not aitemu.Description then continue end
 		local item = UI.CreateItemListItem(MarkettePage.List)
 		UI.CreateText(item, aitemu.Name .. " &gt;", 20, Enum.TextXAlignment.Left)
 		UI.CreateText(item, "By " .. (aitemu.User or "Uncknown"), 12, Enum.TextXAlignment.Left)
