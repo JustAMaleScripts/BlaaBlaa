@@ -74,3 +74,9 @@ user = Truly
 desc = trying to put in here, if they don't respond on...
 type = folder
 path = Truly/
+
+name = Bryan's Movesets
+user = Bryan001
+desc = also responded, because I added to marketplace for him lol
+type = folder
+path = Bryan/
