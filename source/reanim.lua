@@ -11,6 +11,7 @@
                 BoredGal (mostly patches..)
 				JustAMale (The AI Slop User, also Known as Mr AI)
 				Claude (Prompt: Added your more a LOT of features and includes animation editor! lol)
+				ChatGPT (Prompt: Added your ASCII Art so yeah.)
        GFX:     STEVETHEREALONE
                 AALib
                 some random generators
