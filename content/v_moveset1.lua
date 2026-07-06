@@ -1354,7 +1354,7 @@ AddModule(function()
 	-- placement as a fun approximation, not precise motion capture.
 	-- Please read python/webcam_vr_bridge.py yourself before running it.
 	--------------------------------------------------------------------
-	local PYTHON_HTTP_URL = "http://109.201.227.75:8787/pose"
+	local PYTHON_HTTP_URL = "http://127.0.0.1:8787/pose"
 	local PYTHON_POLL_INTERVAL = 1 / 20 -- 20 Hz is plenty for smoothed pose data
 	local PYTHON_POSE_STALE_AFTER = 0.5 -- seconds; older than this counts as "not tracking"
 
