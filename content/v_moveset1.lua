@@ -1207,12 +1207,49 @@ AddModule(function()
 	--   * m.Config now actually builds a settings panel (run speed,
 	--     snap-turn / vignette toggles, idle jitter amount) instead of
 	--     being an empty stub.
+	--
+	-- [EXPERIMENTAL, off by default] Python webcam limb tracking:
+	--   * Run python/webcam_vr_bridge.py alongside the game to drive
+	--     head/hand/crouch pose from a real webcam (MediaPipe pose
+	--     tracking) instead of the built-in fake-VR animation.
+	--   * Polled over localhost HTTP and a fallback JSON file, since
+	--     support for either varies by script executor.
+	--   * Priority is always: real VR hardware > Python webcam pose >
+	--     built-in fake VR. If Python isn't running, nothing changes -
+	--     this feature is fully opt-in via m.Config and fails silently.
+	--   * This was written by an AI assistant and IS experimental. A
+	--     single 2D webcam has no real depth sensing, so treat it as a
+	--     fun approximation, not precise motion capture. Please read
+	--     python/webcam_vr_bridge.py yourself before running it.
+	--
+	-- Framework env integration:
+	--   * m.Config now builds its panel with the framework's own
+	--     Util_CreateText/Util_CreateButton/Util_CreateSwitch/
+	--     Util_CreateTextbox/Util_CreateSlider/Util_CreateSeparator
+	--     globals instead of hand-rolled Instance.new() UI, so it
+	--     matches the rest of Uhhhhhh's config panels visually.
+	--     NOTE: this module was written without the actual Util_Create*
+	--     example code block, so their exact argument order below is a
+	--     best-effort GUESS (commented inline at each call site). Every
+	--     call is wrapped in pcall with the previous hand-rolled UI as
+	--     an automatic fallback, so the panel still renders correctly
+	--     even if a signature guess is wrong - just search for
+	--     "SIGNATURE GUESS" if something needs correcting.
+	--   * RandomString(n) is used to give each generated GUI instance a
+	--     collision-free .Name instead of reusing the label text (two
+	--     sliders with the same label no longer stomp each other).
+	--   * LimbReanimator.SetRootPartMode is set (best-effort, pcall'd)
+	--     alongside the module's existing manual SetCFrame/BodyForce
+	--     limb posing, so this module doesn't fight the framework's own
+	--     root-part handling. It does NOT replace the manual posing -
+	--     that system already works and was already perf-optimized.
 	--------------------------------------------------------------------
 
 	local VRService = cloneref(game:GetService("VRService"))
 	local UserInputService = cloneref(game:GetService("UserInputService"))
 	local HapticService = cloneref(game:GetService("HapticService"))
 	local GuiService = cloneref(game:GetService("GuiService"))
+	local HttpService = cloneref(game:GetService("HttpService"))
 
 	local m = {}
 	m.ModuleType = "MOVESET"
@@ -1270,6 +1307,14 @@ AddModule(function()
 
 	local REFERENCE_HEAD_HEIGHT = 1.6 -- ~average real-world eye height in studs, used for VR calibration
 
+	-- See "0 - RootPart in very void / 1 - RootPart in void / 2 - Keep
+	-- RootPart streamed / 3 - CurrentAngle style / 4 - RootPart is Torso"
+	-- in LimbReanimator's docs. This module leaves HumanoidRootPart as a
+	-- normal, physically-simulated, streamed-in part and only manually
+	-- poses Head/Arms/Legs/Torso relative to it every frame, so mode 2
+	-- ("Keep RootPart streamed") is the best match.
+	local LIMB_REANIMATOR_ROOT_PART_MODE = 2
+
 	local HALF_PI = math.pi / 2
 	local PI = math.pi
 
@@ -1283,12 +1328,145 @@ AddModule(function()
 		SnapTurnEnabled = true,
 		VignetteEnabled = true,
 		JitterScale = 1,
+		-- EXPERIMENTAL, off by default. See the PythonBridge section below.
+		PythonTrackingEnabled = false,
 	}
 
+	--------------------------------------------------------------------
+	-- EXPERIMENTAL: Python webcam limb-tracking bridge.
+	--
+	-- If you run python/webcam_vr_bridge.py alongside the game, it uses
+	-- your webcam + MediaPipe to estimate head yaw/pitch, left/right
+	-- hand position, and a continuous crouch amount, and publishes it
+	-- as JSON two ways: a localhost HTTP endpoint and a temp JSON file.
+	-- This section polls both (whichever the current executor supports)
+	-- and exposes the freshest pose as PythonBridge.LastPose.
+	--
+	-- This is entirely best-effort and always has a safe fallback:
+	--   real VR hardware  >  Python webcam pose  >  built-in fake VR
+	-- If Python isn't running, PythonBridge.IsTracking() just returns
+	-- false forever and the module behaves exactly like it did before
+	-- this feature existed.
+	--
+	-- DISCLAIMER: this bridge and its pose math were written by an AI
+	-- assistant and are explicitly experimental - a single 2D webcam
+	-- has no real depth sensing, so treat the resulting arm/torso
+	-- placement as a fun approximation, not precise motion capture.
+	-- Please read python/webcam_vr_bridge.py yourself before running it.
+	--------------------------------------------------------------------
+	local PYTHON_HTTP_URL = "http://127.0.0.1:8787/pose"
+	local PYTHON_POLL_INTERVAL = 1 / 20 -- 20 Hz is plenty for smoothed pose data
+	local PYTHON_POSE_STALE_AFTER = 0.5 -- seconds; older than this counts as "not tracking"
+
+	local PythonBridge = {
+		LastPose = nil, -- decoded JSON table from the Python script
+		LastUpdateTime = 0,
+		LastTransport = nil, -- "http" or "file", whichever last succeeded
+	}
+
+	function PythonBridge.IsTracking()
+		if not Settings.PythonTrackingEnabled then
+			return false
+		end
+		if not PythonBridge.LastPose or not PythonBridge.LastPose.tracking then
+			return false
+		end
+		return (os.clock() - PythonBridge.LastUpdateTime) <= PYTHON_POSE_STALE_AFTER
+	end
+
+	-- Best-effort HTTP GET shim: different script executors expose this
+	-- under different names (or not at all - some sandboxes block
+	-- localhost requests entirely, which is fine, we just fall back).
+	local function TryHttpGet(url)
+		local requestFn = (syn and syn.request)
+			or (http and http.request)
+			or http_request
+			or (fluxus and fluxus.request)
+			or request
+		if not requestFn then
+			return nil
+		end
+		local ok, response = pcall(requestFn, {
+			Url = url,
+			Method = "GET",
+		})
+		if ok and response and (response.StatusCode == 200 or response.Success) and response.Body then
+			return response.Body
+		end
+		return nil
+	end
+
+	-- Best-effort local-file read shim, for executors that expose
+	-- filesystem access but not localhost HTTP (or as a second attempt
+	-- if HTTP isn't available/blocked).
+	local function TryReadPoseFile(path)
+		if not (isfile and readfile) then
+			return nil
+		end
+		local ok, exists = pcall(isfile, path)
+		if not ok or not exists then
+			return nil
+		end
+		local ok2, contents = pcall(readfile, path)
+		if ok2 then
+			return contents
+		end
+		return nil
+	end
+
+	local function PollPythonBridge()
+		if not Settings.PythonTrackingEnabled then
+			return
+		end
+		local body = TryHttpGet(PYTHON_HTTP_URL)
+		local transport = "http"
+		if not body then
+			-- Falls back to whatever the OS temp dir resolves to on the
+			-- machine running the Python script; if your executor's
+			-- readfile is sandboxed to the game folder this will never
+			-- find it, which is fine - it just means only HTTP works.
+			body = TryReadPoseFile("immersive_vr_pose.json")
+			transport = "file"
+		end
+		if not body then
+			return
+		end
+		local ok, decoded = pcall(function()
+			return HttpService:JSONDecode(body)
+		end)
+		if ok and typeof(decoded) == "table" then
+			PythonBridge.LastPose = decoded
+			PythonBridge.LastTransport = transport
+			PythonBridge.LastUpdateTime = os.clock()
+		end
+	end
+
+	task.spawn(function()
+		while true do
+			pcall(PollPythonBridge)
+			task.wait(PYTHON_POLL_INTERVAL)
+		end
+	end)
+
 	m.Config = function(parent: GuiBase2d)
-		local function AddToggle(labelText, order, initial, onChanged)
+		-- Thin wrappers around the framework's Util_Create* globals.
+		-- Every wrapper pcall's the framework call first and falls back
+		-- to a hand-rolled Instance.new() widget if it errors (wrong
+		-- guessed argument order, or the global doesn't exist in this
+		-- build) - so this panel always renders something usable.
+		-- RandomString(n) is used for collision-free instance names
+		-- since two widgets can share the same label text.
+		local function SafeName(prefix)
+			local ok, str = pcall(RandomString, 8)
+			if ok and type(str) == "string" and #str > 0 then
+				return prefix .. "_" .. str
+			end
+			return prefix .. "_" .. tostring(os.clock()):gsub("%.", "")
+		end
+
+		local function FallbackToggle(labelText, order, initial, onChanged)
 			local holder = Instance.new("Frame")
-			holder.Name = labelText .. "Toggle"
+			holder.Name = SafeName("Toggle")
 			holder.LayoutOrder = order
 			holder.BackgroundTransparency = 1
 			holder.Size = UDim2.new(1, 0, 0, 32)
@@ -1322,9 +1500,9 @@ AddModule(function()
 			return holder
 		end
 
-		local function AddSlider(labelText, order, min, max, initial, onChanged)
+		local function FallbackSlider(labelText, order, min, max, initial, onChanged)
 			local holder = Instance.new("Frame")
-			holder.Name = labelText .. "Slider"
+			holder.Name = SafeName("Slider")
 			holder.LayoutOrder = order
 			holder.BackgroundTransparency = 1
 			holder.Size = UDim2.new(1, 0, 0, 32)
@@ -1360,10 +1538,84 @@ AddModule(function()
 			return holder
 		end
 
-		local layout = Instance.new("UIListLayout")
-		layout.SortOrder = Enum.SortOrder.LayoutOrder
-		layout.Padding = UDim.new(0, 4)
-		layout.Parent = parent
+		local function FallbackLabel(text, order)
+			local label = Instance.new("TextLabel")
+			label.Name = SafeName("Label")
+			label.LayoutOrder = order
+			label.BackgroundTransparency = 1
+			label.Size = UDim2.new(1, 0, 0, 40)
+			label.TextWrapped = true
+			label.TextXAlignment = Enum.TextXAlignment.Left
+			label.TextYAlignment = Enum.TextYAlignment.Top
+			label.Font = Enum.Font.SourceSansItalic
+			label.TextSize = 14
+			label.TextColor3 = Color3.fromRGB(200, 200, 200)
+			label.Text = text
+			return label
+		end
+
+		local function FallbackSeparator(order)
+			local sep = Instance.new("Frame")
+			sep.Name = SafeName("Separator")
+			sep.LayoutOrder = order
+			sep.BackgroundColor3 = Color3.fromRGB(90, 90, 90)
+			sep.BorderSizePixel = 0
+			sep.Size = UDim2.new(1, 0, 0, 1)
+			return sep
+		end
+
+		-- NOTE (SIGNATURE GUESS): Util_CreateSwitch's exact argument order
+		-- wasn't available at the time this was written. Guessed as
+		-- (parent, text, order, default, callback), matching the
+		-- (parent, label, order, ...) shape used below for the other
+		-- Util_Create* calls. Falls back automatically if wrong.
+		local function AddToggle(labelText, order, initial, onChanged)
+			local ok, widget = pcall(Util_CreateSwitch, parent, labelText, order, initial, onChanged)
+			if ok and typeof(widget) == "Instance" then
+				return widget
+			end
+			return FallbackToggle(labelText, order, initial, onChanged)
+		end
+
+		-- NOTE (SIGNATURE GUESS): Util_CreateSlider guessed as
+		-- (parent, text, order, min, max, default, callback).
+		local function AddSlider(labelText, order, min, max, initial, onChanged)
+			local ok, widget = pcall(Util_CreateSlider, parent, labelText, order, min, max, initial, onChanged)
+			if ok and typeof(widget) == "Instance" then
+				return widget
+			end
+			return FallbackSlider(labelText, order, min, max, initial, onChanged)
+		end
+
+		-- NOTE (SIGNATURE GUESS): Util_CreateText guessed as
+		-- (parent, text, order), returning a label-like Instance.
+		local function AddLabel(text, order)
+			local ok, widget = pcall(Util_CreateText, parent, text, order)
+			if ok and typeof(widget) == "Instance" then
+				return widget
+			end
+			return FallbackLabel(text, order)
+		end
+
+		-- NOTE (SIGNATURE GUESS): Util_CreateSeparator guessed as
+		-- (parent, order).
+		local function AddSeparator(order)
+			local ok, widget = pcall(Util_CreateSeparator, parent, order)
+			if ok and typeof(widget) == "Instance" then
+				return widget
+			end
+			return FallbackSeparator(order)
+		end
+
+		-- Only add our own UIListLayout if Util_Create* didn't already
+		-- give `parent` one (a real framework container almost
+		-- certainly manages its own layout already).
+		if not parent:FindFirstChildOfClass("UIListLayout") then
+			local layout = Instance.new("UIListLayout")
+			layout.SortOrder = Enum.SortOrder.LayoutOrder
+			layout.Padding = UDim.new(0, 4)
+			layout.Parent = parent
+		end
 
 		AddSlider("Run Speed", 1, 12, 60, Settings.RunSpeed, function(v)
 			Settings.RunSpeed = v
@@ -1383,6 +1635,48 @@ AddModule(function()
 		AddSlider("Idle Jitter Scale (%)", 4, 0, 200, Settings.JitterScale * 100, function(v)
 			Settings.JitterScale = v / 100
 		end).Parent = parent
+
+		AddSeparator(5).Parent = parent
+
+		local pythonHolder = AddToggle("[EXPERIMENTAL] Python Limb Tracking", 6, Settings.PythonTrackingEnabled, function(v)
+			Settings.PythonTrackingEnabled = v
+		end)
+		pythonHolder.Parent = parent
+
+		local statusLabel = AddLabel(
+			"AI-generated & experimental: needs python/webcam_vr_bridge.py running locally (webcam pose -> localhost:8787 or a temp file). If it's not running, this silently falls back to normal fake VR - review the script yourself before trusting it.",
+			7
+		)
+		statusLabel.Parent = parent
+
+		local statusConn
+		statusConn = RunService.Heartbeat:Connect(function()
+			if not statusLabel.Parent then
+				if statusConn then
+					statusConn:Disconnect()
+				end
+				return
+			end
+			-- Both the real Util_CreateText widget and the fallback
+			-- TextLabel expose .Text/.TextColor3 directly; if the real
+			-- widget nests those on a child instead, this pcall just
+			-- silently no-ops instead of erroring.
+			pcall(function()
+				if not Settings.PythonTrackingEnabled then
+					statusLabel.Text = "Python limb tracking is OFF. Toggle it on above once webcam_vr_bridge.py is running."
+					statusLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+					return
+				end
+				if PythonBridge.IsTracking() then
+					statusLabel.Text = ("Python bridge: ACTIVE (%s, crouch %d%%) - real webcam tracking is driving your limbs."):format(
+						PythonBridge.LastTransport or "?", math.floor((PythonBridge.LastPose and PythonBridge.LastPose.crouch or 0) * 100))
+					statusLabel.TextColor3 = Color3.fromRGB(90, 210, 120)
+				else
+					statusLabel.Text = "Python bridge: OFFLINE - no pose data received. Falling back to built-in fake VR animation."
+					statusLabel.TextColor3 = Color3.fromRGB(230, 170, 60)
+				end
+			end)
+		end)
 	end
 
 	--------------------------------------------------------------------
@@ -1667,6 +1961,30 @@ AddModule(function()
 		return CFrame.new(0, -0.5, 0) * CFrame.fromEulerAngles(x, y, z, Enum.RotationOrder.YXZ) * CFrame.new(0, 0.5, 0) + Vector3.new(0, -CrouchDistance, 0)
 	end
 
+	-- EXPERIMENTAL: turns the Python webcam pose JSON into the same kind
+	-- of local-space CFrame that VR hardware / ProcessArms would produce,
+	-- so it can drop straight into the existing head/arm pipeline.
+	-- See the PythonBridge section above for the transport + JSON shape.
+	local function ComputePythonHeadCFrame()
+		local pose = PythonBridge.LastPose
+		local yaw = (pose and pose.headYaw) or 0
+		local pitch = (pose and pose.headPitch) or 0
+		return CFrame.new(0, -0.5, 0) * CFrame.Angles(pitch, yaw, 0) * CFrame.new(0, 0.5, 0) + Vector3.new(0, -CrouchDistance, 0)
+	end
+
+	local function ComputePythonHandCFrame(handData, side)
+		-- handData: {x, y, z} in "shoulder widths" from the Python script,
+		-- side: -1 for left hand, 1 for right hand (used for a sane default
+		-- if the Python side hasn't sent anything meaningful yet).
+		local hx = (handData and handData.x) or side * 0.6
+		local hy = (handData and handData.y) or -0.3
+		local hz = (handData and handData.z) or 0.3
+		-- Scale from "shoulder widths" into roughly-arm's-reach studs so
+		-- it lines up with FakeVRArms' own hand-reach magnitudes.
+		local point = Vector3.new(hx, hy, hz) * ARM_POINT_RAYCAST_DISTANCE * 0.05
+		return CFrame.lookAlong(point, -Vector3.zAxis)
+	end
+
 	local function DoSnapTurn(direction)
 		if not root then
 			return
@@ -1781,6 +2099,20 @@ AddModule(function()
 		hum.WalkSpeed = WALK_SPEED
 		HeightCalibration = 1
 		--ReanimCamera.FPSLocked = true
+
+		-- This module keeps HumanoidRootPart itself as a completely
+		-- normal, humanoid-driven, in-world part (movement/physics work
+		-- as usual) - it's only Head/Arms/Legs/Torso that get manually
+		-- SetCFrame'd every frame relative to root.CFrame. That best
+		-- matches LimbReanimator's "2 - Keep RootPart streamed" mode.
+		-- NOTE (SIGNATURE GUESS): exact mode semantics weren't available
+		-- when this was written; pcall'd so an unsupported/incorrect
+		-- mode value can't break Init.
+		pcall(function()
+			if LimbReanimator and LimbReanimator.SetRootPartMode then
+				LimbReanimator.SetRootPartMode(LIMB_REANIMATOR_ROOT_PART_MODE)
+			end
+		end)
 		for _,v in figure:GetChildren() do
 			if v:IsA("BasePart") then
 				for _,w in figure:GetChildren() do
@@ -1941,11 +2273,16 @@ AddModule(function()
 		local rhj = torso:FindFirstChild("Right Hip")
 		local lhj = torso:FindFirstChild("Left Hip")
 
-		if Crouching then
-			CrouchDistance = CROUCH_DISTANCE + (CrouchDistance - CROUCH_DISTANCE) * math.exp(-JITTER_SMOOTHING_RATE * dt)
-		else
-			CrouchDistance *= math.exp(-JITTER_SMOOTHING_RATE * dt)
+		-- EXPERIMENTAL: if the Python webcam bridge is tracking, physically
+		-- crouching in front of the camera blends with (and can exceed) the
+		-- keyboard crouch toggle, instead of only being an on/off switch -
+		-- so leaning down for real actually moves the torso down.
+		local pythonCrouchAmount = 0
+		if PythonBridge.IsTracking() and PythonBridge.LastPose then
+			pythonCrouchAmount = math.clamp(PythonBridge.LastPose.crouch or 0, 0, 1)
 		end
+		local crouchTarget = math.max(Crouching and 1 or 0, pythonCrouchAmount) * CROUCH_DISTANCE
+		CrouchDistance = crouchTarget + (CrouchDistance - crouchTarget) * math.exp(-JITTER_SMOOTHING_RATE * dt)
 
 		if not isdancing then
 			rj.Enabled, nj.Enabled, rsj.Enabled, lsj.Enabled, rhj.Enabled, lhj.Enabled = false, false, false, false, false, false
@@ -1965,6 +2302,11 @@ AddModule(function()
 			local vroot = root.CFrame
 			vro += Vector3.new(0, CrouchDistance * scale, 0)
 			vroot += Vector3.new(0, CrouchDistance * scale, 0)
+			-- Priority order for head/arm source, cheapest and most trustworthy
+			-- first: real VR hardware > EXPERIMENTAL Python webcam pose > the
+			-- original built-in fake-VR camera-driven animation.
+			local pythonActive = PythonBridge.IsTracking()
+
 			if VRService.VREnabled then
 				-- BUG FIX: VREnabled only means *a* VR device is connected - the
 				-- individual head/hand CFrames can still be disabled (booting up,
@@ -1980,16 +2322,28 @@ AddModule(function()
 						local _, y, _ = chead:ToEulerAngles(Enum.RotationOrder.YXZ)
 						vro *= CFrame.Angles(0, -y, 0)
 					end
+				elseif pythonActive then
+					chead = ComputePythonHeadCFrame()
 				else
 					chead = ComputeFallbackHeadCFrame()
 				end
 
 				if leftHandEnabled and rightHandEnabled then
 					clarm, crarm = VRService:GetUserCFrame(Enum.UserCFrame.LeftHand), VRService:GetUserCFrame(Enum.UserCFrame.RightHand)
+				elseif pythonActive then
+					clarm = ComputePythonHandCFrame(PythonBridge.LastPose.leftHand, -1) + Vector3.new(0, -CrouchDistance, 0)
+					crarm = ComputePythonHandCFrame(PythonBridge.LastPose.rightHand, 1) + Vector3.new(0, -CrouchDistance, 0)
 				else
 					clarm = ProcessArms(FakeVRArms[1], dt, vro, chead) + Vector3.new(0, -CrouchDistance, 0)
 					crarm = ProcessArms(FakeVRArms[2], dt, vro, chead) + Vector3.new(0, -CrouchDistance, 0)
 				end
+			elseif pythonActive then
+				-- EXPERIMENTAL: no real VR headset, but the Python webcam
+				-- bridge is alive and tracking - use it to drive head/arms
+				-- instead of the default camera-follow fake VR animation.
+				chead = ComputePythonHeadCFrame()
+				clarm = ComputePythonHandCFrame(PythonBridge.LastPose.leftHand, -1) + Vector3.new(0, -CrouchDistance, 0)
+				crarm = ComputePythonHandCFrame(PythonBridge.LastPose.rightHand, 1) + Vector3.new(0, -CrouchDistance, 0)
 			else
 				chead = ComputeFallbackHeadCFrame()
 				clarm = ProcessArms(FakeVRArms[1], dt, vro, chead) + Vector3.new(0, -CrouchDistance, 0)
