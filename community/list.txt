@@ -80,3 +80,9 @@ user = Bryan001
 desc = also responded, because I added to marketplace for him lol
 type = folder
 path = Bryan/
+
+name = Cybop's/Melon's Mega Pack
+user = cybop_
+desc = holy 744MB, but splitted :zmile:
+type = folder
+path = Cybop/
