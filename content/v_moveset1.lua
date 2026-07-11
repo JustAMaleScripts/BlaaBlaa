@@ -1179,7 +1179,34 @@ AddModule(function()
 	--     (or a head CFrame that hasn't come online yet) falls back to the
 	--     animated fake-VR pose instead of using a stale/zero CFrame.
 	--
-	-- Performance:
+	-- Bug fixes (v2):
+	--   * ProcessArms used to raycast from the desktop mouse cursor even
+	--     when running inside an active VR session with no meaningful
+	--     mouse - it now aims along the head's look direction instead
+	--     whenever VRService.VREnabled is true.
+	--   * Left/right VR hand fallback used to be AND'd together (`if
+	--     leftHandEnabled and rightHandEnabled`), so pairing only ONE
+	--     motion controller silently threw away tracking on the other
+	--     hand too. Each hand now resolves its source independently.
+	--   * The Python/webcam poll loop used to be a bare `task.spawn`
+	--     that started at module-load and never stopped - a genuine
+	--     leaked background coroutine across Init/Destroy cycles. It's
+	--     now started in m.Init and explicitly task.cancel'd in
+	--     m.Destroy.
+	--   * The Run toggle used to infer "currently running" by comparing
+	--     BaseWalkSpeed to the WALK_SPEED constant, which silently broke
+	--     if a player set Run Speed equal to Walk Speed. Replaced with
+	--     an explicit IsRunning boolean.
+	--   * m.Destroy used to only Enabled=false the cached antigravity
+	--     BodyForces, leaving disabled leftover instances parented under
+	--     limbs if the figure survives a moveset switch. Now destroyed.
+	--   * Player:GetMouse() was called unguarded at module scope; wrapped
+	--     in pcall, with MouseHit() falling back to "aim where the
+	--     camera is looking" if it's unavailable.
+	--   * Last remaining unnamed magic number (bare `2` in the HipHeight
+	--     formula) named HIP_HEIGHT_FUDGE.
+	--
+	-- Performance (v1):
 	--   * SetCFrame no longer Instance.new()s + Destroy()s a BodyForce
 	--     every single frame per limb (up to 6x/frame). Each part now
 	--     gets one persistent BodyForce that is just toggled + updated.
@@ -1187,7 +1214,26 @@ AddModule(function()
 	--     the per-frame idle jitter, and merged the duplicated jitter
 	--     smoothing code (arms + legs) into one shared helper.
 	--
-	-- VR features:
+	-- Performance (v2):
+	--   * SetCFrame's per-part-per-frame trio of PreRender/Stepped/
+	--     PostSimulation `:Once()` connections (up to 18 connection
+	--     allocations/frame across 6 limbs) replaced with 3 persistent,
+	--     module-scope connections that walk a shared "pinned parts"
+	--     table. Same one-frame CFrame-pin behavior, zero connection
+	--     churn.
+	--   * rcp.FilterDescendantsInstances no longer allocates a brand new
+	--     {figure, Player.Character} table every Update call - the same
+	--     2-slot table is reused and just has its contents overwritten.
+	--   * Humanoid/RootPart/Torso/limb parts/R6 joints are no longer
+	--     re-fetched via FindFirstChild every single Update call - they're
+	--     cached against figure identity and only re-resolved when the
+	--     figure instance actually changes (e.g. respawn).
+	--   * Fixed the NoCollisionConstraint setup in Init actually creating
+	--     TWO constraints per part pair (A->B and B->A, since the nested
+	--     loop only excluded v==w, not already-visited pairs) - now one
+	--     constraint per unordered pair, halving the instance count.
+	--
+	-- VR features (v1):
 	--   * Snap-turn comfort option on the right thumbstick.
 	--   * One-button recenter that also recalibrates arm/eye height to
 	--     the player's real-world height via VRService:RecenterUserHeadCFrame().
@@ -1197,6 +1243,15 @@ AddModule(function()
 	--     recenter, on any controller HapticService supports.
 	--   * Crouching now also slows movement, not just HipHeight.
 	--
+	-- VR features (v2):
+	--   * Snap-turn angle is now a config slider (10-90 degrees) instead
+	--     of a hardcoded 30-degree constant.
+	--   * Optional smooth-turn mode: instead of discrete snaps, holding
+	--     the right thumbstick past a small deadzone continuously rotates
+	--     the root at a configurable degrees/second while VR is active.
+	--     Snap-turn and smooth-turn share the same thumbstick input but
+	--     are mutually exclusive - whichever is toggled on in Config wins.
+	--
 	-- Code quality:
 	--   * Magic numbers pulled into named constants.
 	--   * Removed a batch of dead/duplicate module-scope locals
@@ -1205,29 +1260,49 @@ AddModule(function()
 	--   * Button placement now respects GuiService's safe-area inset
 	--     instead of assuming a fixed screen size.
 	--   * m.Config now actually builds a settings panel (run speed,
-	--     snap-turn / vignette toggles, idle jitter amount) instead of
-	--     being an empty stub.
+	--     snap-turn / smooth-turn / vignette toggles, idle jitter amount,
+	--     head-tracking + phone-controller bridges) instead of being an
+	--     empty stub.
+	--   * Added "Test Connection" buttons for both experimental bridges,
+	--     so you get an immediate pass/fail instead of waiting on the
+	--     passive Heartbeat status label.
 	--
-	-- [EXPERIMENTAL, off by default] Python webcam limb tracking:
-	--   * Run python/webcam_vr_bridge.py alongside the game to drive
-	--     head/hand/crouch pose from a real webcam (MediaPipe pose
-	--     tracking) instead of the built-in fake-VR animation.
-	--   * Polled over localhost HTTP and a fallback JSON file, since
-	--     support for either varies by script executor.
-	--   * Priority is always: real VR hardware > Python webcam pose >
-	--     built-in fake VR. If Python isn't running, nothing changes -
+	-- [EXPERIMENTAL, off by default] Webcam HEAD-POSE-ONLY tracking:
+	--   * Narrowed scope from v1: this bridge now ONLY drives head yaw/
+	--     pitch (via whatever local webcam pose script you run - a single
+	--     2D camera can track a face/head orientation quite reliably, but
+	--     has no real depth sensing for full limb/hand position, which is
+	--     why that part was cut). Hand/arm posing is handled by the fake-
+	--     VR mouse pointer or, now, the phone controller bridge below.
+	--   * Polled over localhost HTTP (port configurable in Config) and a
+	--     fallback JSON file, since support for either varies by script
+	--     executor.
+	--   * Priority is always: real VR hardware > webcam head pose >
+	--     built-in fake VR head. If nothing is running, nothing changes -
 	--     this feature is fully opt-in via m.Config and fails silently.
-	--   * This was written by an AI assistant and IS experimental. A
-	--     single 2D webcam has no real depth sensing, so treat it as a
-	--     fun approximation, not precise motion capture. Please read
-	--     python/webcam_vr_bridge.py yourself before running it.
+	--   * This is experimental AI-assisted pose plumbing. Please read
+	--     whatever local script you point it at yourself before running it.
+	--
+	-- [EXPERIMENTAL, off by default] Phone-as-controller bridge:
+	--   * New in v2. Polls a small HTTP server you run on your phone
+	--     (e.g. via Pydroid on Android) exposing GET /pose as JSON
+	--     { "yaw":, "pitch":, "roll":, "tracking": }, and uses it to
+	--     orient ONE hand (pick Left/Right/Off in Config) instead of the
+	--     built-in mouse-pointing fake-VR arm.
+	--   * "Calibrate" zeroes the phone's current orientation as "arm
+	--     forward" so tilts read as relative rotation instead of raw
+	--     compass heading (which varies room to room / device to device).
+	--   * Same fallback philosophy as every other bridge in this module:
+	--     real VR controller > phone bridge > fake-VR mouse pointing.
+	--     If the phone stops responding, that hand quietly reverts.
 	--
 	-- Framework env integration:
 	--   * m.Config now builds its panel with the framework's own
 	--     Util_CreateText/Util_CreateButton/Util_CreateSwitch/
-	--     Util_CreateTextbox/Util_CreateSlider/Util_CreateSeparator
-	--     globals instead of hand-rolled Instance.new() UI, so it
-	--     matches the rest of Uhhhhhh's config panels visually.
+	--     Util_CreateTextbox/Util_CreateDropdown/Util_CreateSlider/
+	--     Util_CreateSeparator globals instead of hand-rolled
+	--     Instance.new() UI, so it matches the rest of Uhhhhhh's config
+	--     panels visually.
 	--     NOTE: this module was written without the actual Util_Create*
 	--     example code block, so their exact argument order below is a
 	--     best-effort GUESS (commented inline at each call site). Every
@@ -1254,7 +1329,7 @@ AddModule(function()
 	local m = {}
 	m.ModuleType = "MOVESET"
 	m.Name = "Immersive VR"
-	m.Description = "fake but real vr altho clunky\n\nvery clunky\n\nM1 - Point Left Hand\nM2 - Point Right Hand\nLeftControl/Button B - Toggle Run\nC - Crouch\nRight Thumbstick - Snap Turn (VR)\nT/Thumbstick1 Click - Recenter + Recalibrate (VR)"
+	m.Description = "fake but real vr altho clunky\n\nvery clunky\n\nM1 - Point Left Hand\nM2 - Point Right Hand\nLeftControl/Button B - Toggle Run\nC - Crouch\nRight Thumbstick - Snap/Smooth Turn (VR, configurable)\nT/Thumbstick1 Click - Recenter + Recalibrate (VR)"
 	m.Assets = {}
 
 	--------------------------------------------------------------------
@@ -1286,15 +1361,25 @@ AddModule(function()
 	local ARM_POINT_RAYCAST_DISTANCE = 32
 	local ARM_POINT_LERP_TIME = 0.2
 	local ARM_JITTER_MAGNITUDE = 0.5
+	local PHONE_HAND_REACH_SCALE = 0.15 -- fraction of ARM_POINT_RAYCAST_DISTANCE used as phone-hand reach
 
 	local JITTER_SMOOTHING_RATE = 16 -- exp decay rate shared by arm/leg jitter
 	local TORSO_TWIST_SMOOTHING_RATE = 4
 	local TORSO_TWIST_FACTOR = 0.5
 	local TORSO_MIN_STRIDE = 0.5 -- clamps atan2's base so twist doesn't spike near zero stride width
 
-	local SNAP_TURN_ANGLE = math.rad(30)
+	local HIP_HEIGHT_FUDGE = 2 -- flat HipHeight subtraction baked into the R6 leg-length math below
+
+	local DEFAULT_SNAP_TURN_ANGLE_DEG = 30
+	local SNAP_TURN_ANGLE_MIN_DEG = 10
+	local SNAP_TURN_ANGLE_MAX_DEG = 90
 	local SNAP_TURN_DEADZONE = 0.6
 	local SNAP_TURN_COOLDOWN = 0.3
+
+	local DEFAULT_SMOOTH_TURN_SPEED_DEG = 90
+	local SMOOTH_TURN_SPEED_MIN_DEG = 30
+	local SMOOTH_TURN_SPEED_MAX_DEG = 180
+	local SMOOTH_TURN_DEADZONE = 0.15 -- lower than snap-turn's since smooth turn self-corrects continuously
 
 	local VIGNETTE_SPEED_LOW = 2 -- studs/s where vignette starts appearing
 	local VIGNETTE_SPEED_HIGH = 16 -- studs/s where vignette is fully in
@@ -1306,6 +1391,9 @@ AddModule(function()
 	local HAPTIC_BUTTON_DURATION = 0.08
 
 	local REFERENCE_HEAD_HEIGHT = 1.6 -- ~average real-world eye height in studs, used for VR calibration
+
+	local BRIDGE_POLL_INTERVAL = 1 / 20 -- 20 Hz is plenty for smoothed pose data
+	local POSE_STALE_AFTER = 0.5 -- seconds; older than this counts as "not tracking", shared by both bridges
 
 	-- See "0 - RootPart in very void / 1 - RootPart in void / 2 - Keep
 	-- RootPart streamed / 3 - CurrentAngle style / 4 - RootPart is Torso"
@@ -1321,62 +1409,32 @@ AddModule(function()
 	local scale, isdancing = 1, false
 	local hum, root, torso
 	local BaseWalkSpeed = WALK_SPEED
+	local IsRunning = false
 	local HeightCalibration = 1 -- multiplier applied to eye height after VR recentering
 
 	local Settings = {
 		RunSpeed = 24,
 		SnapTurnEnabled = true,
+		SnapTurnAngleDeg = DEFAULT_SNAP_TURN_ANGLE_DEG,
+		SmoothTurnEnabled = false,
+		SmoothTurnSpeedDeg = DEFAULT_SMOOTH_TURN_SPEED_DEG,
 		VignetteEnabled = true,
 		JitterScale = 1,
-		-- EXPERIMENTAL, off by default. See the PythonBridge section below.
-		PythonTrackingEnabled = false,
+		-- EXPERIMENTAL, off by default. See the HeadTrackingBridge section below.
+		HeadTrackingEnabled = false,
+		HeadTrackingPort = 8787,
+		-- EXPERIMENTAL, off by default. See the PhoneBridge section below.
+		PhoneControllerSide = "Off", -- "Off" | "Left" | "Right"
+		PhoneIP = "192.168.1.100",
+		PhonePort = 8788,
 	}
 
 	--------------------------------------------------------------------
-	-- EXPERIMENTAL: Python webcam limb-tracking bridge.
-	--
-	-- If you run python/webcam_vr_bridge.py alongside the game, it uses
-	-- your webcam + MediaPipe to estimate head yaw/pitch, left/right
-	-- hand position, and a continuous crouch amount, and publishes it
-	-- as JSON two ways: a localhost HTTP endpoint and a temp JSON file.
-	-- This section polls both (whichever the current executor supports)
-	-- and exposes the freshest pose as PythonBridge.LastPose.
-	--
-	-- This is entirely best-effort and always has a safe fallback:
-	--   real VR hardware  >  Python webcam pose  >  built-in fake VR
-	-- If Python isn't running, PythonBridge.IsTracking() just returns
-	-- false forever and the module behaves exactly like it did before
-	-- this feature existed.
-	--
-	-- DISCLAIMER: this bridge and its pose math were written by an AI
-	-- assistant and are explicitly experimental - a single 2D webcam
-	-- has no real depth sensing, so treat the resulting arm/torso
-	-- placement as a fun approximation, not precise motion capture.
-	-- Please read python/webcam_vr_bridge.py yourself before running it.
+	-- Shared best-effort HTTP GET / file-read shims used by both bridges.
+	-- Different script executors expose these under different names (or
+	-- not at all - some sandboxes block localhost/LAN requests entirely,
+	-- which is fine, we just fall back to "not tracking").
 	--------------------------------------------------------------------
-	local PYTHON_HTTP_URL = "http://127.0.0.1:8787/pose"
-	local PYTHON_POLL_INTERVAL = 1 / 20 -- 20 Hz is plenty for smoothed pose data
-	local PYTHON_POSE_STALE_AFTER = 0.5 -- seconds; older than this counts as "not tracking"
-
-	local PythonBridge = {
-		LastPose = nil, -- decoded JSON table from the Python script
-		LastUpdateTime = 0,
-		LastTransport = nil, -- "http" or "file", whichever last succeeded
-	}
-
-	function PythonBridge.IsTracking()
-		if not Settings.PythonTrackingEnabled then
-			return false
-		end
-		if not PythonBridge.LastPose or not PythonBridge.LastPose.tracking then
-			return false
-		end
-		return (os.clock() - PythonBridge.LastUpdateTime) <= PYTHON_POSE_STALE_AFTER
-	end
-
-	-- Best-effort HTTP GET shim: different script executors expose this
-	-- under different names (or not at all - some sandboxes block
-	-- localhost requests entirely, which is fine, we just fall back).
 	local function TryHttpGet(url)
 		local requestFn = (syn and syn.request)
 			or (http and http.request)
@@ -1396,9 +1454,6 @@ AddModule(function()
 		return nil
 	end
 
-	-- Best-effort local-file read shim, for executors that expose
-	-- filesystem access but not localhost HTTP (or as a second attempt
-	-- if HTTP isn't available/blocked).
 	local function TryReadPoseFile(path)
 		if not (isfile and readfile) then
 			return nil
@@ -1414,18 +1469,48 @@ AddModule(function()
 		return nil
 	end
 
-	local function PollPythonBridge()
-		if not Settings.PythonTrackingEnabled then
+	--------------------------------------------------------------------
+	-- EXPERIMENTAL: webcam HEAD-POSE-ONLY tracking bridge.
+	--
+	-- If you run a local webcam pose script alongside the game, it can
+	-- estimate head yaw/pitch (face/head orientation is quite reliable
+	-- from a single 2D camera - unlike full-body/hand depth, which a 2D
+	-- camera genuinely can't measure, which is why v1's hand/crouch
+	-- tracking via this bridge was removed) and publish it as JSON:
+	--   { "tracking": true, "headYaw": 0.0, "headPitch": 0.0 }
+	-- over a localhost HTTP endpoint (port configurable below) and/or a
+	-- fallback JSON file.
+	--
+	-- Priority is always: real VR hardware > webcam head pose > built-in
+	-- fake VR head-follow. If nothing is running, PollHeadTrackingBridge
+	-- just never finds a fresh pose and this behaves exactly like the
+	-- feature doesn't exist.
+	--------------------------------------------------------------------
+	local HeadTrackingBridge = {
+		LastPose = nil,
+		LastUpdateTime = 0,
+		LastTransport = nil, -- "http" or "file"
+	}
+
+	function HeadTrackingBridge.IsTracking()
+		if not Settings.HeadTrackingEnabled then
+			return false
+		end
+		if not HeadTrackingBridge.LastPose or not HeadTrackingBridge.LastPose.tracking then
+			return false
+		end
+		return (os.clock() - HeadTrackingBridge.LastUpdateTime) <= POSE_STALE_AFTER
+	end
+
+	local function PollHeadTrackingBridge()
+		if not Settings.HeadTrackingEnabled then
 			return
 		end
-		local body = TryHttpGet(PYTHON_HTTP_URL)
+		local url = ("http://127.0.0.1:%d/pose"):format(Settings.HeadTrackingPort)
+		local body = TryHttpGet(url)
 		local transport = "http"
 		if not body then
-			-- Falls back to whatever the OS temp dir resolves to on the
-			-- machine running the Python script; if your executor's
-			-- readfile is sandboxed to the game folder this will never
-			-- find it, which is fine - it just means only HTTP works.
-			body = TryReadPoseFile("immersive_vr_pose.json")
+			body = TryReadPoseFile("immersive_vr_head_pose.json")
 			transport = "file"
 		end
 		if not body then
@@ -1435,18 +1520,111 @@ AddModule(function()
 			return HttpService:JSONDecode(body)
 		end)
 		if ok and typeof(decoded) == "table" then
-			PythonBridge.LastPose = decoded
-			PythonBridge.LastTransport = transport
-			PythonBridge.LastUpdateTime = os.clock()
+			HeadTrackingBridge.LastPose = decoded
+			HeadTrackingBridge.LastTransport = transport
+			HeadTrackingBridge.LastUpdateTime = os.clock()
 		end
 	end
 
-	task.spawn(function()
-		while true do
-			pcall(PollPythonBridge)
-			task.wait(PYTHON_POLL_INTERVAL)
+	--------------------------------------------------------------------
+	-- EXPERIMENTAL: Phone-as-controller bridge (over HTTP).
+	--
+	-- Run a tiny HTTP server on your phone (e.g. Pydroid 3 on Android
+	-- running a short Python/Flask script - not included here, this is
+	-- just the Roblox-side poller) that exposes the phone's gyroscope
+	-- orientation as JSON at GET /pose, e.g.:
+	--   { "yaw": 0.0, "pitch": 0.0, "roll": 0.0, "tracking": true }
+	-- This module polls that endpoint over your local network and uses
+	-- it to orient ONE hand (left or right, your choice) instead of the
+	-- built-in mouse-pointing fake-VR arm.
+	--
+	-- Setup flow (see m.Config's "Phone Controller" section):
+	--   1. Start the phone's HTTP server, note its local IP + port.
+	--   2. Enter that IP/port in the config panel.
+	--   3. Pick which hand the phone drives (Off / Left / Right).
+	--   4. Hold the phone naturally in that hand and press Calibrate -
+	--      this zeroes the phone's current orientation as "arm forward"
+	--      so tilts read as relative rotation instead of raw compass
+	--      heading (which varies room to room).
+	--   5. Press "Test Connection" to confirm the phone is reachable.
+	--
+	-- Same fallback philosophy as the webcam bridge: if the phone stops
+	-- responding, that hand quietly reverts to normal fake-VR mouse
+	-- pointing - nothing errors, nothing hangs.
+	--------------------------------------------------------------------
+	local PhoneBridge = {
+		LastPose = nil,
+		LastUpdateTime = 0,
+		Calibration = { yaw = 0, pitch = 0, roll = 0 },
+	}
+
+	function PhoneBridge.IsTracking()
+		if Settings.PhoneControllerSide == "Off" then
+			return false
 		end
-	end)
+		if not PhoneBridge.LastPose or not PhoneBridge.LastPose.tracking then
+			return false
+		end
+		return (os.clock() - PhoneBridge.LastUpdateTime) <= POSE_STALE_AFTER
+	end
+
+	local function PollPhoneBridge()
+		if Settings.PhoneControllerSide == "Off" then
+			return
+		end
+		local url = ("http://%s:%d/pose"):format(Settings.PhoneIP, Settings.PhonePort)
+		local body = TryHttpGet(url)
+		if not body then
+			return
+		end
+		local ok, decoded = pcall(function()
+			return HttpService:JSONDecode(body)
+		end)
+		if ok and typeof(decoded) == "table" then
+			PhoneBridge.LastPose = decoded
+			PhoneBridge.LastUpdateTime = os.clock()
+		end
+	end
+
+	function PhoneBridge.Calibrate()
+		local pose = PhoneBridge.LastPose
+		if not pose then
+			return false
+		end
+		PhoneBridge.Calibration = {
+			yaw = pose.yaw or 0,
+			pitch = pose.pitch or 0,
+			roll = pose.roll or 0,
+		}
+		return true
+	end
+
+	--------------------------------------------------------------------
+	-- Bug fix (v2): both bridges' polling used to be a bare task.spawn
+	-- loop that started at module-load and ran forever with no way to
+	-- stop it - a genuine leaked coroutine if this module gets
+	-- Destroy()'d and never re-Init'd. It's now started/stopped from
+	-- m.Init/m.Destroy via a stored thread handle.
+	--------------------------------------------------------------------
+	local BridgePollThread = nil
+	local function StartBridgePolling()
+		if BridgePollThread then
+			return
+		end
+		BridgePollThread = task.spawn(function()
+			while true do
+				pcall(PollHeadTrackingBridge)
+				pcall(PollPhoneBridge)
+				task.wait(BRIDGE_POLL_INTERVAL)
+			end
+		end)
+	end
+	local function StopBridgePolling()
+		if BridgePollThread then
+			task.cancel(BridgePollThread)
+			BridgePollThread = nil
+		end
+	end
 
 	m.Config = function(parent: GuiBase2d)
 		-- Thin wrappers around the framework's Util_Create* globals.
@@ -1538,6 +1716,86 @@ AddModule(function()
 			return holder
 		end
 
+		local function FallbackButton(labelText, order, onClick)
+			local button = Instance.new("TextButton")
+			button.Name = SafeName("Button")
+			button.LayoutOrder = order
+			button.Size = UDim2.new(1, 0, 0, 32)
+			button.BackgroundColor3 = Color3.fromRGB(70, 70, 90)
+			button.Font = Enum.Font.SourceSansBold
+			button.TextSize = 16
+			button.TextColor3 = Color3.new(1, 1, 1)
+			button.Text = labelText
+			button.Activated:Connect(onClick)
+			return button
+		end
+
+		local function FallbackTextbox(labelText, order, initial, onChanged)
+			local holder = Instance.new("Frame")
+			holder.Name = SafeName("Textbox")
+			holder.LayoutOrder = order
+			holder.BackgroundTransparency = 1
+			holder.Size = UDim2.new(1, 0, 0, 32)
+
+			local label = Instance.new("TextLabel")
+			label.BackgroundTransparency = 1
+			label.Size = UDim2.new(0.5, 0, 1, 0)
+			label.TextXAlignment = Enum.TextXAlignment.Left
+			label.TextColor3 = Color3.new(1, 1, 1)
+			label.Font = Enum.Font.SourceSans
+			label.TextSize = 18
+			label.Text = labelText
+			label.Parent = holder
+
+			local box = Instance.new("TextBox")
+			box.Size = UDim2.new(0.5, -8, 1, -4)
+			box.Position = UDim2.new(0.5, 8, 0, 2)
+			box.ClearTextOnFocus = false
+			box.Text = tostring(initial)
+			box.Font = Enum.Font.SourceSans
+			box.TextSize = 16
+			box.FocusLost:Connect(function()
+				onChanged(box.Text)
+			end)
+			box.Parent = holder
+			return holder
+		end
+
+		local function FallbackDropdown(labelText, order, options, initial, onChanged)
+			local holder = Instance.new("Frame")
+			holder.Name = SafeName("Dropdown")
+			holder.LayoutOrder = order
+			holder.BackgroundTransparency = 1
+			holder.Size = UDim2.new(1, 0, 0, 32)
+
+			local label = Instance.new("TextLabel")
+			label.BackgroundTransparency = 1
+			label.Size = UDim2.new(0.5, 0, 1, 0)
+			label.TextXAlignment = Enum.TextXAlignment.Left
+			label.TextColor3 = Color3.new(1, 1, 1)
+			label.Font = Enum.Font.SourceSans
+			label.TextSize = 18
+			label.Text = labelText
+			label.Parent = holder
+
+			local index = table.find(options, initial) or 1
+			local button = Instance.new("TextButton")
+			button.Size = UDim2.new(0.5, -8, 1, -4)
+			button.Position = UDim2.new(0.5, 8, 0, 2)
+			button.Font = Enum.Font.SourceSansBold
+			button.TextSize = 16
+			button.BackgroundColor3 = Color3.fromRGB(70, 70, 90)
+			button.TextColor3 = Color3.new(1, 1, 1)
+			button.Text = options[index]
+			button.Activated:Connect(function()
+				index = (index % #options) + 1
+				button.Text = options[index]
+				onChanged(options[index])
+			end)
+			button.Parent = holder
+			return holder
+		end
+
 		local function FallbackLabel(text, order)
 			local label = Instance.new("TextLabel")
 			label.Name = SafeName("Label")
@@ -1564,11 +1822,7 @@ AddModule(function()
 			return sep
 		end
 
-		-- NOTE (SIGNATURE GUESS): Util_CreateSwitch's exact argument order
-		-- wasn't available at the time this was written. Guessed as
-		-- (parent, text, order, default, callback), matching the
-		-- (parent, label, order, ...) shape used below for the other
-		-- Util_Create* calls. Falls back automatically if wrong.
+		-- NOTE (SIGNATURE GUESS): (parent, text, order, default, callback).
 		local function AddToggle(labelText, order, initial, onChanged)
 			local ok, widget = pcall(Util_CreateSwitch, parent, labelText, order, initial, onChanged)
 			if ok and typeof(widget) == "Instance" then
@@ -1577,8 +1831,7 @@ AddModule(function()
 			return FallbackToggle(labelText, order, initial, onChanged)
 		end
 
-		-- NOTE (SIGNATURE GUESS): Util_CreateSlider guessed as
-		-- (parent, text, order, min, max, default, callback).
+		-- NOTE (SIGNATURE GUESS): (parent, text, order, min, max, default, callback).
 		local function AddSlider(labelText, order, min, max, initial, onChanged)
 			local ok, widget = pcall(Util_CreateSlider, parent, labelText, order, min, max, initial, onChanged)
 			if ok and typeof(widget) == "Instance" then
@@ -1587,8 +1840,34 @@ AddModule(function()
 			return FallbackSlider(labelText, order, min, max, initial, onChanged)
 		end
 
-		-- NOTE (SIGNATURE GUESS): Util_CreateText guessed as
-		-- (parent, text, order), returning a label-like Instance.
+		-- NOTE (SIGNATURE GUESS): (parent, text, order, callback).
+		local function AddButton(labelText, order, onClick)
+			local ok, widget = pcall(Util_CreateButton, parent, labelText, order, onClick)
+			if ok and typeof(widget) == "Instance" then
+				return widget
+			end
+			return FallbackButton(labelText, order, onClick)
+		end
+
+		-- NOTE (SIGNATURE GUESS): (parent, text, order, default, callback).
+		local function AddTextbox(labelText, order, initial, onChanged)
+			local ok, widget = pcall(Util_CreateTextbox, parent, labelText, order, initial, onChanged)
+			if ok and typeof(widget) == "Instance" then
+				return widget
+			end
+			return FallbackTextbox(labelText, order, initial, onChanged)
+		end
+
+		-- NOTE (SIGNATURE GUESS): (parent, text, order, options, default, callback).
+		local function AddDropdown(labelText, order, options, initial, onChanged)
+			local ok, widget = pcall(Util_CreateDropdown, parent, labelText, order, options, initial, onChanged)
+			if ok and typeof(widget) == "Instance" then
+				return widget
+			end
+			return FallbackDropdown(labelText, order, options, initial, onChanged)
+		end
+
+		-- NOTE (SIGNATURE GUESS): (parent, text, order).
 		local function AddLabel(text, order)
 			local ok, widget = pcall(Util_CreateText, parent, text, order)
 			if ok and typeof(widget) == "Instance" then
@@ -1597,8 +1876,7 @@ AddModule(function()
 			return FallbackLabel(text, order)
 		end
 
-		-- NOTE (SIGNATURE GUESS): Util_CreateSeparator guessed as
-		-- (parent, order).
+		-- NOTE (SIGNATURE GUESS): (parent, order).
 		local function AddSeparator(order)
 			local ok, widget = pcall(Util_CreateSeparator, parent, order)
 			if ok and typeof(widget) == "Instance" then
@@ -1619,7 +1897,7 @@ AddModule(function()
 
 		AddSlider("Run Speed", 1, 12, 60, Settings.RunSpeed, function(v)
 			Settings.RunSpeed = v
-			if BaseWalkSpeed ~= WALK_SPEED then
+			if IsRunning then
 				BaseWalkSpeed = v
 			end
 		end).Parent = parent
@@ -1628,55 +1906,121 @@ AddModule(function()
 			Settings.SnapTurnEnabled = v
 		end).Parent = parent
 
-		AddToggle("VR Comfort Vignette", 3, Settings.VignetteEnabled, function(v)
+		AddSlider("Snap Turn Angle (deg)", 3, SNAP_TURN_ANGLE_MIN_DEG, SNAP_TURN_ANGLE_MAX_DEG, Settings.SnapTurnAngleDeg, function(v)
+			Settings.SnapTurnAngleDeg = v
+		end).Parent = parent
+
+		AddToggle("VR Smooth Turn (instead of Snap)", 4, Settings.SmoothTurnEnabled, function(v)
+			Settings.SmoothTurnEnabled = v
+		end).Parent = parent
+
+		AddSlider("Smooth Turn Speed (deg/s)", 5, SMOOTH_TURN_SPEED_MIN_DEG, SMOOTH_TURN_SPEED_MAX_DEG, Settings.SmoothTurnSpeedDeg, function(v)
+			Settings.SmoothTurnSpeedDeg = v
+		end).Parent = parent
+
+		AddToggle("VR Comfort Vignette", 6, Settings.VignetteEnabled, function(v)
 			Settings.VignetteEnabled = v
 		end).Parent = parent
 
-		AddSlider("Idle Jitter Scale (%)", 4, 0, 200, Settings.JitterScale * 100, function(v)
+		AddSlider("Idle Jitter Scale (%)", 7, 0, 200, Settings.JitterScale * 100, function(v)
 			Settings.JitterScale = v / 100
 		end).Parent = parent
 
-		AddSeparator(5).Parent = parent
+		AddSeparator(8).Parent = parent
 
-		local pythonHolder = AddToggle("[EXPERIMENTAL] Python Limb Tracking", 6, Settings.PythonTrackingEnabled, function(v)
-			Settings.PythonTrackingEnabled = v
-		end)
-		pythonHolder.Parent = parent
+		AddToggle("[EXPERIMENTAL] Webcam Head Tracking", 9, Settings.HeadTrackingEnabled, function(v)
+			Settings.HeadTrackingEnabled = v
+		end).Parent = parent
 
-		local statusLabel = AddLabel(
-			"AI-generated & experimental: needs python/webcam_vr_bridge.py running locally (webcam pose -> localhost:8787 or a temp file). If it's not running, this silently falls back to normal fake VR - review the script yourself before trusting it.",
-			7
-		)
-		statusLabel.Parent = parent
-
-		local statusConn
-		statusConn = RunService.Heartbeat:Connect(function()
-			if not statusLabel.Parent then
-				if statusConn then
-					statusConn:Disconnect()
-				end
-				return
+		AddTextbox("Head-Tracking Port", 10, tostring(Settings.HeadTrackingPort), function(text)
+			local n = tonumber(text)
+			if n then
+				Settings.HeadTrackingPort = math.floor(n)
 			end
-			-- Both the real Util_CreateText widget and the fallback
-			-- TextLabel expose .Text/.TextColor3 directly; if the real
-			-- widget nests those on a child instead, this pcall just
-			-- silently no-ops instead of erroring.
+		end).Parent = parent
+
+		local headStatusLabel = AddLabel("Webcam head tracking: not tested yet.", 12)
+		headStatusLabel.Parent = parent
+
+		AddButton("Test Head-Tracking Connection", 11, function()
 			pcall(function()
-				if not Settings.PythonTrackingEnabled then
-					statusLabel.Text = "Python limb tracking is OFF. Toggle it on above once webcam_vr_bridge.py is running."
-					statusLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
-					return
-				end
-				if PythonBridge.IsTracking() then
-					statusLabel.Text = ("Python bridge: ACTIVE (%s, crouch %d%%) - real webcam tracking is driving your limbs."):format(
-						PythonBridge.LastTransport or "?", math.floor((PythonBridge.LastPose and PythonBridge.LastPose.crouch or 0) * 100))
-					statusLabel.TextColor3 = Color3.fromRGB(90, 210, 120)
+				headStatusLabel.Text = "Testing..."
+				headStatusLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+			end)
+			task.spawn(function()
+				PollHeadTrackingBridge()
+				task.wait(0.05)
+				pcall(function()
+					if HeadTrackingBridge.IsTracking() then
+						headStatusLabel.Text = ("Connected via %s! Head tracking is live."):format(HeadTrackingBridge.LastTransport or "?")
+						headStatusLabel.TextColor3 = Color3.fromRGB(90, 210, 120)
+					else
+						headStatusLabel.Text = ("No response on port %d (and no fallback file found). Is your webcam head-pose script running?"):format(Settings.HeadTrackingPort)
+						headStatusLabel.TextColor3 = Color3.fromRGB(230, 90, 90)
+					end
+				end)
+			end)
+		end).Parent = parent
+
+		AddSeparator(13).Parent = parent
+
+		AddDropdown("Phone Controller Hand", 14, { "Off", "Left", "Right" }, Settings.PhoneControllerSide, function(v)
+			Settings.PhoneControllerSide = v
+		end).Parent = parent
+
+		AddTextbox("Phone IP Address", 15, Settings.PhoneIP, function(text)
+			if type(text) == "string" and #text > 0 then
+				Settings.PhoneIP = text
+			end
+		end).Parent = parent
+
+		AddTextbox("Phone Port", 16, tostring(Settings.PhonePort), function(text)
+			local n = tonumber(text)
+			if n then
+				Settings.PhonePort = math.floor(n)
+			end
+		end).Parent = parent
+
+		local phoneStatusLabel = AddLabel("Phone controller: not connected.", 19)
+		phoneStatusLabel.Parent = parent
+
+		AddButton("Calibrate Phone Orientation", 17, function()
+			local ok = PhoneBridge.Calibrate()
+			pcall(function()
+				if ok then
+					phoneStatusLabel.Text = "Calibrated! Current phone orientation is now treated as 'arm forward'."
+					phoneStatusLabel.TextColor3 = Color3.fromRGB(90, 210, 120)
 				else
-					statusLabel.Text = "Python bridge: OFFLINE - no pose data received. Falling back to built-in fake VR animation."
-					statusLabel.TextColor3 = Color3.fromRGB(230, 170, 60)
+					phoneStatusLabel.Text = "Can't calibrate yet - no pose data received from the phone. Try Test Connection first."
+					phoneStatusLabel.TextColor3 = Color3.fromRGB(230, 170, 60)
 				end
 			end)
-		end)
+		end).Parent = parent
+
+		AddButton("Test Phone Connection", 18, function()
+			pcall(function()
+				phoneStatusLabel.Text = "Testing..."
+				phoneStatusLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+			end)
+			task.spawn(function()
+				PollPhoneBridge()
+				task.wait(0.05)
+				pcall(function()
+					if PhoneBridge.IsTracking() then
+						phoneStatusLabel.Text = ("Connected! Phone is ready to drive the %s hand."):format(Settings.PhoneControllerSide)
+						phoneStatusLabel.TextColor3 = Color3.fromRGB(90, 210, 120)
+					else
+						phoneStatusLabel.Text = ("No response from %s:%d. Check the phone server is running and on the same network."):format(Settings.PhoneIP, Settings.PhonePort)
+						phoneStatusLabel.TextColor3 = Color3.fromRGB(230, 90, 90)
+					end
+				end)
+			end)
+		end).Parent = parent
+
+		AddLabel(
+			"Both bridges above are experimental and AI-assisted: webcam head tracking needs a local script serving head yaw/pitch on the given port; the phone controller needs a small HTTP server (e.g. Pydroid) on your phone serving /pose. If neither responds, everything silently falls back to normal fake-VR behavior - review any local script yourself before trusting it.",
+			20
+		).Parent = parent
 	end
 
 	--------------------------------------------------------------------
@@ -1697,23 +2041,47 @@ AddModule(function()
 		return force
 	end
 
+	--------------------------------------------------------------------
+	-- Optimization (v2): SetCFrame used to spin up 3 brand-new one-shot
+	-- connections (PreRender/Stepped/PostSimulation) PER PART EVERY
+	-- FRAME to fight physics displacing the part for a frame. That's up
+	-- to 18 connection allocations/frame across 6 limbs. Instead, parts
+	-- that were SetCFrame'd this frame are recorded in PinnedCFrames,
+	-- and 3 connections that exist ONCE for the module's whole lifetime
+	-- walk that (usually tiny) table every frame - same "re-pin for one
+	-- frame, then let go" behavior, zero per-frame connection churn.
+	--------------------------------------------------------------------
+	local PinnedCFrames = {} -- [part] = CFrame
+
+	local function ReapplyPins()
+		for part, cf in pairs(PinnedCFrames) do
+			if part.Parent then
+				part.CFrame = cf
+				part.Velocity, part.RotVelocity = Vector3.zero, Vector3.zero
+			else
+				PinnedCFrames[part] = nil
+			end
+		end
+	end
+	RunService.PreRender:Connect(ReapplyPins)
+	RunService.Stepped:Connect(ReapplyPins)
+	RunService.PostSimulation:Connect(function()
+		for part in pairs(PinnedCFrames) do
+			local force = PartForces[part]
+			if force then
+				force.Enabled = false
+			end
+			PinnedCFrames[part] = nil
+		end
+	end)
+
 	local function SetCFrame(part, cf)
 		part.CFrame = cf
 		part.Velocity, part.RotVelocity = Vector3.zero, Vector3.zero
 		local antigravity = GetAntigravity(part)
 		antigravity.Force = Vector3.new(0, workspace.Gravity * part:GetMass(), 0)
 		antigravity.Enabled = true
-		RunService.PreRender:Once(function()
-			part.CFrame = cf
-			part.Velocity, part.RotVelocity = Vector3.zero, Vector3.zero
-		end)
-		RunService.Stepped:Once(function()
-			part.CFrame = cf
-			part.Velocity, part.RotVelocity = Vector3.zero, Vector3.zero
-		end)
-		RunService.PostSimulation:Once(function()
-			antigravity.Enabled = false
-		end)
+		PinnedCFrames[part] = cf
 	end
 
 	local rcp = RaycastParams.new()
@@ -1723,8 +2091,26 @@ AddModule(function()
 	local function PhysicsRaycast(origin, direction)
 		return workspace:Raycast(origin, direction, rcp)
 	end
-	local mouse = Player:GetMouse()
+
+	-- Optimization (v2): reused every frame instead of allocated fresh.
+	local FilterInstances = { nil, nil }
+
+	-- Bug fix (v2): Player:GetMouse() used to be called unguarded at
+	-- module (chunk) scope - wrapped in pcall, with a safe fallback if
+	-- it's unavailable for whatever reason.
+	local mouse
+	do
+		local ok, m2 = pcall(function()
+			return Player:GetMouse()
+		end)
+		if ok then
+			mouse = m2
+		end
+	end
 	local function MouseHit()
+		if not mouse then
+			return ReanimCamera.CFrame.Position + ReanimCamera.CFrame.LookVector * 20
+		end
 		local ray = mouse.UnitRay
 		local dist = 2000
 		local raycast = PhysicsRaycast(ray.Origin, ray.Direction * dist)
@@ -1836,8 +2222,40 @@ AddModule(function()
 	local Crouching = false
 	local CrouchDistance = 0
 	local TorsoRotation = CFrame.identity
-	local SnapTurnConn, SnapTurnArmed, LastSnapTurnTime = nil, true, 0
+	local SnapTurnConn, SnapTurnEndedConn, SnapTurnArmed, LastSnapTurnTime = nil, nil, true, 0
+	local LastThumbstick2X = 0
 	local VignetteGui, VignetteFrames = nil, nil
+
+	-- Optimization (v2): figure/joint/limb refs are cached against figure
+	-- identity instead of FindFirstChild'd fresh every single Update call.
+	local CachedFigure = nil
+	local CachedParts = {}
+	local CachedJoints = {}
+
+	local function RefreshCache(figure)
+		if CachedFigure == figure then
+			return
+		end
+		CachedFigure = figure
+		hum = figure:FindFirstChild("Humanoid")
+		root = figure:FindFirstChild("HumanoidRootPart")
+		torso = figure:FindFirstChild("Torso")
+		CachedParts.Head = figure:FindFirstChild("Head")
+		CachedParts.RightArm = figure:FindFirstChild("Right Arm")
+		CachedParts.LeftArm = figure:FindFirstChild("Left Arm")
+		CachedParts.RightLeg = figure:FindFirstChild("Right Leg")
+		CachedParts.LeftLeg = figure:FindFirstChild("Left Leg")
+		CachedJoints.RootJoint = root and root:FindFirstChild("RootJoint")
+		if torso then
+			CachedJoints.Neck = torso:FindFirstChild("Neck")
+			CachedJoints.RightShoulder = torso:FindFirstChild("Right Shoulder")
+			CachedJoints.LeftShoulder = torso:FindFirstChild("Left Shoulder")
+			CachedJoints.RightHip = torso:FindFirstChild("Right Hip")
+			CachedJoints.LeftHip = torso:FindFirstChild("Left Hip")
+		else
+			CachedJoints.Neck, CachedJoints.RightShoulder, CachedJoints.LeftShoulder, CachedJoints.RightHip, CachedJoints.LeftHip = nil, nil, nil, nil, nil
+		end
+	end
 
 	local function GetLegPoint(leg)
 		if leg.InAir then
@@ -1848,8 +2266,6 @@ AddModule(function()
 	end
 
 	-- Shared per-frame idle-jitter sampler used by both arms and legs.
-	-- (was: a pointless `for _ = 1, 1 do ... end` duplicated in both
-	-- ProcessLegs and ProcessArms)
 	local function UpdateJitter(realism, dt, magnitude)
 		local sample = Vector3.new(math.random() * 2 - 1, math.random() * 2 - 1, math.random() * 2 - 1) * magnitude
 		local decay = math.exp(-JITTER_SMOOTHING_RATE * dt)
@@ -1907,23 +2323,28 @@ AddModule(function()
 		return IK2Bone(orig, tgt, poleDir, LEG_UPPER_LENGTH * scale, LEG_LOWER_LENGTH * scale) * real * CFrame.Angles(HALF_PI, 0, 0) * CFrame.new(0, LEG_FOOT_DROP * scale, 0)
 	end
 
-	local function ProcessArms(arm, dt, vro, headcf)
+	local function ProcessArms(arm, dt, vro, headcf, vrMode)
 		local last = UpdateJitter(arm.Realism, dt, ARM_JITTER_MAGNITUDE)
 
-		-- BUG FIX: this used to raycast from vro.Position along headcf.LookVector
-		-- as if it were a world-space direction (it's actually local to vro), and
-		-- MouseHit() - meant to drive the M1/M2 hand pointing - was never called.
-		-- Now the hand actually aims at whatever the mouse/cursor is over, computed
-		-- in real world space and converted back into vro's local space (everything
-		-- this function returns is local to vro).
 		local shoulderWorld = (vro * arm.Offset).Position
-		local aimPoint = MouseHit()
-		local worldDir = aimPoint - shoulderWorld
-		if worldDir.Magnitude < 1e-4 then
+		local worldDir
+		if vrMode then
+			-- Bug fix (v2): this used to always raycast from the desktop
+			-- mouse cursor, even inside an active VR session where the
+			-- desktop mouse isn't meaningful (e.g. headset on, hand
+			-- controllers not yet paired). Aim along where the player is
+			-- actually looking instead.
 			worldDir = vro:VectorToWorldSpace(headcf.LookVector)
 		else
-			worldDir = worldDir.Unit
+			local aimPoint = MouseHit()
+			local toAim = aimPoint - shoulderWorld
+			if toAim.Magnitude < 1e-4 then
+				worldDir = vro:VectorToWorldSpace(headcf.LookVector)
+			else
+				worldDir = toAim.Unit
+			end
 		end
+
 		local hit = PhysicsRaycast(shoulderWorld, worldDir * ARM_POINT_RAYCAST_DISTANCE * scale)
 		local cast
 		if hit then
@@ -1961,31 +2382,65 @@ AddModule(function()
 		return CFrame.new(0, -0.5, 0) * CFrame.fromEulerAngles(x, y, z, Enum.RotationOrder.YXZ) * CFrame.new(0, 0.5, 0) + Vector3.new(0, -CrouchDistance, 0)
 	end
 
-	-- EXPERIMENTAL: turns the Python webcam pose JSON into the same kind
-	-- of local-space CFrame that VR hardware / ProcessArms would produce,
-	-- so it can drop straight into the existing head/arm pipeline.
-	-- See the PythonBridge section above for the transport + JSON shape.
-	local function ComputePythonHeadCFrame()
-		local pose = PythonBridge.LastPose
+	-- EXPERIMENTAL: webcam head-pose-only bridge -> local-space head CFrame.
+	local function ComputeHeadTrackingCFrame()
+		local pose = HeadTrackingBridge.LastPose
 		local yaw = (pose and pose.headYaw) or 0
 		local pitch = (pose and pose.headPitch) or 0
 		return CFrame.new(0, -0.5, 0) * CFrame.Angles(pitch, yaw, 0) * CFrame.new(0, 0.5, 0) + Vector3.new(0, -CrouchDistance, 0)
 	end
 
-	local function ComputePythonHandCFrame(handData, side)
-		-- handData: {x, y, z} in "shoulder widths" from the Python script,
-		-- side: -1 for left hand, 1 for right hand (used for a sane default
-		-- if the Python side hasn't sent anything meaningful yet).
-		local hx = (handData and handData.x) or side * 0.6
-		local hy = (handData and handData.y) or -0.3
-		local hz = (handData and handData.z) or 0.3
-		-- Scale from "shoulder widths" into roughly-arm's-reach studs so
-		-- it lines up with FakeVRArms' own hand-reach magnitudes.
-		local point = Vector3.new(hx, hy, hz) * ARM_POINT_RAYCAST_DISTANCE * 0.05
-		return CFrame.lookAlong(point, -Vector3.zAxis)
+	-- EXPERIMENTAL: phone-controller bridge -> local-space hand CFrame.
+	-- Points the hand outward from the shoulder along the phone's
+	-- calibration-relative tilt, at roughly arm's reach.
+	local function ComputePhoneHandCFrame(side)
+		local pose = PhoneBridge.LastPose
+		local calib = PhoneBridge.Calibration
+		local yaw = ((pose and pose.yaw) or 0) - calib.yaw
+		local pitch = ((pose and pose.pitch) or 0) - calib.pitch
+		local roll = ((pose and pose.roll) or 0) - calib.roll
+		local pointDir = (CFrame.Angles(pitch, yaw, roll) * CFrame.new(side == "Left" and -0.3 or 0.3, 0, -1)).Position.Unit
+		local reach = ARM_POINT_RAYCAST_DISTANCE * PHONE_HAND_REACH_SCALE
+		return CFrame.lookAlong(pointDir * reach, pointDir)
 	end
 
-	local function DoSnapTurn(direction)
+	-- Resolves the local-space head CFrame this frame, and returns the
+	-- (possibly first-person-yaw-corrected) eye/hand reference frame it
+	-- should be combined with. Priority: real VR head > webcam head pose
+	-- > camera-driven fallback.
+	local function ResolveHead(vro)
+		if VRService.VREnabled and VRService:GetUserCFrameEnabled(Enum.UserCFrame.Head) then
+			local headCFrame = VRService:GetUserCFrame(Enum.UserCFrame.Head)
+			if ReanimCamera:IsFirstPerson() then
+				local _, y, _ = headCFrame:ToEulerAngles(Enum.RotationOrder.YXZ)
+				vro *= CFrame.Angles(0, -y, 0)
+			end
+			return headCFrame, vro
+		end
+		if HeadTrackingBridge.IsTracking() then
+			return ComputeHeadTrackingCFrame(), vro
+		end
+		return ComputeFallbackHeadCFrame(), vro
+	end
+
+	-- Resolves one hand's local-space CFrame this frame. Priority: real
+	-- VR controller (per-hand, independent of the other hand) > phone
+	-- controller bridge (if assigned to this side) > fake-VR mouse
+	-- pointing. Returns (cframe, isSynthetic) - isSynthetic marks
+	-- anything that isn't a real tracked controller, since only those
+	-- need the manual CrouchDistance offset added by the caller (a real
+	-- controller's tracked position already reflects physical crouch).
+	local function ResolveHand(armIndex, dt, vro, chead, handEnabled, side)
+		if VRService.VREnabled and handEnabled then
+			return VRService:GetUserCFrame(armIndex == 1 and Enum.UserCFrame.LeftHand or Enum.UserCFrame.RightHand), false
+		end
+		if Settings.PhoneControllerSide == side and PhoneBridge.IsTracking() then
+			return ComputePhoneHandCFrame(side), true
+		end
+		return ProcessArms(FakeVRArms[armIndex], dt, vro, chead, VRService.VREnabled), true
+	end
+
+	local function DoSnapTurn(direction, angleDeg)
 		if not root then
 			return
 		end
@@ -1994,7 +2449,7 @@ AddModule(function()
 			return
 		end
 		LastSnapTurnTime = now
-		root.CFrame = root.CFrame * CFrame.Angles(0, direction * SNAP_TURN_ANGLE, 0)
+		root.CFrame = root.CFrame * CFrame.Angles(0, direction * math.rad(angleDeg), 0)
 		PulseHaptic(Enum.VibrationMotor.Small, HAPTIC_BUTTON_INTENSITY, HAPTIC_BUTTON_DURATION)
 	end
 
@@ -2004,9 +2459,6 @@ AddModule(function()
 		end)
 		if VRService.VREnabled and VRService:GetUserCFrameEnabled(Enum.UserCFrame.Head) then
 			local headCFrame = VRService:GetUserCFrame(Enum.UserCFrame.Head)
-			-- Real headset eye height above the tracking origin, used to rescale
-			-- eye/arm reach so tall/short players don't end up with comically
-			-- long/short virtual arms.
 			HeightCalibration = math.clamp(headCFrame.Position.Y / REFERENCE_HEAD_HEIGHT, 0.6, 1.6)
 		else
 			HeightCalibration = 1
@@ -2089,13 +2541,13 @@ AddModule(function()
 	end
 
 	m.Init = function(figure: Model)
-		hum = figure:FindFirstChild("Humanoid")
-		root = figure:FindFirstChild("HumanoidRootPart")
-		torso = figure:FindFirstChild("Torso")
+		CachedFigure = nil -- force a fresh cache resolve for this figure
+		RefreshCache(figure)
 		if not hum then return end
 		if not root then return end
 		if not torso then return end
 		BaseWalkSpeed = WALK_SPEED
+		IsRunning = false
 		hum.WalkSpeed = WALK_SPEED
 		HeightCalibration = 1
 		--ReanimCamera.FPSLocked = true
@@ -2105,24 +2557,30 @@ AddModule(function()
 		-- as usual) - it's only Head/Arms/Legs/Torso that get manually
 		-- SetCFrame'd every frame relative to root.CFrame. That best
 		-- matches LimbReanimator's "2 - Keep RootPart streamed" mode.
-		-- NOTE (SIGNATURE GUESS): exact mode semantics weren't available
-		-- when this was written; pcall'd so an unsupported/incorrect
-		-- mode value can't break Init.
 		pcall(function()
 			if LimbReanimator and LimbReanimator.SetRootPartMode then
 				LimbReanimator.SetRootPartMode(LIMB_REANIMATOR_ROOT_PART_MODE)
 			end
 		end)
-		for _,v in figure:GetChildren() do
+
+		-- Bug fix / optimization (v2): the old nested loop only skipped
+		-- v == w, so every unordered pair of parts got TWO
+		-- NoCollisionConstraints created (A->B and B->A). Collecting
+		-- parts first and only pairing i < j fixes that.
+		local parts = {}
+		for _, v in figure:GetChildren() do
 			if v:IsA("BasePart") then
-				for _,w in figure:GetChildren() do
-					if v ~= w and w:IsA("BasePart") then
-						local nocoll = Instance.new("NoCollisionConstraint", v)
-						nocoll.Part0, nocoll.Part1 = v, w
-					end
-				end
+				table.insert(parts, v)
 			end
 		end
+		for i = 1, #parts do
+			for j = i + 1, #parts do
+				local nocoll = Instance.new("NoCollisionConstraint")
+				nocoll.Part0, nocoll.Part1 = parts[i], parts[j]
+				nocoll.Parent = parts[i]
+			end
+		end
+
 		LegsTarget = {
 			{
 				Position = root.CFrame * Vector3.new(-0.5, -3, 0),
@@ -2209,11 +2667,8 @@ AddModule(function()
 		ContextActions:SetPosition("Uhhhhhh_VRCrouch", SafeButtonPosition(-130, -230))
 		ContextActions:BindAction("Uhhhhhh_VRRun", function(_, state, _)
 			if state == Enum.UserInputState.Begin then
-				if BaseWalkSpeed == WALK_SPEED then
-					BaseWalkSpeed = Settings.RunSpeed
-				else
-					BaseWalkSpeed = WALK_SPEED
-				end
+				IsRunning = not IsRunning
+				BaseWalkSpeed = IsRunning and Settings.RunSpeed or WALK_SPEED
 				PulseHaptic(Enum.VibrationMotor.Small, HAPTIC_BUTTON_INTENSITY, HAPTIC_BUTTON_DURATION)
 			end
 		end, true, Enum.KeyCode.LeftControl, Enum.KeyCode.ButtonB)
@@ -2230,125 +2685,112 @@ AddModule(function()
 		if SnapTurnConn then
 			SnapTurnConn:Disconnect()
 		end
+		if SnapTurnEndedConn then
+			SnapTurnEndedConn:Disconnect()
+		end
 		SnapTurnArmed = true
 		LastSnapTurnTime = 0
+		LastThumbstick2X = 0
 		SnapTurnConn = UserInputService.InputChanged:Connect(function(input)
 			if input.KeyCode ~= Enum.KeyCode.Thumbstick2 then
+				return
+			end
+			LastThumbstick2X = input.Position.X
+			if Settings.SmoothTurnEnabled then
+				-- Smooth turn is applied continuously in m.Update instead;
+				-- just keep snap-turn's edge-detector primed in case the
+				-- player flips the toggle back off mid-session.
+				SnapTurnArmed = true
 				return
 			end
 			if not (Settings.SnapTurnEnabled and VRService.VREnabled) then
 				return
 			end
-			local x = input.Position.X
-			if math.abs(x) < SNAP_TURN_DEADZONE then
+			if math.abs(LastThumbstick2X) < SNAP_TURN_DEADZONE then
 				SnapTurnArmed = true
 				return
 			end
 			if SnapTurnArmed then
 				SnapTurnArmed = false
-				DoSnapTurn(x > 0 and 1 or -1)
+				DoSnapTurn(LastThumbstick2X > 0 and 1 or -1, Settings.SnapTurnAngleDeg)
 			end
 		end)
+		SnapTurnEndedConn = UserInputService.InputEnded:Connect(function(input)
+			if input.KeyCode == Enum.KeyCode.Thumbstick2 then
+				LastThumbstick2X = 0
+			end
+		end)
+
+		StartBridgePolling()
 	end
 
 	m.Update = function(dt: number, figure: Model)
-		local t = os.clock()
 		scale = figure:GetScale()
 		isdancing = not not figure:GetAttribute("IsDancing")
-		rcp.FilterDescendantsInstances = {figure, Player.Character}
 
-		-- get vii
-		hum = figure:FindFirstChild("Humanoid")
-		root = figure:FindFirstChild("HumanoidRootPart")
-		torso = figure:FindFirstChild("Torso")
+		RefreshCache(figure)
 		if not hum then return end
 		if not root then return end
 		if not torso then return end
 
-		-- joints
-		local rj = root:FindFirstChild("RootJoint")
-		local nj = torso:FindFirstChild("Neck")
-		local rsj = torso:FindFirstChild("Right Shoulder")
-		local lsj = torso:FindFirstChild("Left Shoulder")
-		local rhj = torso:FindFirstChild("Right Hip")
-		local lhj = torso:FindFirstChild("Left Hip")
-
-		-- EXPERIMENTAL: if the Python webcam bridge is tracking, physically
-		-- crouching in front of the camera blends with (and can exceed) the
-		-- keyboard crouch toggle, instead of only being an on/off switch -
-		-- so leaning down for real actually moves the torso down.
-		local pythonCrouchAmount = 0
-		if PythonBridge.IsTracking() and PythonBridge.LastPose then
-			pythonCrouchAmount = math.clamp(PythonBridge.LastPose.crouch or 0, 0, 1)
+		local rj, nj, rsj, lsj, rhj, lhj =
+			CachedJoints.RootJoint, CachedJoints.Neck, CachedJoints.RightShoulder, CachedJoints.LeftShoulder, CachedJoints.RightHip, CachedJoints.LeftHip
+		if not (rj and nj and rsj and lsj and rhj and lhj) then
+			return
 		end
-		local crouchTarget = math.max(Crouching and 1 or 0, pythonCrouchAmount) * CROUCH_DISTANCE
+
+		FilterInstances[1] = figure
+		FilterInstances[2] = Player.Character
+		rcp.FilterDescendantsInstances = FilterInstances
+
+		local crouchTarget = (Crouching and 1 or 0) * CROUCH_DISTANCE
 		CrouchDistance = crouchTarget + (CrouchDistance - crouchTarget) * math.exp(-JITTER_SMOOTHING_RATE * dt)
+
+		-- Smooth-turn reads the last-known thumbstick X every frame
+		-- (unlike snap-turn, which only fires on InputChanged edges).
+		if VRService.VREnabled and Settings.SmoothTurnEnabled and math.abs(LastThumbstick2X) > SMOOTH_TURN_DEADZONE then
+			root.CFrame = root.CFrame * CFrame.Angles(0, LastThumbstick2X * math.rad(Settings.SmoothTurnSpeedDeg) * dt, 0)
+		end
 
 		if not isdancing then
 			rj.Enabled, nj.Enabled, rsj.Enabled, lsj.Enabled, rhj.Enabled, lhj.Enabled = false, false, false, false, false, false
-			--hum.HipHeight = 2 * scale
-			hum.HipHeight = 2 * scale - 2 - CrouchDistance * scale
+			hum.HipHeight = 2 * scale - HIP_HEIGHT_FUDGE - CrouchDistance * scale
 			-- Crouching now also slows movement, not just posture height.
 			local crouchAlpha = CrouchDistance / CROUCH_DISTANCE
 			hum.WalkSpeed = BaseWalkSpeed * (1 - crouchAlpha * (1 - CROUCH_WALKSPEED_SCALE))
 			root.CustomPhysicalProperties = PhysicalProperties.new(3.15, 0.3, 0.5)
-			local head = figure:FindFirstChild("Head")
-			local rarm = figure:FindFirstChild("Right Arm")
-			local larm = figure:FindFirstChild("Left Arm")
-			local rleg = figure:FindFirstChild("Right Leg")
-			local lleg = figure:FindFirstChild("Left Leg")
-			local chead, clarm, crarm
+
+			local head, rarm, larm, rleg, lleg =
+				CachedParts.Head, CachedParts.RightArm, CachedParts.LeftArm, CachedParts.RightLeg, CachedParts.LeftLeg
+			if not (head and rarm and larm and rleg and lleg) then
+				return
+			end
+
 			local vro = root.CFrame * CFrame.new(0, EYE_HEIGHT_OFFSET * scale * HeightCalibration, 0)
 			local vroot = root.CFrame
 			vro += Vector3.new(0, CrouchDistance * scale, 0)
 			vroot += Vector3.new(0, CrouchDistance * scale, 0)
-			-- Priority order for head/arm source, cheapest and most trustworthy
-			-- first: real VR hardware > EXPERIMENTAL Python webcam pose > the
-			-- original built-in fake-VR camera-driven animation.
-			local pythonActive = PythonBridge.IsTracking()
 
-			if VRService.VREnabled then
-				-- BUG FIX: VREnabled only means *a* VR device is connected - the
-				-- individual head/hand CFrames can still be disabled (booting up,
-				-- or no motion controllers paired). Trusting them unconditionally
-				-- used to hand back stale/zero CFrames in that case.
-				local headEnabled = VRService:GetUserCFrameEnabled(Enum.UserCFrame.Head)
-				local leftHandEnabled = VRService:GetUserCFrameEnabled(Enum.UserCFrame.LeftHand)
-				local rightHandEnabled = VRService:GetUserCFrameEnabled(Enum.UserCFrame.RightHand)
+			-- Priority for head: real VR hardware > EXPERIMENTAL webcam
+			-- head pose > built-in camera-driven fallback.
+			local chead
+			chead, vro = ResolveHead(vro)
 
-				if headEnabled then
-					chead = VRService:GetUserCFrame(Enum.UserCFrame.Head)
-					if ReanimCamera:IsFirstPerson() then
-						local _, y, _ = chead:ToEulerAngles(Enum.RotationOrder.YXZ)
-						vro *= CFrame.Angles(0, -y, 0)
-					end
-				elseif pythonActive then
-					chead = ComputePythonHeadCFrame()
-				else
-					chead = ComputeFallbackHeadCFrame()
-				end
+			-- Bug fix (v2): left/right VR hand tracking is now resolved
+			-- fully independently, so pairing only one motion controller
+			-- no longer throws away tracking on the other hand too.
+			local leftHandEnabled = VRService.VREnabled and VRService:GetUserCFrameEnabled(Enum.UserCFrame.LeftHand)
+			local rightHandEnabled = VRService.VREnabled and VRService:GetUserCFrameEnabled(Enum.UserCFrame.RightHand)
 
-				if leftHandEnabled and rightHandEnabled then
-					clarm, crarm = VRService:GetUserCFrame(Enum.UserCFrame.LeftHand), VRService:GetUserCFrame(Enum.UserCFrame.RightHand)
-				elseif pythonActive then
-					clarm = ComputePythonHandCFrame(PythonBridge.LastPose.leftHand, -1) + Vector3.new(0, -CrouchDistance, 0)
-					crarm = ComputePythonHandCFrame(PythonBridge.LastPose.rightHand, 1) + Vector3.new(0, -CrouchDistance, 0)
-				else
-					clarm = ProcessArms(FakeVRArms[1], dt, vro, chead) + Vector3.new(0, -CrouchDistance, 0)
-					crarm = ProcessArms(FakeVRArms[2], dt, vro, chead) + Vector3.new(0, -CrouchDistance, 0)
-				end
-			elseif pythonActive then
-				-- EXPERIMENTAL: no real VR headset, but the Python webcam
-				-- bridge is alive and tracking - use it to drive head/arms
-				-- instead of the default camera-follow fake VR animation.
-				chead = ComputePythonHeadCFrame()
-				clarm = ComputePythonHandCFrame(PythonBridge.LastPose.leftHand, -1) + Vector3.new(0, -CrouchDistance, 0)
-				crarm = ComputePythonHandCFrame(PythonBridge.LastPose.rightHand, 1) + Vector3.new(0, -CrouchDistance, 0)
-			else
-				chead = ComputeFallbackHeadCFrame()
-				clarm = ProcessArms(FakeVRArms[1], dt, vro, chead) + Vector3.new(0, -CrouchDistance, 0)
-				crarm = ProcessArms(FakeVRArms[2], dt, vro, chead) + Vector3.new(0, -CrouchDistance, 0)
+			local clarm, clarmSynthetic = ResolveHand(1, dt, vro, chead, leftHandEnabled, "Left")
+			local crarm, crarmSynthetic = ResolveHand(2, dt, vro, chead, rightHandEnabled, "Right")
+			if clarmSynthetic then
+				clarm += Vector3.new(0, -CrouchDistance, 0)
 			end
+			if crarmSynthetic then
+				crarm += Vector3.new(0, -CrouchDistance, 0)
+			end
+
 			chead += chead.Position * (scale - 1)
 			clarm += clarm.Position * (scale - 1)
 			crarm += crarm.Position * (scale - 1)
@@ -2356,10 +2798,7 @@ AddModule(function()
 			SetCFrame(head, vro * chead)
 			SetCFrame(larm, vro * clarm * armo)
 			SetCFrame(rarm, vro * crarm * armo)
-			-- BUG FIX: torso twist used a bare atan() of the Z-delta between the
-			-- feet with an arbitrary 0.5/scale fudge factor. atan2 against the
-			-- actual lateral stride width gives a properly bounded, geometry-
-			-- correct twist angle instead.
+
 			local p1 = vroot:PointToObjectSpace(GetLegPoint(LegsTarget[1]))
 			local p2 = vroot:PointToObjectSpace(GetLegPoint(LegsTarget[2]))
 			local strideWidth = math.max(math.abs(p1.X - p2.X), TORSO_MIN_STRIDE * scale)
@@ -2375,13 +2814,14 @@ AddModule(function()
 			UpdateVignette(root.Velocity.Magnitude)
 		else
 			rj.Enabled, nj.Enabled, rsj.Enabled, lsj.Enabled, rhj.Enabled, lhj.Enabled = true, true, true, true, true, true
-			hum.HipHeight = 2 * scale - 2
+			hum.HipHeight = 2 * scale - HIP_HEIGHT_FUDGE
 			root.CustomPhysicalProperties = nil
 			if VignetteGui then
 				VignetteGui.Enabled = false
 			end
 		end
 	end
+
 	m.Destroy = function(figure: Model?)
 		ContextActions:UnbindAction("Uhhhhhh_VRWaveL")
 		ContextActions:UnbindAction("Uhhhhhh_VRWaveR")
@@ -2392,6 +2832,11 @@ AddModule(function()
 			SnapTurnConn:Disconnect()
 			SnapTurnConn = nil
 		end
+		if SnapTurnEndedConn then
+			SnapTurnEndedConn:Disconnect()
+			SnapTurnEndedConn = nil
+		end
+		StopBridgePolling()
 		if VignetteGui then
 			VignetteGui:Destroy()
 			VignetteGui = nil
@@ -2400,12 +2845,21 @@ AddModule(function()
 		if figure then
 			for _, partName in { "Head", "Right Arm", "Left Arm", "Right Leg", "Left Leg", "Torso" } do
 				local part = figure:FindFirstChild(partName)
-				local force = part and PartForces[part]
-				if force then
-					force.Enabled = false
+				if part then
+					-- Bug fix (v2): used to only Enabled=false these and
+					-- leave the instances parented under the limb forever
+					-- (harmless but untidy if the figure survives a
+					-- moveset switch). Now actually destroyed.
+					local force = PartForces[part]
+					if force then
+						force:Destroy()
+						PartForces[part] = nil
+					end
+					PinnedCFrames[part] = nil
 				end
 			end
 		end
+		CachedFigure = nil
 	end
 	return m
 end)
