@@ -25,6 +25,9 @@ table.insert(modules, function()
 	local pullLeft = false
 	local pullRight = false
 
+	-- FIX: remember original limb sizes so we can restore them on Destroy
+	local baseArmSize, baseLegSize
+
 	local rayParams = RaycastParams.new()
 	rayParams.FilterType = Enum.RaycastFilterType.Exclude
 	rayParams.RespectCanCollide = true
@@ -42,6 +45,22 @@ table.insert(modules, function()
 	local function Raycast(origin, direction, filter)
 		rayParams.FilterDescendantsInstances = filter or {}
 		return workspace:Raycast(origin, direction, rayParams)
+	end
+
+	-- FIX: proper "stretch limb toward target" helper.
+	-- R6 limbs have their long axis on Y, so CFrame.new(origin, target)
+	-- (which points -Z at target) needs an extra 90° rotation about X
+	-- to make Y point at the target instead. Also returns the distance
+	-- so we can resize the part to actually look stretched.
+	local function StretchCFrame(origin: Vector3, target: Vector3)
+		local delta = target - origin
+		local dist = delta.Magnitude
+		if dist < 1e-3 then
+			return CFrame.new(origin), 0
+		end
+		local dir = delta / dist
+		local cf = CFrame.new(origin, origin + dir) * CFrame.Angles(math.pi / 2, 0, 0)
+		return cf * CFrame.new(0, dist / 2, 0), dist
 	end
 
 	m.Init = function(figure: Model)
@@ -74,6 +93,16 @@ table.insert(modules, function()
 		plantCooldown = 0
 		launchBoost = Vector3.zero
 		climbBoost = Vector3.zero
+		pullLeft = false
+		pullRight = false
+
+		-- FIX: cache original sizes before we start stretching limbs
+		baseArmSize = larm.Size
+		baseLegSize = lleg.Size
+
+		-- FIX: unbind first in case a previous Init left these bound
+		pcall(function() ContextActions:UnbindAction("GT_PullLeft") end)
+		pcall(function() ContextActions:UnbindAction("GT_PullRight") end)
 
 		-- Manual arm pulls for fine-tuned climbing
 		ContextActions:BindAction("GT_PullLeft", function(_, state)
@@ -171,9 +200,12 @@ table.insert(modules, function()
 			rTarget = Vector3.new(rTarget.X, math.min(rTarget.Y, groundY), rTarget.Z)
 		end
 
-		-- Long arm CFrames
-		local lArmCF = CFrame.lookAt(lShoulder.Position, lTarget) * CFrame.new(0, 0, -ARM_REACH * 0.5)
-		local rArmCF = CFrame.lookAt(rShoulder.Position, rTarget) * CFrame.new(0, 0, -ARM_REACH * 0.5)
+		-- FIX: build stretched arm CFrames with correct axis + resize the part
+		local lArmCF, lArmLen = StretchCFrame(lShoulder.Position, lTarget)
+		local rArmCF, rArmLen = StretchCFrame(rShoulder.Position, rTarget)
+
+		larm.Size = Vector3.new(baseArmSize.X, math.max(lArmLen, baseArmSize.Y), baseArmSize.Z)
+		rarm.Size = Vector3.new(baseArmSize.X, math.max(rArmLen, baseArmSize.Y), baseArmSize.Z)
 
 		-- Climbing: looking up + raycast above shoulders = pull up
 		if pitch > 0.35 then
@@ -192,8 +224,15 @@ table.insert(modules, function()
 		local rHip = torsoCF * CFrame.new(0.7 * scale, -0.8 * scale, 0.7 * scale)
 
 		local legDir = (-torsoCF.LookVector * 0.8 - Vector3.new(0, 0.6, 0)).Unit
-		local lLegCF = CFrame.lookAt(lHip.Position, lHip.Position + legDir) * CFrame.new(0, 0, -LEG_REACH * 0.5)
-		local rLegCF = CFrame.lookAt(rHip.Position, rHip.Position + legDir) * CFrame.new(0, 0, -LEG_REACH * 0.5)
+		local lLegTarget = lHip.Position + legDir * LEG_REACH
+		local rLegTarget = rHip.Position + legDir * LEG_REACH
+
+		-- FIX: same stretch fix applied to legs
+		local lLegCF, lLegLen = StretchCFrame(lHip.Position, lLegTarget)
+		local rLegCF, rLegLen = StretchCFrame(rHip.Position, rLegTarget)
+
+		lleg.Size = Vector3.new(baseLegSize.X, math.max(lLegLen, baseLegSize.Y), baseLegSize.Z)
+		rleg.Size = Vector3.new(baseLegSize.X, math.max(rLegLen, baseLegSize.Y), baseLegSize.Z)
 
 		-- Disable joints and write transforms
 		if rj then rj.Enabled = false end
@@ -213,20 +252,33 @@ table.insert(modules, function()
 		SetCFrame(rleg, rLegCF)
 	end
 
-    m.Destroy = function(figure: Model?)
-        if hum then
-            hum.WalkSpeed = 16
-            hum.JumpPower = 50
-            hum.AutoRotate = true
-        end
-        if rj then rj.Enabled = true end
-        if nj then nj.Enabled = true end
-        if rsj then rsj.Enabled = true end
-        if lsj then lsj.Enabled = true end
-        if rhj then rhj.Enabled = true end
-        if lhj then lhj.Enabled = true end
-    end
-    
-    return m
+	m.Destroy = function(figure: Model?)
+		if hum then
+			hum.WalkSpeed = 16
+			hum.JumpPower = 50
+			hum.AutoRotate = true
+			hum.HipHeight = 2 -- FIX: restore default hip height
+		end
+		if rj then rj.Enabled = true end
+		if nj then nj.Enabled = true end
+		if rsj then rsj.Enabled = true end
+		if lsj then lsj.Enabled = true end
+		if rhj then rhj.Enabled = true end
+		if lhj then lhj.Enabled = true end
+
+		-- FIX: restore original limb sizes so the rig isn't left stretched
+		if larm and baseArmSize then larm.Size = baseArmSize end
+		if rarm and baseArmSize then rarm.Size = baseArmSize end
+		if lleg and baseLegSize then lleg.Size = baseLegSize end
+		if rleg and baseLegSize then rleg.Size = baseLegSize end
+
+		-- FIX: unbind context actions and reset input state
+		pcall(function() ContextActions:UnbindAction("GT_PullLeft") end)
+		pcall(function() ContextActions:UnbindAction("GT_PullRight") end)
+		pullLeft = false
+		pullRight = false
+	end
+
+	return m
 end)
 return modules
