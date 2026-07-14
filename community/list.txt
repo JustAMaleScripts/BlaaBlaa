@@ -86,3 +86,9 @@ user = cybop_
 desc = holy 744MB, but splitted :zmile:
 type = folder
 path = Cybop/
+
+name = JustAMale's Gorilla Moveset
+user = JustAMale
+desc = made it myself with AI beep boop beep boop :shook:
+type = folder
+path = JustAGorilla/
