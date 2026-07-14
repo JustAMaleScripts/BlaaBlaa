@@ -21,6 +21,7 @@
 				some 1990s Musics
 				Counter-Strike 2
 				BlackEyedPeas
+				Mirror's Edge Catalyst
 
 Thou shalth not steal. Point at this source if you used a snippet here.
 ]]
@@ -448,6 +449,7 @@ do
 		"around-the-world.mp3",
 		"cs2-theme.mp3",
 		"rock-that-body.mp3",
+		"mec_main.mp3",
 		"lightinursoul.graphic.png",
 		"letriangul.graphic.png",
 	}
@@ -671,7 +673,7 @@ UISound.Music.PlaybackSpeed = 1
 
 local MusicPlayer = {}
 MusicPlayer.Database = {
-	{"BlaaBlaaReanim/Assets/dm_afterburner.ft2.mp3", "Dubmood - Afterburner"},
+	{"BlaaBlaaReanim/Assets/mec_main.mp3", "Mirror's Edge Catalyst - Main Theme"},
 	{"BlaaBlaaReanim/Assets/dm_robotadventure.ft2.mp3", "Dubmood & Zabutom - Robot Adventure Remix"},
 	{"BlaaBlaaReanim/Assets/4m_brokenheart.ft2.mp3", "4-Mat - <3 Broken Heart <3"},
 	{"BlaaBlaaReanim/Assets/fr_brokenheart.ft2.mp3", "Hoster's FR - Alternate Broken Heart"},
@@ -702,6 +704,7 @@ MusicPlayer.Database = {
 	{"BlaaBlaaReanim/Assets/around-the-world.mp3", "Daft Punk - Around The World"},
 	{"BlaaBlaaReanim/Assets/cs2-theme.mp3", "Counter Strike 2 - Main Theme"},
 	{"BlaaBlaaReanim/Assets/rock-that-body.mp3", "BlackEyedPeas - Rock That Body"},
+	{"BlaaBlaaReanim/Assets/dm_afterburner.ft2.mp3", "Dubmood - Afterburner"},
 }
 pcall(function()
 	local future = table.clone(MusicPlayer.Database)
