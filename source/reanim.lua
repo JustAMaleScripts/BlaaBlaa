@@ -22,6 +22,10 @@
 				Counter-Strike 2
 				BlackEyedPeas
 				Mirror's Edge Catalyst
+				8 Bit Bunker
+				8 Bit Universe
+				8 Bit Arcade
+				8 Bit Misfits
 
 Thou shalth not steal. Point at this source if you used a snippet here.
 ]]
@@ -450,6 +454,11 @@ do
 		"cs2-theme.mp3",
 		"rock-that-body.mp3",
 		"mec_main.mp3",
+		"let-it-be-8bit.mp3",
+		"WTTI-8bit.mp3",
+		"SM64_Battlefield_Theme-8bit.mp3",
+		"Hey-Ya-8bit.mp3",
+		"Maxwell-8bit.mp3",
 		"lightinursoul.graphic.png",
 		"letriangul.graphic.png",
 	}
@@ -704,6 +713,11 @@ MusicPlayer.Database = {
 	{"BlaaBlaaReanim/Assets/around-the-world.mp3", "Daft Punk - Around The World"},
 	{"BlaaBlaaReanim/Assets/cs2-theme.mp3", "Counter Strike 2 - Main Theme"},
 	{"BlaaBlaaReanim/Assets/rock-that-body.mp3", "BlackEyedPeas - Rock That Body"},
+	{"BlaaBlaaReanim/Assets/let-it-be-8bit.mp3", "8 Bit Misfits - Let It Be"},
+	{"BlaaBlaaReanim/Assets/WTTI-8bit.mp3", "8 Bit Arcade - Welcome to the Internet"},
+	{"BlaaBlaaReanim/Assets/SM64_Battlefield_Theme-8bit.mp3", "8 Bit Universe - Super Mario 64 Bob-Omb Battlefield"},
+	{"BlaaBlaaReanim/Assets/Hey-Ya-8bit.mp3", "8 Bit Universe - Hey Ya"},
+	{"BlaaBlaaReanim/Assets/Maxwell-8bit.mp3", "8 Bit Bunker - Maxwell Cat Theme"},
 	{"BlaaBlaaReanim/Assets/dm_afterburner.ft2.mp3", "Dubmood - Afterburner"},
 }
 pcall(function()
