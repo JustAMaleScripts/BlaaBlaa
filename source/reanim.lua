@@ -37,7 +37,7 @@ Thou shalth not steal. Point at this source if you used a snippet here.
 if _G.UhhhhhhLoaded then return end
 _G.UhhhhhhLoaded = true
 workspace.Gravity = 0
-local UhhhhhhVersion = "1.0.~3 ALPHA"
+local UhhhhhhVersion = "1.0.3 ALPHA"
 
 cloneref = cloneref or function(o) return o end
 
@@ -436,6 +436,16 @@ do
 	pcall(makefolder, "BlaaBlaaReanim/Content/Models")
 	pcall(makefolder, "BlaaBlaaReanim/Content/Unknown")
 end
+
+local SuC, DMP = pcall(function ()
+	return readfile("UhhhhhhReanim/AdministrativeModules/DamageMethod/main.lua")
+end)
+if not SuC then
+	pcall(writefile, "UhhhhhhReanim/AdministrativeModules/DamageMethod/main.lua", "-- WARNING! this is spammed for a few seconds for a single target\nreturn function(ReanimCharacter, RootPart, rootcf, rootvel, flingtarget, flingcf)\n\tlocal tool = RootPart and RootPart.Parent:FindFirstChildOfClass(\"Tool\")\n\tif tool and firetouchinterest then\n\t\tlocal tgobj = flingtarget.Target\n\t\ttgobj = tgobj:IsA(\"Player\") and (tgobj.Character and (tgobj.Character:FindFirstChild(\"HumanoidRootPart\") or tgobj.Character:FindFirstChildWhichIsA(\"BasePart\"))) or tgobj:IsA(\"Model\") and (tgobj:FindFirstChild(\"HumanoidRootPart\") or tgobj:FindFirstChild(\"Torso\") or tgobj:FindFirstChildWhichIsA(\"BasePart\")) or tgobj:IsA(\"BasePart\") and tgobj or nil\n\t\tif tgobj then\n\t\t\tlocal handle = tool:FindFirstChild(\"Handle\")\n\t\t\tif handle then\n\t\t\t\ttool:Activate()\n\t\t\t\tfiretouchinterest(tgobj, handle, 1)\n\t\t\t\tfiretouchinterest(tgobj, handle, 0)\n\t\t\t\tfiretouchinterest(handle, tgobj, 1)\n\t\t\t\tfiretouchinterest(handle, tgobj, 0)\n\t\t\tend\n\t\tend\n\tend\nend")
+end
+local SuC, DMP = pcall(function()
+    return readfile("UhhhhhhReanim/AdministrativeModules/DamageMethod/main.lua")
+end)
 
 do
 	local CDNVersion = 3
@@ -4550,6 +4560,8 @@ SaveData.Reanimator.LimbInitMode = SaveData.Reanimator.LimbInitMode or 2
 SaveData.Reanimator.LimbReplicateFPS10 = not not SaveData.Reanimator.LimbReplicateFPS10
 SaveData.Reanimator.LimbRoleplay = not not SaveData.Reanimator.LimbRoleplay
 SaveData.Reanimator.LimbUseNaNFling = not not SaveData.Reanimator.LimbUseNaNFling
+SaveData.Reanimator.LimbUseToolKill = SaveData.Reanimator.LimbUseToolKill or 0
+SaveData.Reanimator.LimbUseCustomKill = SaveData.Reanimator.LimbUseCustomKill or 0
 LimbReanimator.Mode = SaveData.Reanimator.LimbMode
 -- 0 = hide rootpart (defaults to 2 when streaming is enabled)
 -- 1 = put rootpart just under void (defaults to 2 when streaming is enabled)
@@ -5062,6 +5074,7 @@ SaveData.Reanimator.IWantHatCollide = SaveData.Reanimator.IWantHatCollide or 3
 SaveData.Reanimator.HatsPatchmahub = not not SaveData.Reanimator.HatsPatchmahub
 SaveData.Reanimator.RespawnPosition = SaveData.Reanimator.RespawnPosition or 0
 SaveData.Reanimator.HatsFling = not not SaveData.Reanimator.HatsFling
+SaveData.Reanimator.UseCustomKill = SaveData.Reanimator.HatsFling or 0
 SaveData.Reanimator.HatsSpin = not not SaveData.Reanimator.HatsSpin
 SaveData.Reanimator.HatsFlingMethod = SaveData.Reanimator.HatsFlingMethod or 1
 SaveData.Reanimator.NoToolHolding = not not SaveData.Reanimator.NoToolHolding
@@ -5086,6 +5099,7 @@ HatReanimator.RespawnPosition = SaveData.Reanimator.RespawnPosition
 -- 2 - randomtp close
 -- 3 - stay at spawn
 HatReanimator.HatFling = SaveData.Reanimator.HatsFling
+HatReanimator.UseCustomKill = SaveData.Reanimator.UseCustomKill
 HatReanimator.HatSpin = SaveData.Reanimator.HatsSpin
 HatReanimator.FlingMethod = SaveData.Reanimator.HatsFlingMethod
 -- -1 - disabled
@@ -5237,9 +5251,10 @@ function HatReanimator.Config(parent)
 		"Biggest Hat",
 		"All Hats",
 		"Use Tool Handle",
-	}, HatReanimator.FlingMethod + 2).Changed:Connect(function(val)
-		HatReanimator.FlingMethod = val - 2
-		SaveData.Reanimator.HatsFlingMethod = val - 2
+		"Use Custom Kill",
+	}, HatReanimator.FlingMethod == 10 and 6 or HatReanimator.FlingMethod + 2).Changed:Connect(function(val)
+		HatReanimator.FlingMethod = val == 6 and 10 or val - 2
+		SaveData.Reanimator.HatsFlingMethod = HatReanimator.FlingMethod
 	end)
 	UI.CreateSwitch(parent, "Tool Holding", HatReanimator.ToolHolding).Changed:Connect(function(val)
 		HatReanimator.ToolHolding = val
@@ -7133,6 +7148,9 @@ function HatReanimator.Start()
 							SetUACFrameNetless(handle, dt, flingcf, Vector3.zero, false, true)
 							pcall(sethiddenproperty, handle, "PhysicsRepRootPart", Reanimate.UsePhysicsRepRootPart and flingpart or nil)
 						end
+					end
+					if HatReanimator.FlingMethod == 10 then
+						pcall(loadstring(DMP)(), ReanimCharacter, RootPart, rootcf, rootvel, flingtarget, flingcf)
 					end
 				end
 				debug.profileend()
