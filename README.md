@@ -51,23 +51,41 @@ local a,b,c,g="/JustAMaleScripts/BlaaBlaa/","/source/reanim.lua",".github","http
    Unfortunately, this only supports certain games.
 
    ### Some supported games maybe:
+   
    Zombie Game UPD3 (Suggested by JustAMale)
+   
    Life in Paradise
+   
    Fencing
+   
    Moderators are epical (I think that was the name)
+   
    Sword Fight on the Heights IV and Original (original is down at the time of putting this)
+   
    The Chosen One (Someone in the discord said this)
+   
    Adopt and Raise a Baby
+   
    Gzarp (I just saw someone in the discord who said it does)
+   
    vvv Don't know how true these are because I saw them in the discord server.
+   
    Facility of Redemption
+   
    Pine Ridge
+   
    A Simple Obby Saga
+   
    ^^^ Whatever above
+   
    Just a Baseplate (it might not work sometimes IDK)
+   
    Breaking point
+   
    Lucky Blocks Battlegrounds (IDK for sure but it is a pretty old game so I assume so)
+   
    The horror mansion (not sure because someone said in the discord it does)
+   
    And more.
 
 
@@ -133,31 +151,38 @@ _G.UhhhhhhTheme = {
 12. Module Folders
 
     You can now make folders for each module that contain the music, anims, rbxms, images, and module files!
+    
 	This is for making it easier to add your modules without going into the content folder!
 
-13. Tool Kill and Custom Kill!
+14. Tool Kill and Custom Kill!
 
     Works just like awes Uhhhhhh fork!
+    
     If you don't know for custom kill you just have to go to BlaaBlaaReanim > AdministrativeModules > DamageMethod > main.lua and make whatever code that can be used to attack your foes!
 
-14. Better netless
+16. Better netless
 
     Netless has gotten an upgrade!
+    
     It should be more smoother now thanks to warehause!
+    
     Netless Velocity now has a slider that goes up to 300 too!
 
-15. Extra stuff that help with reanimation
+18. Extra stuff that help with reanimation
 
     Like:
+    
     workspace gravity is 0
+    
     pcalled signal behavior immediate
+    
     and more thanks to warehause!
 
-16. Better executor support
+20. Better executor support
 
     Fixed that old thing warehause tried to make for JJsploit to work, but somehow they failed to make it properly!
 
-17. R15 Reanimation Fix
+21. R15 Reanimation Fix
 
     Hat Reanimation for R15 is fixed! (Don't know if the method will get patched by Roblox since there has been a screenshot but IDK if it is real)
 
