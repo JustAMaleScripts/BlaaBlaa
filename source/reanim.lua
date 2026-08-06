@@ -8488,9 +8488,9 @@ do
 		Reanimate.UsePatchmaLikeNetless = val
 		SaveData.UsePatchmaLikeNetless = val
 	end)
-	local NetVelSlider = UI.CreateSlider(MainPage, "Netless Velocity", Reanimate.NetlessVelocity, 25, 300, 0.25)
+	local NetVelSlider = UI.CreateSlider(MainPage, "Netless Velocity", Reanimate.NetlessVelocity, 25.01, 300, 0.2)
 	NetVelSlider.Changed:Connect(function(val)
-		val = math.clamp(val, 25, 300)
+		val = math.clamp(val, 25.01, 300)
 		NetVelSlider.Value = val
 		Reanimate.NetlessVelocity = val
 		SaveData.NetlessVelocity = val
