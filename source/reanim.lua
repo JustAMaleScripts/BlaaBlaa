@@ -39,8 +39,6 @@ _G.UhhhhhhLoaded = true
 workspace.Gravity = 0
 local UhhhhhhVersion = "1.0.~3 ALPHA"
 
-cloneref = cloneref or function(o) return o end
-
 local Debris = cloneref(game:GetService("Debris"))
 local CoreGui = cloneref(game:GetService("CoreGui"))
 local Players = cloneref(game:GetService("Players"))
@@ -84,6 +82,7 @@ Util.Notify = function(text)
 	})
 end
 
+cloneref = cloneref or function(o) return o end
 getcustomasset = getcustomasset or getsynasset
 gethiddengui = get_hidden_gui or gethui
 request = request or (http and http.request)
