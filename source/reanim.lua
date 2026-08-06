@@ -34,10 +34,14 @@
 Thou shalth not steal. Point at this source if you used a snippet here.
 ]]
 
+print("is running test start")
+
 if _G.UhhhhhhLoaded then return end
 _G.UhhhhhhLoaded = true
 workspace.Gravity = 0
 local UhhhhhhVersion = "1.0.3 ALPHA"
+
+print("is running test 2")
 
 local Debris = cloneref(game:GetService("Debris"))
 local CoreGui = cloneref(game:GetService("CoreGui"))
@@ -182,6 +186,8 @@ do
 		diefatal("T-this one shouldn't happen!")
 	end
 end
+
+print("is running test 3")
 
 -- WILL THIS FIX CRASHES IDK ????????
 local pcall = function(func, ...)
