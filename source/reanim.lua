@@ -85,7 +85,7 @@ Util.Notify = function(text)
 end
 
 getcustomasset = getcustomasset or getsynasset
-gethiddengui = get_hidden_gui or gethui or cloneref(game:GetService("CoreGui"))
+gethiddengui = get_hidden_gui or gethui
 request = request or (http and http.request)
 
 local function ismissing(func)
@@ -156,21 +156,7 @@ do
 			end
 		end
 	end
-	if ismissing(hookfunction) then
-		hookfunction = function(func, rep)
-			local env = getfenv(debug.info(2, 'f')) 
-			for i, v in pairs(env) do 
-				if v == func then
-					env[i] = rep 
-				end
-			end
-		end
-	end
-	if ismissing(hookmetamethod) then
-		hookmetamethod = function(obj, method, func)
-      		return hookfunction(getrawmetatable(obj)[method], func)
-      	end
-	end
+	-- originally there was a hook function and hook metamethod test here but i attempted to make it do something which broke it
 	local loadstringreturn = false
 	local val = math.random(-65536, 65536)
 	local _, func = pcall(loadstring, "return " .. val)
