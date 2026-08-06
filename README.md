@@ -1,4 +1,4 @@
-# <p align="center">STEVETHEREALONE (@steve_internal)'s Universal Hierarchical 6 Reanimator And JustAMaleScript (@JustAMaleYT)'s Universal Music Adder</p>
+# <p align="center">STEVETHEREALONE (@steve_internal)'s Universal Hierarchical 6 Reanimator And JustAMaleScript (@JustAMaleYT)'s and E God's Modded Fork</p>
 <p align="center">A really cool, optimised animation program and musics with demo scenes! Idea originated from a dream.</p>
 <p align="center">
 	<img src="./images/Showcase.gif" alt="drawing" width="45%"/>
@@ -6,13 +6,15 @@
 </p>
 
 ## IMPORTANT, READ CAREFULLY!!!
-This is the official repository for Uhhhhhh.
+This is the official repository for BlaaBlaa.
+This is an unofficial fork of Uhhhhhh.
 All code is stored in this repository.
-Feel free to use these as your reference.
+Feel free to use these as your reference. (would not suggest though)
 
 Join the [DISCORD](https://discord.gg/NASNUKRBVM) for Uhhhhhh Reanimate :D
 
-**NOTICE:** This is still in development, so things are subject to change and stuff are expected to be missing.
+**NOTICE:** BlaaBlaa is a fork of Uhhhhhh Reanimate. Expect it to be not up to par.
+**NOTICE 2:** BlaaBlaa uses code from AI and also Warehause, Awes Fork, Uhhhhhh pull requests, etc.
 
 ## Loadstring
 Pick from one of these:
@@ -28,7 +30,7 @@ local a,b,c,g="/JustAMaleScripts/BlaaBlaa/","/source/reanim.lua",".github","http
 ```
 
 ## Features:
-1. ~Probably the most stable hatdrop~ (roblox patched permadeath and R15 Joints which makes this useless 3:)
+1. ~Probably the most stable hatdrop~ (roblox patched permadeath which makes this useless 3:) (New ragdoll permadeath though but hat drop is probably not supported idk)
 
    Uhhhhhh's hatdrop supports most (if not all) hat rigs!
 
@@ -36,34 +38,54 @@ local a,b,c,g="/JustAMaleScripts/BlaaBlaa/","/source/reanim.lua",".github","http
 
    <img src="./images/WaistRigSupport.gif" alt="drawing" width="350"/>
 
-2. Limb reanimation support
+2. Limb reanimation support (Roblox may or may not patch this soon idk if the screenshots are fake that said this)
 
    In the case where you are just unable to afford hats, you can use your own limbs instead!
 
-   Unfortunately, this only supports a few games. 
-   ### (EDIT: I'd Recommend to choose Zombie Game UPD3 But... many hackers will be useless, so Join your own private server.)
+   Unfortunately, this only supports certain games.
+
+   ### Some supported games maybe:
+   Zombie Game UPD3 (Suggested by JustAMale)
+   Life in Paradise
+   Fencing
+   Moderators are epical (I think that was the name)
+   Sword Fight on the Heights IV and Original (original is down at the time of putting this)
+   The Chosen One (Someone in the discord said this)
+   Adopt and Raise a Baby
+   Gzarp (I just saw someone in the discord who said it does)
+   vvv Don't know how true these are because I saw them in the discord server.
+   Facility of Redemption
+   Pine Ridge
+   A Simple Obby Saga
+   ^^^ Whatever above
+   Just a Baseplate (it might not work sometimes IDK)
+   Breaking point
+   Lucky Blocks Battlegrounds (IDK for sure but it is a pretty old game so I assume so)
+   The horror mansion (not sure because someone said in the discord it does)
+   And more.
+
 
    <img src="./images/LimbReanimation.gif" alt="drawing" width="350"/>
 
-3. Good looking UI
+4. Good looking UI
 
    definitely better than genesis
 
    <img src="./images/UserInterface.gif" alt="drawing" width="350"/>
 
-4. Moveset and Dance system
+5. Moveset and Dance system
 
    Have old animations, or become Lightning Cannon. Dance anytime!
 
    <img src="./images/IllMakeYouSay.gif" alt="drawing" width="350"/>
 
-5. Takes advantage of random replicate properties
+6. Takes advantage of random replicate properties
 
-   Serversided Physics glue = very accurate (and fast) fling!
+   Serversided Physics glue = very accurate (and fast) fling! (Roblox may or may not remove this property but IDK if the screenshot is fake)
 
    <img src="./images/FastestFling.gif" alt="drawing" width="350"/>
 
-6. Modding support
+7. Modding support
 
    Infinite Yield lets you make plugins. So why not add it to Uhhhhhh too?
 
@@ -71,7 +93,7 @@ local a,b,c,g="/JustAMaleScripts/BlaaBlaa/","/source/reanim.lua",".github","http
 
    The documentation is right below all of whatever these are.
 
-7. Themes
+8. Themes
 
    You hate the colors? Change them! Do you want black? Do you want white? Do you want your own? The choice is yours.
 
@@ -89,6 +111,47 @@ _G.UhhhhhhTheme = {
 }
 -- the Color3s can also be a hex code string e.g.: "DDBB69"
 ```
+
+9. Favorite System
+
+   You can now favorite the dances you like!
+
+10. Better Immersive VR
+
+	Immersive VR has gotten a huge upgrade adding more features that I can not list RN!
+
+11. More Music
+
+    Added more UI music that you can choose!
+
+12. Module Folders
+
+    You can now make folders for each module that contain the music, anims, rbxms, images, and module files!
+	This is for making it easier to add your modules without going into the content folder!
+
+13. Tool Kill and Custom Kill!
+
+    Works just like awes Uhhhhhh fork!
+    If you don't know for custom kill you just have to go to BlaaBlaaReanim > AdministrativeModules > DamageMethod > main.lua and make whatever code that can be used to attack your foes!
+
+14. Better netless
+
+    Netless has gotten an upgrade!
+    It should be more smoother now thanks to warehause!
+    Netless Velocity now has a slider that goes up to 300 too!
+
+15. Extra stuff that help with reanimation
+
+    Like:
+    workspace gravity is 0
+    pcalled signal behavior immediate
+    and more thanks to warehause!
+
+16. Better executor support
+
+    Fixed that old thing warehause tried to make for JJsploit to work, but somehow they failed to make it properly!
+
+### And so much more! (Can't remember the rest)
 
 # SHOWCASES
 -- :3 user images brought to you by Awes955
@@ -151,9 +214,9 @@ _G.UhhhhhhTheme = {
 
 "Can I help? Can I/you add support for my hat?""
 
-If you want to help by changing code, fixing bugs, doing further optimisations, my pull requests are open.
+If you want to help by changing code, fixing bugs, doing further optimisations, my pull requests are open. (you can do this for the fork I guess)
 
-As for me adding support for your hats (since the hat database is very small), create an issue and ill prolly read it.
+As for me adding support for your hats (since the hat database is very small), create an issue and ill prolly read it. (probably won't happen for this fork since we don't do that)
 
 # Uhhhhhh's probably the most important quotes
 **DISCLAIMER**: Some random quotes made here are *simple jokes* (e.g.: "this script mogs genesis") and should **not** be taken seriously. This also includes *all* the self-glazing quotes. **It's your choice to agree with them or not**, and if you do or don't, **don't come harass/mock any individuals from it.** In the end, a *joke quote* is a *joke quote*.
@@ -164,8 +227,11 @@ As for me adding support for your hats (since the hat database is very small), c
 Uhhhhhh's filesystem is like this
 ```txt
 Executor's workspace/
-| UhhhhhhReanim/
+| BlaaBlaaReanim/
 | | Assets/ - Contains UI Music
+| | AdminstrativeModules - Extra features
+| | | DamageMethod - Custom kill methods folder
+| | | | main.lua - Make your kill method in this file
 | | Modules/ - YOUR modules
 | | Content/ - Contains module assets
 | | | Anims/ - .anim (usually in STEVE's KeyframeSequence file format)
@@ -184,6 +250,9 @@ execute functions from user strings.
 
 Modules are returned by a function from a luau script.
 honestly idk how to document this in an understandable way so
+
+**NEW:** You can now add folders into your modules folder with the sounds, mudule, and anim files to easily add your modules without going to the content folder.
+
 heres an example, with code comments:
 ```lua
 -- UhhhhhhReanim/Modules/lazy.lua
