@@ -6,15 +6,20 @@
 </p>
 
 ## IMPORTANT, READ CAREFULLY!!!
+
 This is the official repository for BlaaBlaa.
+
 This is an unofficial fork of Uhhhhhh.
+
 All code is stored in this repository.
+
 Feel free to use these as your reference. (would not suggest though)
 
 
 Join the [DISCORD](https://discord.gg/NASNUKRBVM) for Uhhhhhh Reanimate :D
 
 **NOTICE:** BlaaBlaa is a fork of Uhhhhhh Reanimate. Expect it to be not up to par.
+
 **NOTICE 2:** BlaaBlaa uses code from AI and also Warehause, Awes Fork, Uhhhhhh pull requests, etc.
 
 ## Loadstring
