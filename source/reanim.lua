@@ -198,8 +198,6 @@ do
 	end
 end
 
-print("is running test 3")
-
 -- WILL THIS FIX CRASHES IDK ????????
 local pcall = function(func, ...)
 	return pcall(function(...)
