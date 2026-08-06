@@ -10,7 +10,7 @@ This is the official repository for BlaaBlaa.
 This is an unofficial fork of Uhhhhhh.
 All code is stored in this repository.
 Feel free to use these as your reference. (would not suggest though)
-E!
+
 
 Join the [DISCORD](https://discord.gg/NASNUKRBVM) for Uhhhhhh Reanimate :D
 
@@ -31,7 +31,7 @@ local a,b,c,g="/JustAMaleScripts/BlaaBlaa/","/source/reanim.lua",".github","http
 ```
 
 ## Features:
-1. ~Probably the most stable hatdrop~ (roblox patched permadeath which makes this useless 3:) (New ragdoll permadeath though but hat drop is probably not supported idk)
+1. ~Probably the most stable hatdrop~ (roblox patched permadeath which makes this useless 3:) (New ragdoll permadeath though, but hat drop is probably not supported idk)
 
    Uhhhhhh's hatdrop supports most (if not all) hat rigs!
 
@@ -151,6 +151,10 @@ _G.UhhhhhhTheme = {
 16. Better executor support
 
     Fixed that old thing warehause tried to make for JJsploit to work, but somehow they failed to make it properly!
+
+17. R15 Reanimation Fix
+
+    Hat Reanimation for R15 is fixed! (Don't know if the method will get patched by Roblox since there has been a screenshot but IDK if it is real)
 
 ### And so much more! (Can't remember the rest)
 
