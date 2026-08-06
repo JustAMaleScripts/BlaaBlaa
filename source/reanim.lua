@@ -37,7 +37,7 @@ Thou shalth not steal. Point at this source if you used a snippet here.
 if _G.UhhhhhhLoaded then return end
 _G.UhhhhhhLoaded = true
 workspace.Gravity = 0
-local UhhhhhhVersion = "1.0.~3 ALPHA"
+local UhhhhhhVersion = "1.0.3 ALPHA"
 
 local Debris = cloneref(game:GetService("Debris"))
 local CoreGui = cloneref(game:GetService("CoreGui"))
