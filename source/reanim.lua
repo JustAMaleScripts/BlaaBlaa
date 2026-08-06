@@ -6011,7 +6011,7 @@ function HatReanimator.Start()
 								vel = vel.Unit * netless
 							end
 							handle.AssemblyLinearVelocity = Vector3.new(vel.X * 10, netless, vel.Z * 10)
-							handle:ApplyImpulse(Vector3.new(vel.X * 10, netless, vel.Z * 10)
+							handle:ApplyImpulse(Vector3.new(vel.X * 10, netless, vel.Z * 10))
 						else
 							vel += tvel
 							vel *= Vector3.new(1, 0, 1)
