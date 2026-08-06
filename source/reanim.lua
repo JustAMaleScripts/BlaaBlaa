@@ -34,14 +34,12 @@
 Thou shalth not steal. Point at this source if you used a snippet here.
 ]]
 
-print("is running test start")
-
 if _G.UhhhhhhLoaded then return end
 _G.UhhhhhhLoaded = true
 workspace.Gravity = 0
-local UhhhhhhVersion = "1.0.3 ALPHA"
+local UhhhhhhVersion = "1.0.~3 ALPHA"
 
-print("is running test 2")
+cloneref = cloneref or function(o) return o end
 
 local Debris = cloneref(game:GetService("Debris"))
 local CoreGui = cloneref(game:GetService("CoreGui"))
@@ -86,9 +84,8 @@ Util.Notify = function(text)
 	})
 end
 
-cloneref = cloneref or function(o) return o end
 getcustomasset = getcustomasset or getsynasset
-gethiddengui = get_hidden_gui or gethui
+gethiddengui = get_hidden_gui or gethui or cloneref(game:GetService("CoreGui"))
 request = request or (http and http.request)
 
 local function ismissing(func)
@@ -159,7 +156,21 @@ do
 			end
 		end
 	end
-	-- originally there was a hook function and hook metamethod test here but i attempted to make it do something which broke it
+	if ismissing(hookfunction) then
+		hookfunction = function(func, rep)
+			local env = getfenv(debug.info(2, 'f')) 
+			for i, v in pairs(env) do 
+				if v == func then
+					env[i] = rep 
+				end
+			end
+		end
+	end
+	if ismissing(hookmetamethod) then
+		hookmetamethod = function(obj, method, func)
+      		return hookfunction(getrawmetatable(obj)[method], func)
+      	end
+	end
 	local loadstringreturn = false
 	local val = math.random(-65536, 65536)
 	local _, func = pcall(loadstring, "return " .. val)
