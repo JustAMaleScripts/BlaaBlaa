@@ -438,13 +438,11 @@ do
 end
 
 local SuC, DMP = pcall(function ()
-	return readfile("UhhhhhhReanim/AdministrativeModules/DamageMethod/main.lua")
+	return readfile("BlaaBlaaReanim/AdministrativeModules/DamageMethod/main.lua")
 end)
-if not SuC then
-	pcall(writefile, "UhhhhhhReanim/AdministrativeModules/DamageMethod/main.lua", "-- WARNING! this is spammed for a few seconds for a single target\nreturn function(ReanimCharacter, RootPart, rootcf, rootvel, flingtarget, flingcf)\n\tlocal tool = RootPart and RootPart.Parent:FindFirstChildOfClass(\"Tool\")\n\tif tool and firetouchinterest then\n\t\tlocal tgobj = flingtarget.Target\n\t\ttgobj = tgobj:IsA(\"Player\") and (tgobj.Character and (tgobj.Character:FindFirstChild(\"HumanoidRootPart\") or tgobj.Character:FindFirstChildWhichIsA(\"BasePart\"))) or tgobj:IsA(\"Model\") and (tgobj:FindFirstChild(\"HumanoidRootPart\") or tgobj:FindFirstChild(\"Torso\") or tgobj:FindFirstChildWhichIsA(\"BasePart\")) or tgobj:IsA(\"BasePart\") and tgobj or nil\n\t\tif tgobj then\n\t\t\tlocal handle = tool:FindFirstChild(\"Handle\")\n\t\t\tif handle then\n\t\t\t\ttool:Activate()\n\t\t\t\tfiretouchinterest(tgobj, handle, 1)\n\t\t\t\tfiretouchinterest(tgobj, handle, 0)\n\t\t\t\tfiretouchinterest(handle, tgobj, 1)\n\t\t\t\tfiretouchinterest(handle, tgobj, 0)\n\t\t\tend\n\t\tend\n\tend\nend")
-end
+if not SuC then pcall(writefile,"BlaaBlaaReanim/AdministrativeModules/DamageMethod/main.lua","-- WARNING! this is spammed for a few seconds for a single target\nreturn function(ReanimCharacter, RootPart, rootcf, rootvel, flingtarget, flingcf, method)\n\tlocal tool = RootPart and RootPart.Parent:FindFirstChildOfClass(\"Tool\")\n\tif tool and firetouchinterest and method == \"LIMB\" then\n\t\tlocal tgobj = flingtarget.Target\n\t\ttgobj = tgobj:IsA(\"Player\") and (tgobj.Character and (tgobj.Character:FindFirstChild(\"HumanoidRootPart\") or tgobj.Character:FindFirstChildWhichIsA(\"BasePart\"))) or tgobj:IsA(\"Model\") and (tgobj:FindFirstChild(\"HumanoidRootPart\") or tgobj:FindFirstChild(\"Torso\") or tgobj:FindFirstChildWhichIsA(\"BasePart\")) or tgobj:IsA(\"BasePart\") and tgobj or nil\n\t\tif tgobj then\n\t\t\tlocal handle = tool:FindFirstChild(\"Handle\")\n\t\t\tif handle then\n\t\t\t\ttool:Activate()\n\t\t\t\tfiretouchinterest(tgobj, handle, 1)\n\t\t\t\tfiretouchinterest(tgobj, handle, 0)\n\t\t\t\tfiretouchinterest(handle, tgobj, 1)\n\t\t\t\tfiretouchinterest(handle, tgobj, 0)\n\t\t\tend\n\t\tend\n\tend\nend") end
 local SuC, DMP = pcall(function()
-    return readfile("UhhhhhhReanim/AdministrativeModules/DamageMethod/main.lua")
+    return readfile("BlaaBlaaReanim/AdministrativeModules/DamageMethod/main.lua")
 end)
 
 do
@@ -4851,34 +4849,34 @@ function LimbReanimator.Start()
 			if flingtarget then
 				if not LimbReanimator.UseCustomKill then
                     if not LimbReanimator.UseToolKill then
-                        if LimbReanimator.UseNaNFling then
-                            RootPart.CFrame = CFrame.new(flingcf.Position + Vector3.new(0, 0, math.random(0, 1) * 0.005)) * CFrame.Angles(0, os.clock() * 15, 0)
-                            RootPart.Velocity, RootPart.RotVelocity = Vector3.zero, Vector3.zero
-                        else
-                            RootPart.CFrame = flingcf + Vector3.new(0, 0, math.random(0, 1) * 0.005)
-                            RootPart.Velocity, RootPart.RotVelocity = Vector3.new(0, -16384, 0), Vector3.one * 16384
-                        end
-                        pcall(sethiddenproperty, RootPart, "PhysicsRepRootPart", Reanimate.UsePhysicsRepRootPart and Util.PredictionFlingPart(flingtarget.Target) or nil)
-                    else
-                        local tool = RootPart and RootPart.Parent:FindFirstChildOfClass("Tool")
-                        if tool and firetouchinterest then 
-                            local tgobj = flingtarget.Target
-                            tgobj = tgobj:IsA("Player") and (tgobj.Character and (tgobj.Character:FindFirstChild("HumanoidRootPart") or tgobj.Character:FindFirstChildWhichIsA("BasePart"))) or tgobj:IsA("Model") and (tgobj:FindFirstChild("HumanoidRootPart") or tgobj:FindFirstChild("Torso") or tgobj:FindFirstChildWhichIsA("BasePart")) or tgobj:IsA("BasePart") and tgobj or nil
-                            if tgobj then
-                                local handle = tool:FindFirstChild("Handle")
-                                if handle then
-                                    tool:Activate()
-                                    firetouchinterest(tgobj, handle, 1)
-                                    firetouchinterest(tgobj, handle, 0)
-                                    firetouchinterest(handle, tgobj, 1)
-                                    firetouchinterest(handle, tgobj, 0)
-                                end
-                            end
-                        end
-                    end
-                else
-                	pcall(loadstring(DMP)(), ReanimCharacter, RootPart, rootcf, rootvel, flingtarget, flingcf)
-                end
+						if LimbReanimator.UseNaNFling then
+							RootPart.CFrame = CFrame.new(flingcf.Position + Vector3.new(0, 0, math.random(0, 1) * 0.005)) * CFrame.Angles(0, os.clock() * 15, 0)
+							RootPart.Velocity, RootPart.RotVelocity = Vector3.zero, Vector3.zero
+						else
+							RootPart.CFrame = flingcf + Vector3.new(0, 0, math.random(0, 1) * 0.005)
+							RootPart.Velocity, RootPart.RotVelocity = Vector3.new(0, -16384, 0), Vector3.one * 16384
+						end
+						pcall(sethiddenproperty, RootPart, "PhysicsRepRootPart", Reanimate.UsePhysicsRepRootPart and Util.PredictionFlingPart(flingtarget.Target) or nil)
+					else
+						local tool = RootPart and RootPart.Parent:FindFirstChildOfClass("Tool")
+						if tool and firetouchinterest then 
+							local tgobj = flingtarget.Target
+							tgobj = tgobj:IsA("Player") and (tgobj.Character and (tgobj.Character:FindFirstChild("HumanoidRootPart") or tgobj.Character:FindFirstChildWhichIsA("BasePart"))) or tgobj:IsA("Model") and (tgobj:FindFirstChild("HumanoidRootPart") or tgobj:FindFirstChild("Torso") or tgobj:FindFirstChildWhichIsA("BasePart")) or tgobj:IsA("BasePart") and tgobj or nil
+							if tgobj then
+								local handle = tool:FindFirstChild("Handle")
+								if handle then
+									tool:Activate()
+									firetouchinterest(tgobj, handle, 1)
+									firetouchinterest(tgobj, handle, 0)
+									firetouchinterest(handle, tgobj, 1)
+									firetouchinterest(handle, tgobj, 0)
+								end
+							end
+						end
+					end
+				else
+					pcall(function() loadstring(DMP)()(ReanimCharacter,RootPart,rootcf,rootvel,flingtarget,flingcf,"LIMB") end)
+				end
 			else
 				RootPart.CFrame = rootcf + Vector3.new(0, 0, math.random(0, 1) * 0.005)
 				RootPart.Velocity, RootPart.RotVelocity = rootvel, Vector3.zero
@@ -6846,6 +6844,8 @@ function HatReanimator.Start()
 		local h = Player.Character:FindFirstChildOfClass("Humanoid")
 		if h and h.RootPart then
 			InitCFrame = h.RootPart.CFrame
+			pcall(function() Player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Dead) end)
+			pcall(function() Player.Character.Humanoid.Health = 0 end)
 			pcall(replicatesignal, Player.Character.Humanoid.ServerBreakJoints)
 			--pcall(replicatesignal, Player.ConnectDiedSignalBackend)
 			Player.Character.DescendantAdded:Connect(CharOnDesc)
@@ -7150,7 +7150,7 @@ function HatReanimator.Start()
 						end
 					end
 					if HatReanimator.FlingMethod == 10 then
-						pcall(loadstring(DMP)(), ReanimCharacter, RootPart, rootcf, rootvel, flingtarget, flingcf)
+						pcall(function() loadstring(DMP)()(ReanimCharacter,RootPart,rootcf,rootvel,flingtarget,flingcf,"HAT") end)
 					end
 				end
 				debug.profileend()
@@ -7735,7 +7735,7 @@ do
 	AnimLib.Animator = Animator
 end
 local function AssetGetPathFromFilename(filename)
-	if filename:sub(-4, -1) == ".lua" then
+	if filename:sub(-4, -1) == ".lua" or filename:sub(-4, -1) == ".txt" then
 		return "BlaaBlaaReanim/Modules/" .. filename
 	end
 	local filetype = "Unknown/"
@@ -7743,6 +7743,8 @@ local function AssetGetPathFromFilename(filename)
 		filetype = "Sounds/"
 	elseif filename:sub(-5, -1) == ".anim" then
 		filetype = "Anims/"
+	elseif filename:sub(-4, -1) == ".png" then
+		filetype = "Images/"
 	elseif filename:sub(-5, -1) == ".rbxm" then
 		filetype = "Unknown/"
 	end
@@ -8789,6 +8791,7 @@ local function GiveFunctionsToFunction(func)
 	env.OnPlayerChatted = OnPlayerChatted
 	env.HiddenGui = SCREENGUI
 	env.FallenPartsDestroyHeight = FallenPartsDestroyHeight
+	return func
 end
 local function ClearModules()
 	table.clear(MovementStyles)
@@ -9410,103 +9413,103 @@ task.spawn(function()
 	local currenterrorid = 1
 	while true do local dt = RunService.Heartbeat:Wait() xpcall(function(dt)
 		local ReanimCharacter = Reanimate.Character
-			SaveData.MovesetIndex = MovementStyleIndex
-			if ReanimCharacter then
-				if _oldcharacterreference ~= ReanimCharacter then
-					SetOverrideMovesetMusic(nil)
-					SetOverrideDanceMusic(nil)
-					if CurrentMovementStyle then
-						pcall(CurrentMovementStyle.Destroy, nil)
-						CurrentMovementStyle = nil
-					end
-					if _CurrentDance then
-						pcall(_CurrentDance.Destroy, nil)
-						_CurrentDance = nil
-					end
-					_MovementStyleIndex = nil
-				end
-				if MovementStyleIndex ~= _MovementStyleIndex then
-					if CurrentMovementStyle then
-						CurrentMovementStyle.Destroy(ReanimCharacter)
-						CurrentMovementStyle = nil
-					end
-					_MovementStyleIndex = MovementStyleIndex
-					CurrentMovementStyle = MovementStyles[MovementStyleIndex]
-					SetOverrideMovesetMusic(nil)
-					if ReanimCharacter:GetAttribute("MovementInit") then
-						Reanimate.CreateCharacter()
-						ReanimCharacter = Reanimate.Character
-					end
-				end
-				if CurrentMovementStyle then
-					if ReanimCharacter:GetAttribute("MovementInit") then
-						CurrentMovementStyle.Update(dt, ReanimCharacter)
-						if CurrentDance ~= _CurrentDance then
-							if _CurrentDance then
-								pcall(_CurrentDance.Destroy, ReanimCharacter)
-							end
-							_CurrentDance = CurrentDance
-							ReanimCharacter:SetAttribute("IsDancing", nil)
-							ReanimCharacter:SetAttribute("DanceInternalName", nil)
-							SetOverrideDanceMusic(nil)
-						end
-						if _CurrentDance then
-							if ReanimCharacter:GetAttribute("IsDancing") then
-								_CurrentDance.Update(dt, ReanimCharacter)
-							else
-								if AssetEnsure(_CurrentDance.Assets) then
-									ReanimCharacter:SetAttribute("IsDancing", true)
-									ReanimCharacter:SetAttribute("DanceInternalName", _CurrentDance.InternalName)
-									_CurrentDance.Init(ReanimCharacter)
-								else
-									SetOverrideDanceMusic(nil)
-								end
-							end
-						end
-					else
-						HatReanimator.HatWeldOverride = {}
-						if AssetEnsure(CurrentMovementStyle.Assets) then
-							ReanimCharacter:SetAttribute("MovementInit", true)
-							ReanimCharacter:SetAttribute("MovesetInternalName", CurrentMovementStyle.InternalName)
-							table.clear(HatReanimator.HatCFrameOverride)
-							CurrentMovementStyle.Init(ReanimCharacter)
-						else
-							SetOverrideMovesetMusic(nil)
-						end
-					end
-				else
-					ReanimCharacter:SetAttribute("MovementInit", nil)
-					_MovementStyleIndex = nil
-				end
-			else
-				CurrentDance = nil
-				_MovementStyleIndex = nil
+		SaveData.MovesetIndex = MovementStyleIndex
+		if ReanimCharacter then
+			if _oldcharacterreference ~= ReanimCharacter then
 				SetOverrideMovesetMusic(nil)
 				SetOverrideDanceMusic(nil)
 				if CurrentMovementStyle then
-					CurrentMovementStyle.Destroy(nil)
+					pcall(CurrentMovementStyle.Destroy, nil)
 					CurrentMovementStyle = nil
 				end
 				if _CurrentDance then
-					_CurrentDance.Destroy(nil)
+					pcall(_CurrentDance.Destroy, nil)
 					_CurrentDance = nil
 				end
+				_MovementStyleIndex = nil
 			end
-			_oldcharacterreference = ReanimCharacter
-		end, function(m)
-			m = debug.traceback("ANIMLOOP :: " .. m)
-			local id = errorsandwarnings[m]
-			if not id then
-				errorsandwarnings[m] = {currenterrorid, 0}
-				currenterrorid += 1
-				warn("ERROR #" .. errorsandwarnings[m][1] .. ": " .. m)
-			else
-				id[2] += 1
-				if id[2] <= 8192 and math.sqrt(id[2]) % 1 == 0 then
-					warn("ERROR #" .. id[1] .. " repeated " .. id[2] .. " times")
+			if MovementStyleIndex ~= _MovementStyleIndex then
+				if CurrentMovementStyle then
+					CurrentMovementStyle.Destroy(ReanimCharacter)
+					CurrentMovementStyle = nil
+				end
+				_MovementStyleIndex = MovementStyleIndex
+				CurrentMovementStyle = MovementStyles[MovementStyleIndex]
+				SetOverrideMovesetMusic(nil)
+				if ReanimCharacter:GetAttribute("MovementInit") then
+					Reanimate.CreateCharacter()
+					ReanimCharacter = Reanimate.Character
 				end
 			end
-		end, dt) end
+			if CurrentMovementStyle then
+				if ReanimCharacter:GetAttribute("MovementInit") then
+					CurrentMovementStyle.Update(dt, ReanimCharacter)
+					if CurrentDance ~= _CurrentDance then
+						if _CurrentDance then
+							pcall(_CurrentDance.Destroy, ReanimCharacter)
+						end
+						_CurrentDance = CurrentDance
+						ReanimCharacter:SetAttribute("IsDancing", nil)
+						ReanimCharacter:SetAttribute("DanceInternalName", nil)
+						SetOverrideDanceMusic(nil)
+					end
+					if _CurrentDance then
+						if ReanimCharacter:GetAttribute("IsDancing") then
+							_CurrentDance.Update(dt, ReanimCharacter)
+						else
+							if AssetEnsure(_CurrentDance.Assets) then
+								ReanimCharacter:SetAttribute("IsDancing", true)
+								ReanimCharacter:SetAttribute("DanceInternalName", _CurrentDance.InternalName)
+								_CurrentDance.Init(ReanimCharacter)
+							else
+								SetOverrideDanceMusic(nil)
+							end
+						end
+					end
+				else
+					HatReanimator.HatWeldOverride = {}
+					if AssetEnsure(CurrentMovementStyle.Assets) then
+						ReanimCharacter:SetAttribute("MovementInit", true)
+						ReanimCharacter:SetAttribute("MovesetInternalName", CurrentMovementStyle.InternalName)
+						table.clear(HatReanimator.HatCFrameOverride)
+						CurrentMovementStyle.Init(ReanimCharacter)
+					else
+						SetOverrideMovesetMusic(nil)
+					end
+				end
+			else
+				ReanimCharacter:SetAttribute("MovementInit", nil)
+				_MovementStyleIndex = nil
+			end
+		else
+			CurrentDance = nil
+			_MovementStyleIndex = nil
+			SetOverrideMovesetMusic(nil)
+			SetOverrideDanceMusic(nil)
+			if CurrentMovementStyle then
+				CurrentMovementStyle.Destroy(nil)
+				CurrentMovementStyle = nil
+			end
+			if _CurrentDance then
+				_CurrentDance.Destroy(nil)
+				_CurrentDance = nil
+			end
+		end
+		_oldcharacterreference = ReanimCharacter
+	end, function(m)
+		m = debug.traceback("ANIMLOOP :: " .. m)
+		local id = errorsandwarnings[m]
+		if not id then
+			errorsandwarnings[m] = {currenterrorid, 0}
+			currenterrorid += 1
+			warn("ERROR #" .. errorsandwarnings[m][1] .. ": " .. m)
+		else
+			id[2] += 1
+			if id[2] <= 8192 and math.sqrt(id[2]) % 1 == 0 then
+				warn("ERROR #" .. id[1] .. " repeated " .. id[2] .. " times")
+			end
+		end
+	end, dt) end
 end)
 UI.CreateSeparator(MainPage)
 task.wait()
@@ -10034,39 +10037,47 @@ local function ForceModuleReload(force)
 	InitLogsText.Text ..= "\n[LOG] Loading user modules..."
 	for _,path in listfiles("BlaaBlaaReanim/Modules/") do
 		if isfolder and isfolder(path) then
-            pcall(function()
-                for _, spath in listfiles(path) do
-                    local ext = spath:match("%.[^%.]+$")
-                    if ext == ".lua" or ext == ".luau" or ext == ".txt" then
-                        local x = spath:sub(23)
-                        xpcall(function()
-                            InitLogsText.Text ..= "\n[LOG] Reading local USER " .. x .. "..."
-                            local data = readfile(spath)
-                            InitLogsText.Text ..= "\n[LOG] Loadstringing USER " .. x .. "..."
-                            local func, comperr = loadstring(data, "Uhhhhhh :: " .. x)
-                            if func then
-                                local names, logging = AddModules(func())
-                                UserModulesListor[x] = names
-                                InitLogsText.Text ..= logging
-                            elseif comperr then
-                                error("COMPILE FAILED: " .. comperr)
-                            end
-                        end, function(msg)
-                            InitLogsText.Text ..= "\n[ERROR] Failed to load USER " .. x .. ": See traceback below."
-                            InitLogsText.Text ..= "\n[ERROR] " .. table.concat(string.split(debug.traceback("USER " .. x .. ": " .. msg), "\n"), "\n[ERROR] ")
-                        end)
-                    else
-                        local f = FILEMAPPING[ext] or "Unknown"
-                        local fn = spath:match("[^/\\]+$")
-                        local dest = "BlaaBlaaReanim/Content/" .. f .. "/" .. fn
-                        if not isfile(dest) then
-                            writefile(dest, readfile(spath))
-                            InitLogsText.Text ..= "\n[LOG] Copied " .. fn .. " TO Content/" .. f
-                        end
-                    end
-                end
-     		end)
-        end
+            local function scan(p)
+				pcall(function()
+					for _,s in listfiles(p) do
+						if isfolder(s) then
+							task.wait()
+							scan(s)
+						else
+							local e=s:match("%.[^%.]+$")
+							if e==".lua" or e==".luau" or e==".txt" then
+								local x=s:sub(23)
+								xpcall(function()
+									InitLogsText.Text..="\n[LOG] Reading local USER "..x.."..."
+									local d=readfile(s)
+									InitLogsText.Text..="\n[LOG] Loadstringing USER "..x.."..."
+									local f,c=loadstring(d,"Uhhhhhh :: "..x)
+									if f then
+										local n,l=AddModules(f())
+										UserModulesListor[x]=n
+										InitLogsText.Text..=l
+									elseif c then
+										error("COMPILE FAILED: "..c)
+									end
+								end,function(m)
+									InitLogsText.Text..="\n[ERROR] Failed to load USER "..x..": See traceback below."
+									InitLogsText.Text..="\n[ERROR] "..table.concat(string.split(debug.traceback("USER "..x..": "..m),"\n"),"\n[ERROR] ")
+								end)
+							else
+								local f=FILEMAPPING[e]or"Unknown"
+								local n=s:match("[^/\\]+$")
+								local d="BlaaBlaaReanim/Content/"..f.."/"..n
+								if not isfile(d) then
+									writefile(d,readfile(s))
+									InitLogsText.Text..="\n[LOG] Copied "..n.." TO Content/"..f
+								end
+							end
+						end
+					end
+				end)
+			end
+			scan(path)
+		end
 		if isfile(path) then
 			local x = path:sub(24)
 			xpcall(function()
