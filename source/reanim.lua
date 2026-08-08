@@ -35,12 +35,96 @@
 Thou shalth not steal. Point at this source if you used a snippet here.
 ]]
 
-if _G.UhhhhhhLoaded then return end
-_G.UhhhhhhLoaded = true
-workspace.Gravity = 0
+local suc,res = pcall(function()
+	_G.yes = print
+end)
+
+if not suc then
+	_G = {}
+end
+
+local fenv = getfenv()
+
+local genv = _G.globalEnv
+genv = type(genv) == "table" and genv or {}
+_G.globalEnv = genv
+
+function funcgenv()
+	return setmetatable({}, {
+		__index = function(_, k) return genv[k] end,
+		__newindex = function(_, key, value)
+			genv[key] = value
+			fenv[key] = value
+		end
+	})
+end
+
+local getgenv = getgenv or funcgenv
+
+if getgenv().UhhhhhhLoaded then return end
+getgenv().UhhhhhhLoaded = true
+
 local UhhhhhhVersion = "1.0.4 ALPHA"
 
-cloneref = cloneref or function(o) return o end
+function funcref(object)
+	local proxy = newproxy(true)
+	local metatable = getmetatable(proxy)
+
+	local metamethods = {
+		type      = typeof(object),
+		newindex  = object,
+		metatable = getmetatable(object),
+		tostring  = function() return tostring(object) end,
+		call      = function() return object() end,
+		unm       = function() return -object end,
+		len       = function() return #object end,
+		index     = function(_, key)
+			local value = object[key]
+
+			if type(value) == "function" then
+				return function(_, ...)
+					return value(object, ...)
+				end
+			end
+
+			return value
+		end,
+	}
+
+	local operators = {
+		add     = "+",
+		sub     = "-",
+		mul     = "*",
+		div     = "/",
+		idiv    = "//",
+		mod     = "%",
+		pow     = "^", 
+		eq      = "==",
+		lt      = "<",
+		le      = "<=",
+		concat  = "..",
+	}
+
+	for name, operator in operators do
+		metamethods[name] = function(_, object1)
+			return loadstring(
+				([[local objects = {...}; 
+			      
+			      return objects[1] %s objects[2]
+			    ]]):format(operator))(object, object1)
+		end
+	end
+
+	for name, value in metamethods do
+		metatable["__" .. name] = value
+	end
+
+	return proxy
+end
+
+
+cloneref = cloneref or funcref
+cloneref(workspace).Gravity = 0
 
 local Debris = cloneref(game:GetService("Debris"))
 local CoreGui = cloneref(game:GetService("CoreGui"))
@@ -85,8 +169,17 @@ Util.Notify = function(text)
 	})
 end
 
+function funchui()
+	local Players = game:GetService("Players")
+	local LocalPlayer = Players.LocalPlayer
+	local PlayerGui = LocalPlayer.PlayerGui
+	local success, RobloxGui = pcall(function() return game:GetService("CoreGui"):FindFirstChild("RobloxGui") end)
+
+	return cloneref(success and RobloxGui or PlayerGui)
+end
+
 getcustomasset = getcustomasset or getsynasset
-gethiddengui = get_hidden_gui or gethui or cloneref(game:GetService("CoreGui"))
+gethiddengui = get_hidden_gui or gethui or funchui
 request = request or (http and http.request)
 
 local function ismissing(func)
@@ -95,7 +188,7 @@ end
 do
 	local function diefatal(msg)
 		Util.Notify("Executor not supported. " .. msg)
-		_G.UhhhhhhLoaded = nil
+		getgenv().UhhhhhhLoaded = nil
 		error("fatal error cant start")
 	end
 	if ismissing(request) then
@@ -4669,13 +4762,6 @@ function LimbReanimator.Config(parent)
         LimbReanimator.UseCustomKill = val
         SaveData.Reanimator.LimbUseCustomKill = val
     end)
-	local PRRPtime = UI.CreateSlider(parent, "PRRP Fling duration", Reanimate.PhysicsRepRootPartFling, 0.001, 30, 0.001)
-	PRRPtime.Changed:Connect(function(val)
-		val = math.clamp(val, 0.0001, 30)
-		if val > 0 and val ~= nil and val < 40 then
-			Reanimate.PhysicsRepRootPartFling = val
-		end
-	end)
 	Util.LinkDestroyI2C(dmode, RunService.Heartbeat:Connect(function()
 		dmode.Value = LimbReanimator.Mode + 1
 		dvel.Value = LimbReanimator.Velocity + 1
@@ -8507,6 +8593,13 @@ do
 	UI.CreateSwitch(MainPage, "Use Physics Glue", Reanimate.UsePhysicsRepRootPart).Changed:Connect(function(val)
 		Reanimate.UsePhysicsRepRootPart = val
 		SaveData.NoPhysicsRepRootPart = not val
+	end)
+	local PRRPtime = UI.CreateSlider(MainPage, "PRRP Max Fling duration", Reanimate.PhysicsRepRootPartFling, 0.01, 30, 0.01)
+	PRRPtime.Changed:Connect(function(val)
+		val = math.clamp(val, 0.01, 30)
+		if val > 0 and val ~= nil and val < 40 then
+			Reanimate.PhysicsRepRootPartFling = val
+		end
 	end)
 	UI.CreateText(MainPage, "internals for physics based reanimation\n(like hat reanimator)", 10, Enum.TextXAlignment.Center)
 	UI.CreateSwitch(MainPage, "Patchma-like Netless", Reanimate.UsePatchmaLikeNetless).Changed:Connect(function(val)
