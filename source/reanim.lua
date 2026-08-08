@@ -31,13 +31,14 @@
 				8 Bit Arcade
 				8 Bit Misfits
 
+
 Thou shalth not steal. Point at this source if you used a snippet here.
 ]]
 
 if _G.UhhhhhhLoaded then return end
 _G.UhhhhhhLoaded = true
 workspace.Gravity = 0
-local UhhhhhhVersion = "1.0.3 ALPHA"
+local UhhhhhhVersion = "1.0.4 ALPHA"
 
 cloneref = cloneref or function(o) return o end
 
@@ -3429,7 +3430,7 @@ local Reanimate = {
 	Stopping = false,
 	UseLoadAnimationHook = not SaveData.NoLoadAnimationHook,
 	UsePhysicsRepRootPart = not SaveData.NoPhysicsRepRootPart,
-	PhysicsRepRootPartFling = 1 / 10,
+	PhysicsRepRootPartFling = 1 / 20,
 	NetlessVelocity = SaveData.NetlessVelocity,
 	UsePatchmaLikeNetless = SaveData.UsePatchmaLikeNetless,
 	UseAngularVelocity = SaveData.UseAngularVelocity,
@@ -4668,6 +4669,13 @@ function LimbReanimator.Config(parent)
         LimbReanimator.UseCustomKill = val
         SaveData.Reanimator.LimbUseCustomKill = val
     end)
+	local PRRPtime = UI.CreateSlider(parent, "PRRP Fling duration", Reanimate.PhysicsRepRootPartFling, 0.001, 30, 0.001)
+	PRRPtime.Changed:Connect(function(val)
+		val = math.clamp(val, 0.0001, 30)
+		if val > 0 and val ~= nil and val < 40 then
+			Reanimate.PhysicsRepRootPartFling = val
+		end
+	end)
 	Util.LinkDestroyI2C(dmode, RunService.Heartbeat:Connect(function()
 		dmode.Value = LimbReanimator.Mode + 1
 		dvel.Value = LimbReanimator.Velocity + 1
