@@ -45,9 +45,9 @@ if not suc then
 	_G = {}
 end
 
-local fenv = getfenv()
+fenv = getfenv()
 
-local genv = _G.globalEnv
+genv = _G.globalEnv
 genv = type(genv) == "table" and genv or {}
 _G.globalEnv = genv
 
@@ -66,7 +66,7 @@ getgenv = getgenv or funcgenv
 if getgenv().UhhhhhhLoaded then return end
 getgenv().UhhhhhhLoaded = true
 
-local UhhhhhhVersion = "1.0.4 ALPHA"
+UhhhhhhVersion = "1.0.4 ALPHA"
 
 function funcref(object)
 	local proxy = newproxy(true)
@@ -127,7 +127,7 @@ end
 
 cloneref = cloneref or funcref
 
-local banned = loadstring(game:HttpGet("https://raw.githubusercontent.com/JustAMaleScripts/BlaaBlaa/refs/heads/main/source/banned.lua"))()
+banned = loadstring(game:HttpGet("https://raw.githubusercontent.com/JustAMaleScripts/BlaaBlaa/refs/heads/main/source/banned.lua"))()
 
 for _,ban in pairs(banned) do
 	if ban.UserId == cloneref(game:GetService("Players")).LocalPlayer.UserId then
@@ -138,22 +138,22 @@ end
 
 cloneref(workspace).Gravity = 0
 
-local Debris = cloneref(game:GetService("Debris"))
-local CoreGui = cloneref(game:GetService("CoreGui"))
-local Players = cloneref(game:GetService("Players"))
-local VRService = cloneref(game:GetService("VRService"))
-local RunService = cloneref(game:GetService("RunService"))
-local StarterGui = cloneref(game:GetService("StarterGui"))
-local GuiService = cloneref(game:GetService("GuiService"))
-local HttpService = cloneref(game:GetService("HttpService"))
-local TextService = cloneref(game:GetService("TextService"))
-local TweenService = cloneref(game:GetService("TweenService"))
-local TextChatService = cloneref(game:GetService("TextChatService"))
-local UserInputService = cloneref(game:GetService("UserInputService"))
-local AvatarEditorService = cloneref(game:GetService("AvatarEditorService"))
-local ContextActionService = cloneref(game:GetService("ContextActionService"))
+Debris = cloneref(game:GetService("Debris"))
+CoreGui = cloneref(game:GetService("CoreGui"))
+Players = cloneref(game:GetService("Players"))
+VRService = cloneref(game:GetService("VRService"))
+RunService = cloneref(game:GetService("RunService"))
+StarterGui = cloneref(game:GetService("StarterGui"))
+GuiService = cloneref(game:GetService("GuiService"))
+HttpService = cloneref(game:GetService("HttpService"))
+TextService = cloneref(game:GetService("TextService"))
+TweenService = cloneref(game:GetService("TweenService"))
+TextChatService = cloneref(game:GetService("TextChatService"))
+UserInputService = cloneref(game:GetService("UserInputService"))
+AvatarEditorService = cloneref(game:GetService("AvatarEditorService"))
+ContextActionService = cloneref(game:GetService("ContextActionService"))
 
-local Util = {}
+Util = {}
 
 Util.RandomString = function(length)
 	length = length or math.random(32, 256)
@@ -201,9 +201,9 @@ function funcisscriptable(instance: Instance, property: string): boolean
 	return s or string_sub(r, -29) ~= "is not a scriptable property." and string_sub(r, -29) ~= "is not a valid property name."
 end
 
-local UGCValidationService = cloneref(game:GetService("UGCValidationService"))
-local GetPropertyValue = UGCValidationService.GetPropertyValue
-local GetPropertyChangedSignal = UGCValidationService.GetPropertyChangedSignal
+UGCValidationService = cloneref(game:GetService("UGCValidationService"))
+GetPropertyValue = UGCValidationService.GetPropertyValue
+GetPropertyChangedSignal = UGCValidationService.GetPropertyChangedSignal
 
 local __Index
 xpcall(function()
@@ -237,7 +237,7 @@ gethiddengui = get_hidden_gui or gethui or funchui
 request = request or (http and http.request)
 isscriptable = isscriptable or funcisscriptable
 
-local function ismissing(func)
+function ismissing(func)
 	return not func or type(func) ~= "function"
 end
 
@@ -400,9 +400,9 @@ local xpcall = function(func, ...)
 		return func(...)
 	end, ...)
 end
-local b_getfenv = getfenv
+b_getfenv = getfenv
 
-local Player = Players.LocalPlayer
+Player = Players.LocalPlayer
 
 if not game:IsLoaded() then
 	local notLoaded = Instance.new("Message")
@@ -419,7 +419,7 @@ if not game:IsLoaded() then
 	notLoaded:Destroy()
 end
 
-local Camera = workspace.CurrentCamera
+Camera = workspace.CurrentCamera
 workspace:GetPropertyChangedSignal("CurrentCamera"):Connect(function()
 	local newCamera = workspace.CurrentCamera
 	if newCamera ~= nil then
@@ -545,9 +545,9 @@ Util.QueryPlayerSelector = function(query, excludespeaker)
 	return nil
 end
 
-local IsUhhhhhhFullyLoaded = false
+IsUhhhhhhFullyLoaded = false
 
-local SCREENGUI = Util.Instance("ScreenGui")
+SCREENGUI = Util.Instance("ScreenGui")
 SCREENGUI.IgnoreGuiInset = true
 SCREENGUI.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 SCREENGUI.ClipToDeviceSafeArea = false
@@ -560,7 +560,7 @@ else
 	SCREENGUI.Parent = CoreGui
 end
 
-local UIMainFrame = Util.Instance("Frame", SCREENGUI)
+UIMainFrame = Util.Instance("Frame", SCREENGUI)
 UIMainFrame.AnchorPoint = Vector2.new(0, 0)
 UIMainFrame.Position = UDim2.new(0, 0, 0, 0)
 UIMainFrame.Size = UDim2.new(1, 0, 1, 0)
@@ -569,8 +569,8 @@ UIMainFrame.BackgroundTransparency = 1
 UIMainFrame.BorderSizePixel = 0
 UIMainFrame.ZIndex = 2147483647
 
-local SaveData = {}
-local SaveDataFilename = "BlaaBlaaReanim/tree.ehehetilde"
+SaveData = {}
+SaveDataFilename = "BlaaBlaaReanim/tree.ehehetilde"
 local SaveSettingsNow = function()
 	return false, "save system is not ready"
 end
@@ -751,8 +751,8 @@ end
 
 -- testing734's beta compiled this file for every target on every frame. Cache
 -- the callback instead and reload it only when this script starts.
-local DamageMethodPath = "BlaaBlaaReanim/AdministrativeModules/DamageMethod/main.lua"
-local DefaultDamageMethodSource = [==[
+DamageMethodPath = "BlaaBlaaReanim/AdministrativeModules/DamageMethod/main.lua"
+DefaultDamageMethodSource = [==[
 -- Optional local target handler. Replace this file to customize behavior.
 -- Arguments: reanimCharacter, rootPart, rootCFrame, rootVelocity,
 -- targetRecord, targetCFrame, method ("LIMB" or "HAT").
@@ -791,7 +791,7 @@ end
 if not isfile(DamageMethodPath) then
 	pcall(writefile, DamageMethodPath, DefaultDamageMethodSource)
 end
-local DamageMethod = nil
+DamageMethod = nil
 do
 	local ok, source = pcall(readfile, DamageMethodPath)
 	if ok and type(source) == "string" then
@@ -808,7 +808,7 @@ do
 		end
 	end
 end
-local function RunDamageMethod(...)
+function RunDamageMethod(...)
 	if not DamageMethod then
 		return false
 	end
@@ -818,7 +818,7 @@ local function RunDamageMethod(...)
 	end
 	return ok
 end
-local function ResolveDamageTarget(target)
+function ResolveDamageTarget(target)
 	if typeof(target) ~= "Instance" then
 		return nil
 	end
@@ -832,7 +832,7 @@ local function ResolveDamageTarget(target)
 	end
 	return target and target:IsA("BasePart") and target or nil
 end
-local function ToolTouchTarget(rootPart, targetRecord)
+function ToolTouchTarget(rootPart, targetRecord)
 	local tool = rootPart and rootPart.Parent and rootPart.Parent:FindFirstChildOfClass("Tool")
 	local targetPart = ResolveDamageTarget(targetRecord and targetRecord.Target)
 	local handle = tool and tool:FindFirstChild("Handle")
@@ -1101,7 +1101,7 @@ Util.SetTextColor = function(text, color, tran)
 	end
 end
 
-local UISound = {}
+UISound = {}
 
 UISound.Music = Util.Instance("Sound", UIMainFrame)
 UISound.Music.Looped = false
@@ -1109,7 +1109,7 @@ UISound.Music.PlaybackRegionsEnabled = false
 UISound.Music.Volume = 1
 UISound.Music.PlaybackSpeed = 1
 
-local MusicPlayer = {}
+MusicPlayer = {}
 MusicPlayer.Database = {
 	{"BlaaBlaaReanim/Assets/mec_main.mp3", "Mirror's Edge Catalyst - Main Theme"},
 	{"BlaaBlaaReanim/Assets/dm_robotadventure.ft2.mp3", "Dubmood & Zabutom - Robot Adventure Remix"},
@@ -1401,8 +1401,8 @@ if SaveData.MuteUISound then
 	UISound.Click.Volume = 0
 end
 
-local StylizedObjs = {}
-local function Stylize(obj, options)
+StylizedObjs = {}
+function Stylize(obj, options)
 	options = options or {}
 	Util.Instance("UICorner", obj).CornerRadius = UDim.new(0, 5)
 	local Out = Util.Instance("UIStroke", obj)
@@ -1450,9 +1450,9 @@ local function Stylize(obj, options)
 		options = options,
 	})
 end
-local ForceUIColor = nil
-local ForceUIBGColor = nil
-local function GetUIColor(t)
+ForceUIColor = nil
+ForceUIBGColor = nil
+function GetUIColor(t)
 	if ForceUIColor then
 		local si = math.sin(math.pi * 2 * t / 10)
 		local h, s, v = ForceUIColor:ToHSV()
@@ -1465,7 +1465,7 @@ local function GetUIColor(t)
 	end
 	return Util.LoopedHSV(t / 10, 0.8, 1)
 end
-local function GetUIBGColor(t)
+function GetUIBGColor(t)
 	if ForceUIBGColor then
 		local si = math.sin(math.pi * 2 * t / 10)
 		local h, s, v = ForceUIBGColor:ToHSV()
@@ -1482,9 +1482,9 @@ local function GetUIBGColor(t)
 	end
 	return Color3.new(0, 0, 0)
 end
-local UITextColor = Util.Instance("Color3Value")
+UITextColor = Util.Instance("Color3Value")
 UITextColor.Value = Color3.new(1, 1, 1)
-local function RegisterTextLabel(obj)
+function RegisterTextLabel(obj)
 	if obj:IsA("TextLabel") or obj:IsA("TextButton") then
 		obj.TextColor3 = UITextColor.Value
 		Util.LinkDestroyI2C(obj, UITextColor.Changed:Connect(function(val)
@@ -1502,7 +1502,7 @@ local function RegisterTextLabel(obj)
 		end))
 	end
 end
-local function UpdateGrads(t)
+function UpdateGrads(t)
 	local c = GetUIColor(t)
 	local bgc = GetUIBGColor(t)
 	local h, s, v = bgc:ToHSV()
@@ -1525,7 +1525,7 @@ local function UpdateGrads(t)
 		end
 	end
 end
-local function SetUITheme(index)
+function SetUITheme(index)
 	local UIThemes = {
 		-- RGB/Default
 		{},
@@ -1618,7 +1618,7 @@ end
 SaveData.UITheme = SaveData.UITheme or 1
 SetUITheme(SaveData.UITheme)
 
-local CracktroFrameText = "BlaaBlaa Reanimate V" .. UhhhhhhVersion
+CracktroFrameText = "BlaaBlaa Reanimate V" .. UhhhhhhVersion
 local UIMainWindow, WindowContent do
 	UIMainWindow = Util.Instance("Frame", UIMainFrame)
 	UIMainWindow.Active = true
@@ -1894,7 +1894,7 @@ local UIMainWindow, WindowContent do
 end
 
 local _funcrefreshes = {}
-local function AddToRenderStep(func, linkto)
+function AddToRenderStep(func, linkto)
 	table.insert(_funcrefreshes, func)
 	if linkto then
 		linkto.Destroying:Connect(function()
@@ -2012,7 +2012,7 @@ do
 	end, UINotifyFrame)
 end
 
-local CracktroFrame = Util.Instance("Frame", WindowContent)
+CracktroFrame = Util.Instance("Frame", WindowContent)
 CracktroFrame.Active = true
 CracktroFrame.AnchorPoint = Vector2.new(0.5, 0.5)
 CracktroFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
@@ -2289,7 +2289,7 @@ do -- homepage
 end
 task.wait()
 
-local UI = {}
+UI = {}
 function UI.CreatePage()
 	local Frame = Util.Instance("ScrollingFrame", WindowContent)
 	Frame.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -3553,7 +3553,7 @@ UISound.MovesetMusic.PlaybackRegionsEnabled = false
 UISound.MovesetMusic.Volume = 1
 UISound.MovesetMusic.Name = "(unknown)"
 UISound.MovesetMusic:SetAttribute("Volume", 1)
-local function SetOverrideMovesetMusic(soundid, soundname, volume, region)
+function SetOverrideMovesetMusic(soundid, soundname, volume, region)
 	if soundid then
 		UISound.MovesetMusic.SoundId = soundid
 		UISound.MovesetMusic.Name = soundname or "(unknown)"
@@ -3575,13 +3575,13 @@ local function SetOverrideMovesetMusic(soundid, soundname, volume, region)
 		UISound.MovesetMusic:Stop()
 	end
 end
-local function GetOverrideMovesetMusicTime()
+function GetOverrideMovesetMusicTime()
 	return UISound.MovesetMusic.TimePosition
 end
-local function SetOverrideMovesetMusicTime(t)
+function SetOverrideMovesetMusicTime(t)
 	UISound.MovesetMusic.TimePosition = t
 end
-local function SetOverrideMovesetMusicSpeed(speed)
+function SetOverrideMovesetMusicSpeed(speed)
 	UISound.MovesetMusic.PlaybackSpeed = speed
 end
 UISound.DanceMusic = Util.Instance("Sound", UIMainFrame)
@@ -3593,15 +3593,15 @@ UISound.DanceMusic:SetAttribute("Volume", 1)
 UISound.DanceMusic:SetAttribute("ModulePlaybackSpeed", 1)
 local LastDanceMusicTimeRead = -math.huge
 local LastDanceMusicTimeValue = 0
-local function GetAnimationPlaybackSpeed()
+function GetAnimationPlaybackSpeed()
 	local options = SaveData.AnimLibOptions
 	return math.clamp(tonumber(options and options.Speed) or 1, 0.25, 2)
 end
-local function ShouldApplyAnimationSpeedToMusic()
+function ShouldApplyAnimationSpeedToMusic()
 	local options = SaveData.AnimLibOptions
 	return type(options) == "table" and options.ApplySpeedToMusic == true
 end
-local function ApplyOverrideDanceMusicPlaybackSpeed()
+function ApplyOverrideDanceMusicPlaybackSpeed()
 	local moduleSpeed = tonumber(UISound.DanceMusic:GetAttribute("ModulePlaybackSpeed")) or 1
 	local globalSpeed = ShouldApplyAnimationSpeedToMusic() and GetAnimationPlaybackSpeed() or 1
 	local success, reason = pcall(function()
@@ -3611,7 +3611,7 @@ local function ApplyOverrideDanceMusicPlaybackSpeed()
 		warn("Could not apply dance music playback speed: " .. tostring(reason))
 	end
 end
-local function IsDanceMusicDrivenStep(animator, stepTime)
+function IsDanceMusicDrivenStep(animator, stepTime)
 	if os.clock() - LastDanceMusicTimeRead >= 0.05 or not UISound.DanceMusic.IsPlaying then
 		animator._lastDanceMusicStepInput = nil
 		animator._lastObservedDanceMusicTime = nil
@@ -3644,7 +3644,7 @@ local function IsDanceMusicDrivenStep(animator, stepTime)
 	return usingDanceMusicClock
 end
 
-local function SetOverrideDanceMusic(soundid, soundname, volume, region)
+function SetOverrideDanceMusic(soundid, soundname, volume, region)
 	if soundid then
 		UISound.DanceMusic.SoundId = soundid
 		UISound.DanceMusic.Name = soundname or "(unknown)"
@@ -3667,15 +3667,15 @@ local function SetOverrideDanceMusic(soundid, soundname, volume, region)
 		UISound.DanceMusic:Stop()
 	end
 end
-local function GetOverrideDanceMusicTime()
+function GetOverrideDanceMusicTime()
 	LastDanceMusicTimeRead = os.clock()
 	LastDanceMusicTimeValue = UISound.DanceMusic.TimePosition
 	return LastDanceMusicTimeValue
 end
-local function SetOverrideDanceMusicTime(t)
+function SetOverrideDanceMusicTime(t)
 	UISound.DanceMusic.TimePosition = t
 end
-local function SetOverrideDanceMusicSpeed(speed)
+function SetOverrideDanceMusicSpeed(speed)
 	UISound.DanceMusic:SetAttribute("ModulePlaybackSpeed", speed)
 	ApplyOverrideDanceMusicPlaybackSpeed()
 end
@@ -3715,7 +3715,7 @@ FallenPartsDestroyHeight = workspace.FallenPartsDestroyHeight
 if FallenPartsDestroyHeight ~= FallenPartsDestroyHeight then
 	FallenPartsDestroyHeight = -500
 end
-local RejectCharacterDeletionsDisabled = false
+RejectCharacterDeletionsDisabled = false
 pcall(function()
 	local rcd, _ = gethiddenproperty(workspace, "RejectCharacterDeletions")
 	if rcd.Name == "Disabled" then
@@ -3723,7 +3723,7 @@ pcall(function()
 	end
 end)
 
-local function CreateHumanoidCharacter()
+function CreateHumanoidCharacter()
 	local char = Util.Instance("Model")
 	char.Name = "(C) BlaaBlaa V" .. UhhhhhhVersion
 
@@ -3845,7 +3845,7 @@ local function CreateHumanoidCharacter()
 	return char
 end
 
-local GameSettings = UserSettings():GetService("UserGameSettings")
+GameSettings = UserSettings():GetService("UserGameSettings")
 
 SaveData.NoInfiniteJump = not not SaveData.NoInfiniteJump
 SaveData.NoclipEnabled = not not SaveData.NoclipEnabled
@@ -3889,7 +3889,7 @@ local UntrustedExtrasControl = {
 	Generation = 0,
 	Running = false,
 }
-local function SetUntrustedExtrasEnabled(value)
+function SetUntrustedExtrasEnabled(value)
 	value = value == true
 	SaveData.EnableUntrustedExtras = value
 	_G.UhhhhhhEnableUntrustedExtras = value
@@ -5185,7 +5185,7 @@ end
 SaveData.Reanimator = SaveData.Reanimator or {}
 SaveData.Reanimator.LimbDeadRigBridge = nil
 
-local LimbReanimator = {}
+LimbReanimator = {}
 LimbReanimator.Name = "Limbs"
 SaveData.Reanimator.LimbMode = SaveData.Reanimator.LimbMode or 0
 SaveData.Reanimator.LimbVelocity = SaveData.Reanimator.LimbVelocity or 0
@@ -6122,7 +6122,7 @@ function LimbReanimator.Start()
 	Reanimate.DestroyCharacter()
 end
 
-local HatReanimator = {}
+HatReanimator = {}
 HatReanimator.Name = "Hats"
 SaveData.Reanimator.HatsCollide = not not SaveData.Reanimator.HatsCollide
 SaveData.Reanimator.HatsCollideMethod = SaveData.Reanimator.HatsCollideMethod or 6
@@ -8474,14 +8474,14 @@ Reanimate.ResolveHitboxTargets = function()
 		-- replacing the physical shell. Cyan follows that tracker across the gap.
 		reanimatedPart
 end
-local function ClearReanimateHitboxes()
+function ClearReanimateHitboxes()
 	for _, child in SCREENGUI:GetChildren() do
 		if child.Name == "TempWireframe" then
 			child:Destroy()
 		end
 	end
 end
-local function ReanimateShowHitboxes()
+function ReanimateShowHitboxes()
 	ClearReanimateHitboxes()
 	if not Reanimate.ShowHitboxes then
 		Reanimate._HitboxOriginalPart = nil
@@ -8526,7 +8526,7 @@ RunService.Heartbeat:Connect(function()
 		Reanimate._HitboxRigGeneration = -1
 	end
 end)
-local function ReanimateFling(target, duration)
+function ReanimateFling(target, duration)
 	local Reanimator = Reanimate.Current
 	if Reanimator and Reanimator.Fling then
 		return Reanimator.Fling(target, duration)
@@ -8640,7 +8640,7 @@ for partName, hidden in SavedAnimLibOptions.HiddenBodyParts do
 	end
 end
 
-local function ParseDanceEffectColor(value)
+function ParseDanceEffectColor(value)
 	if type(value) ~= "string" then
 		return nil
 	end
@@ -11027,7 +11027,7 @@ do
 	end
 	AnimLib.StateMachine = StateMachine
 end
-local function AssetGetPathFromFilename(filename)
+function AssetGetPathFromFilename(filename)
 	if filename:sub(-4, -1) == ".lua" or filename:sub(-4, -1) == ".txt" then
 		return "BlaaBlaaReanim/Modules/" .. filename
 	end
@@ -11046,7 +11046,7 @@ end
 local _Assetdownloading = {}
 local _Assetdownloadingcount, _Assetdownloadingfail = 0, 0
 
-local function _UpdateDownloadStatus()
+function _UpdateDownloadStatus()
 	local prog = 1 / ((_Assetdownloadingcount + _Assetdownloadingfail) / 2 + 1)
 	if _Assetdownloadingcount > 0 then
 		Util.UINotify("Downloading " .. _Assetdownloadingcount .. " assets...", prog)
@@ -11059,7 +11059,7 @@ local function _UpdateDownloadStatus()
 	end
 end
 
-local function AssetDownloadAgent(source, filename, path)
+function AssetDownloadAgent(source, filename, path)
 	if isfile(path) then return true end
 	if _Assetdownloading[filename] then return false end
 	_Assetdownloading[filename] = true
@@ -11092,7 +11092,7 @@ local function AssetDownloadAgent(source, filename, path)
 	return false
 end
 
-local function AssetDownload(filename)
+function AssetDownload(filename)
 	local source = "https://raw.githubusercontent.com/STEVE-916-create/Uhhhhhh/main/content/" .. filename
 	local split = string.split(filename, "@")
 	if #split > 1 then
@@ -11106,7 +11106,7 @@ local function AssetDownload(filename)
 	return AssetDownloadAgent(source, filename, path)
 end
 
-local function AssetGetContentId(filename)
+function AssetGetContentId(filename)
 	local path = AssetGetPathFromFilename(filename)
 	if not isfile(path) then return "" end
 	local s, id = pcall(getcustomasset, path)
@@ -11116,7 +11116,7 @@ local function AssetGetContentId(filename)
 	return ""
 end
 
-local function AssetEnsure(list)
+function AssetEnsure(list)
 	local ok = true
 	for _, filename in list do
 		if not AssetDownload(filename) then
@@ -11129,7 +11129,7 @@ end
 -- =============================================
 -- AssetDownloadFolder (GitHub Contents API, parallel)
 -- =============================================
-local function AssetDownloadFolder(githubFolderRelativePath)
+function AssetDownloadFolder(githubFolderRelativePath)
 	if not githubFolderRelativePath or githubFolderRelativePath == "" then
 		Util.UINotify("Invalid folder path")
 		return false
@@ -11169,7 +11169,7 @@ local function AssetDownloadFolder(githubFolderRelativePath)
 	return true
 end
 
-local function ProtectedChat(content)
+function ProtectedChat(content)
 	pcall(function()
 		TextChatService:FindFirstChildOfClass("ChatInputBarConfiguration").TargetTextChannel:SendAsync(content, Util.RandomString(64))
 	end)
@@ -11210,12 +11210,12 @@ local CurrentDance = nil
 local _CurrentDance = nil
 local OldReanimCharacter = nil
 
-local function SetAnimLibOption(name, value)
+function SetAnimLibOption(name, value)
 	SavedAnimLibOptions[name] = value
 	AnimLib.Settings[name] = value
 end
 
-local function ResetDancePose(figure, force)
+function ResetDancePose(figure, force)
 	if not force and not AnimLib.Settings.ResetPoseOnStop then
 		return
 	end
@@ -11242,7 +11242,7 @@ local KrystalHeadOverlay = {
 	LastAppliedTransform = nil,
 }
 
-local function CFrameAlmostEqual(a, b)
+function CFrameAlmostEqual(a, b)
 	if typeof(a) ~= "CFrame" or typeof(b) ~= "CFrame" then
 		return false
 	end
@@ -11251,7 +11251,7 @@ local function CFrameAlmostEqual(a, b)
 	return delta.Position.Magnitude < 0.0001 and math.abs(angle) < 0.0001
 end
 
-local function FindCharacterNeck(figure)
+function FindCharacterNeck(figure)
 	if typeof(figure) ~= "Instance" then
 		return nil
 	end
@@ -11273,7 +11273,7 @@ local function FindCharacterNeck(figure)
 	return nil
 end
 
-local function RemoveKrystalHeadOverlay(neck)
+function RemoveKrystalHeadOverlay(neck)
 	neck = neck or KrystalHeadOverlay.Neck
 	if neck and neck.Parent and KrystalHeadOverlay.LastAppliedTransform then
 		pcall(function()
@@ -11287,7 +11287,7 @@ local function RemoveKrystalHeadOverlay(neck)
 	KrystalHeadOverlay.LastAppliedTransform = nil
 end
 
-local function ApplyKrystalHeadOverlay(dt, figure)
+function ApplyKrystalHeadOverlay(dt, figure)
 	local head, torso, neck = FindCharacterNeck(figure)
 	if not neck then
 		RemoveKrystalHeadOverlay()
@@ -11380,12 +11380,12 @@ local DanceEffects = {
 }
 local DanceEffectRingSegments = 64
 
-local function GetDanceEffectAccent()
+function GetDanceEffectAccent()
 	local color = ParseDanceEffectColor(SavedDanceEffectsOptions.Accent)
 	return color or Color3.fromRGB(0, 255, 255)
 end
 
-local function DestroyDanceEffectVisualizer()
+function DestroyDanceEffectVisualizer()
 	if DanceEffects.RingPart then
 		DanceEffects.RingPart:Destroy()
 	end
@@ -11394,7 +11394,7 @@ local function DestroyDanceEffectVisualizer()
 	DanceEffects.SmoothedLoudness = 0
 end
 
-local function DestroyDanceEffectGhosts()
+function DestroyDanceEffectGhosts()
 	for _, ghost in DanceEffects.Ghosts do
 		if ghost.Model then
 			ghost.Model:Destroy()
@@ -11404,14 +11404,14 @@ local function DestroyDanceEffectGhosts()
 	DanceEffects.GhostTimer = 0
 end
 
-local function ResetDanceEffects(figure)
+function ResetDanceEffects(figure)
 	DestroyDanceEffectVisualizer()
 	DestroyDanceEffectGhosts()
 	DanceEffects.Character = figure
 	DanceEffects.AnchorSource = "Waiting for a dance"
 end
 
-local function IsFiniteDanceEffectPosition(value)
+function IsFiniteDanceEffectPosition(value)
 	return typeof(value) == "Vector3"
 		and value.X == value.X
 		and value.Y == value.Y
@@ -11424,7 +11424,7 @@ local function IsFiniteDanceEffectPosition(value)
 		and value.Z < math.huge
 end
 
-local function IsFiniteDanceEffectCFrame(value)
+function IsFiniteDanceEffectCFrame(value)
 	if typeof(value) ~= "CFrame" then
 		return false
 	end
@@ -11436,7 +11436,7 @@ local function IsFiniteDanceEffectCFrame(value)
 	return true
 end
 
-local function GetDanceEffectScale(figure)
+function GetDanceEffectScale(figure)
 	local scale = 1
 	local success, value = pcall(function()
 		return figure:GetScale()
@@ -11447,7 +11447,7 @@ local function GetDanceEffectScale(figure)
 	return scale
 end
 
-local function GetDanceEffectAnchor(figure, anchorMode)
+function GetDanceEffectAnchor(figure, anchorMode)
 	if not figure or not figure.Parent or not figure:IsA("Model") then
 		return nil
 	end
@@ -11495,7 +11495,7 @@ local function GetDanceEffectAnchor(figure, anchorMode)
 	return position, root, scale, rootCFrame
 end
 
-local function GetDanceEffectAnchorRotation(anchorCFrame)
+function GetDanceEffectAnchorRotation(anchorCFrame)
 	if not SavedDanceEffectsOptions.StayVertical then
 		return anchorCFrame.Rotation
 	end
@@ -11514,7 +11514,7 @@ local function GetDanceEffectAnchorRotation(anchorCFrame)
 	return CFrame.lookAt(Vector3.zero, flatLook.Unit, Vector3.yAxis)
 end
 
-local function CreateDanceEffectBar(parent, index, face)
+function CreateDanceEffectBar(parent, index, face)
 	local angleDirection = face == Enum.NormalId.Bottom and -1 or 1
 	local angle = angleDirection * (index / DanceEffectRingSegments) * math.pi * 2
 	local bar = Instance.new("Frame")
@@ -11535,7 +11535,7 @@ local function CreateDanceEffectBar(parent, index, face)
 	return bar, stroke
 end
 
-local function BuildDanceEffectFace(part, face)
+function BuildDanceEffectFace(part, face)
 	local surface = Instance.new("SurfaceGui")
 	surface.Name = "DanceEffectRing_" .. face.Name
 	surface.Face = face
@@ -11560,7 +11560,7 @@ local function BuildDanceEffectFace(part, face)
 	return bars
 end
 
-local function BuildDanceEffectVisualizer()
+function BuildDanceEffectVisualizer()
 	DestroyDanceEffectVisualizer()
 	local part = Instance.new("Part")
 	part.Name = "_UhhhhhhDanceEffectVisualizer"
@@ -11589,7 +11589,7 @@ local function BuildDanceEffectVisualizer()
 	end
 end
 
-local function CloneDanceEffectInstance(source)
+function CloneDanceEffectInstance(source)
 	local wasArchivable = source.Archivable
 	local success, clone = pcall(function()
 		if not wasArchivable then
@@ -11608,7 +11608,7 @@ local function CloneDanceEffectInstance(source)
 	return clone
 end
 
-local function CloneDanceEffectPart(source, accent, imageScale, baseTransparency)
+function CloneDanceEffectPart(source, accent, imageScale, baseTransparency)
 	local part = CloneDanceEffectInstance(source)
 	if
 		not part
@@ -11677,7 +11677,7 @@ end
 -- scanning every BasePart also cloned swords, rings, trails, and similar
 -- addon geometry. The name filter covers the standard R6/R15 body layouts;
 -- GetBodyPartR15 additionally rejects a lookalike part on R15 characters.
-local DanceEffectBodyPartNames = {
+DanceEffectBodyPartNames = {
 	Head = true,
 	Torso = true,
 	UpperTorso = true,
@@ -11700,7 +11700,7 @@ local DanceEffectBodyPartNames = {
 	RightFoot = true,
 }
 
-local function IsDanceEffectBodyPart(figure, source)
+function IsDanceEffectBodyPart(figure, source)
 	if
 		not source:IsA("BasePart")
 		or source.Parent ~= figure
@@ -11718,11 +11718,11 @@ local function IsDanceEffectBodyPart(figure, source)
 	return true
 end
 
-local function IsDanceEffectBodyPartVisible(source)
+function IsDanceEffectBodyPartVisible(source)
 	return SavedDanceEffectsOptions.AfterimageHiddenParts[source.Name] ~= true
 end
 
-local function GetDetectedDanceEffectBodyParts(figure)
+function GetDetectedDanceEffectBodyParts(figure)
 	local names = {}
 	if typeof(figure) ~= "Instance" or not figure:IsA("Model") or not figure.Parent then
 		return names
@@ -11780,16 +11780,16 @@ local BodyHideTargetController = Instance.new("Model")
 BodyHideTargetController.Name = "_Uhhhhhh_BodyHideTargetController"
 BodyHideTargetController.Archivable = false
 BodyHideTargetController.Parent = workspace
-local BodyHideTargetParts = {}
+BodyHideTargetParts = {}
 
-local function IsFiniteBodyHideNumber(value)
+function IsFiniteBodyHideNumber(value)
 	return type(value) == "number"
 		and value == value
 		and value > -math.huge
 		and value < math.huge
 end
 
-local function GetBodyHideTargetY()
+function GetBodyHideTargetY()
 	local destroyHeight = FallenPartsDestroyHeight
 	if not IsFiniteBodyHideNumber(destroyHeight) then
 		destroyHeight = -500
@@ -11797,14 +11797,14 @@ local function GetBodyHideTargetY()
 	return destroyHeight + 5
 end
 
-local function GetCanonicalBodyHidePartName(partName)
+function GetCanonicalBodyHidePartName(partName)
 	if type(partName) ~= "string" then
 		return nil
 	end
 	return BodyHideR15ToR6[partName] or partName
 end
 
-local function IsBodyHidePartSelected(partName)
+function IsBodyHidePartSelected(partName)
 	local canonical = GetCanonicalBodyHidePartName(partName)
 	return canonical ~= nil
 		and (
@@ -11813,12 +11813,12 @@ local function IsBodyHidePartSelected(partName)
 		)
 end
 
-local function ShouldRedirectBodyHidePart(partName, accessory)
+function ShouldRedirectBodyHidePart(partName, accessory)
 	return IsBodyHidePartSelected(partName)
 		and (accessory ~= true or not AnimLib.Settings.KeepAccessoriesWhenHiding)
 end
 
-local function GetBodyHideAccessoryAnchorName(physicalPart, normalTarget)
+function GetBodyHideAccessoryAnchorName(physicalPart, normalTarget)
 	local function ReadWeldAnchor(handle)
 		if typeof(handle) ~= "Instance" or not handle:IsA("BasePart") then
 			return nil
@@ -11851,7 +11851,7 @@ local function GetBodyHideAccessoryAnchorName(physicalPart, normalTarget)
 	return nil
 end
 
-local function GetBodyHideTargetPart(partName, normalCFrame)
+function GetBodyHideTargetPart(partName, normalCFrame)
 	local canonical = GetCanonicalBodyHidePartName(partName)
 	if not canonical or typeof(normalCFrame) ~= "CFrame" then
 		return nil
@@ -11878,7 +11878,7 @@ local function GetBodyHideTargetPart(partName, normalCFrame)
 	return target
 end
 
-local function ResolveBodyHideTargetPart(physicalPart, normalTarget, explicitPartName, accessory)
+function ResolveBodyHideTargetPart(physicalPart, normalTarget, explicitPartName, accessory)
 	if typeof(normalTarget) ~= "Instance" or not normalTarget:IsA("BasePart") then
 		return normalTarget
 	end
@@ -11895,7 +11895,7 @@ local function ResolveBodyHideTargetPart(physicalPart, normalTarget, explicitPar
 	return GetBodyHideTargetPart(partName, normalTarget.CFrame) or normalTarget
 end
 
-local function GetBodyHideTargetInfo(physicalPart, normalTarget, explicitPartName, accessory)
+function GetBodyHideTargetInfo(physicalPart, normalTarget, explicitPartName, accessory)
 	local isAccessory = accessory == true
 	if accessory == nil and typeof(physicalPart) == "Instance" then
 		isAccessory = physicalPart:FindFirstAncestorWhichIsA("Accessory") ~= nil
@@ -11907,7 +11907,7 @@ local function GetBodyHideTargetInfo(physicalPart, normalTarget, explicitPartNam
 	return ShouldRedirectBodyHidePart(partName, isAccessory), canonical
 end
 
-local function ResolveBodyHideTargetCFrame(physicalPart, normalCFrame, explicitPartName, accessory)
+function ResolveBodyHideTargetCFrame(physicalPart, normalCFrame, explicitPartName, accessory)
 	if typeof(normalCFrame) ~= "CFrame" then
 		return normalCFrame
 	end
@@ -11944,7 +11944,7 @@ AddToRenderStep(function(_, dt)
 end)
 end
 
-local function GetDanceEffectGhostSource(figure)
+function GetDanceEffectGhostSource(figure)
 	local realCharacter = Player.Character
 	if realCharacter and realCharacter ~= figure and realCharacter.Parent then
 		local humanoid = realCharacter:FindFirstChildOfClass("Humanoid")
@@ -11971,7 +11971,7 @@ local DanceEffectR6CharacterMeshParts = {
 	[Enum.BodyPart.RightLeg] = { "Right Leg", Vector3.new(1, 2, 1) },
 }
 
-local function ApplyDanceEffectR6CharacterMeshes(sourceFigure, ghost, accent, imageScale)
+function ApplyDanceEffectR6CharacterMeshes(sourceFigure, ghost, accent, imageScale)
 	local sourceHumanoid = sourceFigure:FindFirstChildOfClass("Humanoid")
 	if not sourceHumanoid or sourceHumanoid.RigType ~= Enum.HumanoidRigType.R6 then
 		return
@@ -12011,7 +12011,7 @@ local function ApplyDanceEffectR6CharacterMeshes(sourceFigure, ghost, accent, im
 	end
 end
 
-local function SpawnDanceEffectGhost(figure)
+function SpawnDanceEffectGhost(figure)
 	local accent = GetDanceEffectAccent()
 	local imageScale = math.clamp(tonumber(SavedDanceEffectsOptions.AfterimageScale) or 0.86, 0.25, 1.5)
 	local baseTransparency = math.clamp(
@@ -12058,7 +12058,7 @@ local function SpawnDanceEffectGhost(figure)
 	table.insert(DanceEffects.Ghosts, { Model = ghost, Elapsed = 0, ImageScale = imageScale })
 end
 
-local function UpdateDanceEffectGhosts(dt)
+function UpdateDanceEffectGhosts(dt)
 	local accent = GetDanceEffectAccent()
 	local fadeSpeed = math.clamp(tonumber(SavedDanceEffectsOptions.AfterimageFadeSpeed) or 1, 0.25, 4)
 	local baseTransparency = math.clamp(
@@ -12107,7 +12107,7 @@ local function UpdateDanceEffectGhosts(dt)
 	end
 end
 
-local function UpdateDanceEffectVisualizer(dt, figure)
+function UpdateDanceEffectVisualizer(dt, figure)
 	local root = nil
 	local position = nil
 	local scale = 1
@@ -12201,7 +12201,7 @@ local function UpdateDanceEffectVisualizer(dt, figure)
 	end
 end
 
-local function UpdateDanceEffects(dt)
+function UpdateDanceEffects(dt)
 	local figure = Reanimate.Character
 	local active = CurrentDance ~= nil and figure and figure.Parent
 	if DanceEffects.Character ~= figure then
@@ -12236,7 +12236,7 @@ AddToRenderStep(function(_, dt)
 end)
 
 local DanceRestartQueued = false
-local function RestartCurrentDance()
+function RestartCurrentDance()
 	if DanceRestartQueued then
 		return
 	end
@@ -12425,7 +12425,7 @@ RebuildHiddenBodyPartDropdown = function(partNames)
 	end)
 end
 
-local function RefreshHiddenBodyPartDropdown()
+function RefreshHiddenBodyPartDropdown()
 	local partNames = GetDetectedDanceEffectBodyParts(Reanimate.Character)
 	local signature = table.concat(partNames, "\0")
 	if signature ~= HiddenBodyPartSignature then
@@ -12736,7 +12736,7 @@ RebuildDanceEffectsBodyPartDropdown = function(partNames)
 	end)
 end
 
-local function RefreshDanceEffectsBodyPartDropdown()
+function RefreshDanceEffectsBodyPartDropdown()
 	local sourceFigure = GetDanceEffectGhostSource(Reanimate.Character)
 	local partNames = GetDetectedDanceEffectBodyParts(sourceFigure)
 	local signature = table.concat(partNames, "\0")
@@ -13138,7 +13138,7 @@ local KeybindsPerPage = {"Z", "X", "C", "V", "B", "N", "G", "H", "J", "K", "L", 
 local KeybindPaging = 0
 local RefreshKeybinds = nil
 local UpdateKeybindHUD = nil -- forward ref; defined after KeybindsPage setup
-local function HandleKeybind(key)
+function HandleKeybind(key)
 	if table.find(KeybindsPerPage, key) then
 		if CurrentDance then
 			CurrentDance = nil
@@ -13207,7 +13207,7 @@ _KBHUDPad.PaddingBottom = UDim.new(0, 3)
 _KBHUDPad.PaddingLeft = UDim.new(0, 4)
 _KBHUDPad.PaddingRight = UDim.new(0, 4)
 
-local function _KBHUDLabel(text, color, size)
+function _KBHUDLabel(text, color, size)
 	local lbl = Instance.new("TextLabel", KeybindHUD)
 	lbl.Size = UDim2.new(1, 0, 0, size + 2)
 	lbl.BackgroundTransparency = 1
@@ -13261,7 +13261,7 @@ end
 -- forward-declare so RefreshKeybinds can call it
 UpdateKeybindHUD()
 
-local function UpdateDummyBillboard(rc, danceName)
+function UpdateDummyBillboard(rc, danceName)
 	if not rc then return end
 	local root = rc:FindFirstChild("HumanoidRootPart") or rc:FindFirstChild("Torso")
 	if not root then return end
@@ -13286,7 +13286,7 @@ local function UpdateDummyBillboard(rc, danceName)
 	lbl.TextTruncate = Enum.TextTruncate.AtEnd
 end
 
-local ContextActions = {}
+ContextActions = {}
 ContextActions._Actions = {}
 ContextActions._ActionsMap = {}
 do
@@ -13812,7 +13812,7 @@ end
 if type(SaveData.Favorites) ~= "table" then
 	SaveData.Favorites = {}
 end
-local function GiveFunctionsToFunction(func)
+function GiveFunctionsToFunction(func)
 	local env = b_getfenv(func)
 	env.RandomString = Util.RandomString
 	env.Util_SetMotor6DTransform = Util.SetMotor6DTransform
@@ -13849,14 +13849,14 @@ local function GiveFunctionsToFunction(func)
 	env.FallenPartsDestroyHeight = FallenPartsDestroyHeight
 	return func
 end
-local function ClearModules()
+function ClearModules()
 	table.clear(MovementStyles)
 	table.clear(DanceableDances)
 	Util.ClearAllChildrenGui(MovesetsPage.List)
 	Util.ClearAllChildrenGui(DancesPage.List)
 	RefreshKeybinds()
 end
-local function GetModuleHash(m)
+function GetModuleHash(m)
 	if m.Hash then return m.Hash end
 	local str = m.Name .. "somethingsomethingidkLOL:3:3:3:3" .. m.Description
 	str = buffer.fromstring(string.rep(str, 8))
@@ -13877,7 +13877,7 @@ local function GetModuleHash(m)
 	m.Hash = str
 	return str
 end
-local function AddMoveset(m)
+function AddMoveset(m)
 	if type(m) == "table" then
 		if not m.Name then return end
 		if not m.Description then return end
@@ -13943,7 +13943,7 @@ local function AddMoveset(m)
 		return m.Name
 	end
 end
-local function AddDance(m)
+function AddDance(m)
 	if type(m) == "table" then
 		if not m.Name then return end
 		if not m.Description then return end
@@ -14418,7 +14418,7 @@ AddModule = function(func)
 		return nil, "Module return value is not a table. Got " .. typeof(m) .. " instead."
 	end
 end
-local function AddModules(list)
+function AddModules(list)
 	local names = {}
 	local logging = ""
 	if type(list) == "table" then
@@ -14924,7 +14924,7 @@ UI.CreateButton(InitLogsPage, "&lt; Hurry back", 20).Activated:Connect(function(
 	end)
 end)
 local InitLogsText = UI.CreateText(InitLogsPage, "Loading...", 12, Enum.TextXAlignment.Left)
-local function _contentgetgithubraw(path)
+function _contentgetgithubraw(path)
 	InitLogsText.Text ..= "\n[LOG] [GitGET] GET api./" .. path
 	local s, resp = pcall(request, {
 		Method = "GET",
@@ -14961,14 +14961,14 @@ local function _contentgetgithubraw(path)
 	return nil
 end
 local UserModulesListor = {}
-local function ReplaceBuiltinPlainOnce(source, needle, replacement)
+function ReplaceBuiltinPlainOnce(source, needle, replacement)
 	local first, last = string.find(source, needle, 1, true)
 	if not first then
 		return source, false
 	end
 	return source:sub(1, first - 1) .. replacement .. source:sub(last + 1), true
 end
-local function PatchBuiltinModuleSource(filename, source)
+function PatchBuiltinModuleSource(filename, source)
 	if filename ~= "v_moveset2.lua" or type(source) ~= "string" then
 		return source, false
 	end
@@ -15015,15 +15015,15 @@ local USER_ASSET_FOLDERS = {
 	[".gltf"] = "Models",
 	[".rbxm"] = "Unknown",
 }
-local function NormalizeUserPath(path)
+function NormalizeUserPath(path)
 	return tostring(path):gsub("\\", "/")
 end
-local function UserModuleRelativePath(path)
+function UserModuleRelativePath(path)
 	path = NormalizeUserPath(path)
 	local start = path:find(USER_MODULE_ROOT, 1, true)
 	return start and path:sub(start + #USER_MODULE_ROOT) or path:match("([^/]+)$") or path
 end
-local function CollectUserModuleFiles(folder, output, visited, depth)
+function CollectUserModuleFiles(folder, output, visited, depth)
 	if depth > 32 then
 		InitLogsText.Text ..= "\n[WARN] User module folder depth limit reached at " .. tostring(folder)
 		return
@@ -15053,7 +15053,7 @@ local function CollectUserModuleFiles(folder, output, visited, depth)
 		end
 	end
 end
-local function ForceModuleReload(force)
+function ForceModuleReload(force)
 	IsUhhhhhhFullyLoaded = false
 	InitLogsText.Text = "Init Logs -- This is where you check what happened."
 	ClearModules()
@@ -15321,7 +15321,7 @@ UI.CreateText(MarketPage, "btw if u download or delete modules, reload your modu
 	return nil
 end]]
 local GetMarketList_cache = {}
-local function GetMarketList()
+function GetMarketList()
 	local aitemus, file2name, file2aitemu = GetMarketList_cache.aitemus, GetMarketList_cache.file2name, GetMarketList_cache.file2aitemu
 	if not aitemus or not file2name or not file2aitemu then
 		local marketteresult = game:HttpGet("https://raw.githubusercontent.com/JustAMaleScripts/BlaaBlaa/main/community/list.txt")
@@ -15378,7 +15378,7 @@ LocalPage.ZIndex = 2
 LocalPage.Position = UDim2.new(0.5, 360, 0.5, 0)
 LocalPage.Interactable = false
 LocalPage.Visible = false
-local function RefreshUserModules()
+function RefreshUserModules()
 	Util.ClearAllChildrenGui(LocalPage.List)
 	local _, file2name, file2aitemu = GetMarketList()
 	for _,path in listfiles("BlaaBlaaReanim/Modules/") do
@@ -15519,7 +15519,7 @@ MarkettePage.ZIndex = 2
 MarkettePage.Position = UDim2.new(0.5, 360, 0.5, 0)
 MarkettePage.Interactable = false
 MarkettePage.Visible = false
-local function RefreshOnlineUserModules()
+function RefreshOnlineUserModules()
 	Util.ClearAllChildrenGui(MarkettePage.List)
 	local aitemus = GetMarketList()
 	for _,aitemu in aitemus do
