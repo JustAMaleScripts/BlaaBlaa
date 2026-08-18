@@ -279,11 +279,31 @@ Modules are just luau tables that are created by a function.
 It does impose vulnerabilities, but who cares? Executors already
 execute functions from user strings.
 
-Modules are returned by a function from a luau script.
-honestly idk how to document this in an understandable way so
-
 **NEW:** You can now add folders into your modules folder with the sounds, mudule, and anim files to easily add your modules without going to the content folder.
 
+> [!WARNING]
+> Modules execute code with Uhhhhhh's supplied environment and executor capabilities. Review the source and asset URLs before installing a local or marketplace module. The animation API patch disables unsolicited remote extras by default, but it cannot make an intentionally installed third-party module trustworthy.
+
+### Extended animation API
+
+The opt-in `AnimLib` extension adds managed playback, locomotion states, R6/R15 pose retargeting, selectable `RunService` update phases, and automatic connection cleanup. The original `animator:Step(time)` module interface remains compatible. A visible **Animation Options >** page controls music sync, animation speed, optional matching music speed, fade-in, joint presets, marker notices, and stop-time pose reset.
+
+Under **Reanimate Character Settings**, **Can Sit on Seats** now has a saved **↳ Keep Humanoid Sit State** sub-option. When enabled, Uhhhhhh keeps its reanimated humanoid in Roblox's `Sit`/`Seated` state while the custom seat weld is active; jumping still exits the seat normally.
+
+The limb-reanimator config warns that **Use NaN State Fling** can override normal Roblox humanoid states, including sitting. The saved **Show Reanimate Hitboxes** switch continuously outlines the original root part in red, the reanimated root part in cyan, and collidable hat handles in green.
+
+Addon asset URLs containing spaces are escaped before download. This fixes otherwise valid third-party and `MARKET/` paths, but `MARKET/` assets still have to exist under the repository's matching `community/` path.
+
+The repository package now includes the repaired marketplace module sources under `community/`, including Airy's ZIP-file dances, Valtta's port pack, Theo's dances, Noober's pack, and the other reviewed addons. Upload the matching `community/` tree together with `source/reanim.lua`; the in-GUI marketplace reads `community/list.txt`. For a manual local install, copy a module file into `UhhhhhhReanim/Modules/` and press **Reload User Modules**.
+
+**Animation Options > Krystal Head Overlay >** makes Krystal Dance V3's mouse/camera head tracking available over every moveset and dance. Its saved **Override Animated Head** option runs after animation updates so conflicting neck poses cannot replace the tracker; disable override to use it as an additive head layer instead.
+
+The saved **Show Red Reset Placeholder** switch under **Reanimate Character Settings** restores the translucent red fake R6 rig during the reset gap before the new real character, humanoid, root part, and live humanoid state are detected. This preview remains visible even if the general **Placeholders** slider was previously saved at fully transparent. See [`docs/RESET_PLACEHOLDER_AUDIT.md`](./docs/RESET_PLACEHOLDER_AUDIT.md) for the original-source comparison.
+
+See [`docs/ANIMATION_API.md`](./docs/ANIMATION_API.md) for examples, [`docs/MODULE_TIMING_AUDIT.md`](./docs/MODULE_TIMING_AUDIT.md) for the cross-module speed analysis, [`docs/CURRENTANGLE_AUDIT.md`](./docs/CURRENTANGLE_AUDIT.md) for the archived CurrentAngle comparison, [`docs/THEO_DANCE_AUDIT.md`](./docs/THEO_DANCE_AUDIT.md) for the Theo dance-method study, [`docs/FORK_AUDIT.md`](./docs/FORK_AUDIT.md) for the fork diff and merge decisions, and [`docs/RESET_PLACEHOLDER_AUDIT.md`](./docs/RESET_PLACEHOLDER_AUDIT.md) for the reset-preview restoration.
+
+Modules are returned by a function from a luau script.
+honestly idk how to document this in an understandable way so
 heres an example, with code comments:
 ```lua
 -- UhhhhhhReanim/Modules/lazy.lua
@@ -360,6 +380,7 @@ end)
 
 return modules -- return modules
 ```
+
 
 ## STEVE's KeyframeSequence file format
 It's all pretty simple, really.
