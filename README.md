@@ -140,27 +140,23 @@ _G.UhhhhhhTheme = {
 
    You can now favorite the dances you like!
 
-10. Better Immersive VR
-
-	Immersive VR has gotten a huge upgrade adding more features that I can not list RN!
-
-11. More Music
+10. More Music
 
     Added more UI music that you can choose!
 
-12. Module Folders
+11. Module Folders
 
     You can now make folders for each module that contain the music, anims, rbxms, images, and module files!
     
 	This is for making it easier to add your modules without going into the content folder!
 
-14. Tool Kill and Custom Kill!
+12. Tool Kill and Custom Kill!
 
     Works just like awes Uhhhhhh fork!
     
     If you don't know for custom kill you just have to go to BlaaBlaaReanim > AdministrativeModules > DamageMethod > main.lua and make whatever code that can be used to attack your foes!
 
-16. Better netless
+13. Better netless
 
     Netless has gotten an upgrade!
     
@@ -168,7 +164,7 @@ _G.UhhhhhhTheme = {
     
     Netless Velocity now has a slider that goes up to 300 too!
 
-18. Extra stuff that help with reanimation
+14. Extra stuff that help with reanimation
 
     Like:
     
@@ -178,11 +174,11 @@ _G.UhhhhhhTheme = {
     
     and more thanks to warehause!
 
-20. Better executor support
+15. Better executor support
 
     Fixed that old thing warehause tried to make for JJsploit to work, but somehow they failed to make it properly!
 
-21. R15 Reanimation Fix
+16. R15 Reanimation Fix
 
     Hat Reanimation for R15 is fixed! (Don't know if the method will get patched by Roblox since there has been a screenshot but IDK if it is real)
 
