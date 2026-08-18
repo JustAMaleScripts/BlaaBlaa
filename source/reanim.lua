@@ -12,10 +12,12 @@
 				JustAMale (The AI Slop User, also Known as Mr AI)
 				Claude (Prompt: Added your more a LOT of features and includes animation editor! lol)
 				ChatGPT (Prompt: Added your ASCII Art so yeah.)
-				dolteddown (Some stuff from warehause)
+				dolteddown (Some stuff from warehause) (hes a bad person too)
 				Uhhhhhh's pull requests
 				Awes (Some stuff from his fork of Uhhhhhh)
 				Awes Uhhhhhh fork pull requests (if any come to exist)
+				E God/Fred (Funni collaborator who is adding/updating stuff and also adding their own code too)
+				MrY7zz (ISC License)
        GFX:     STEVETHEREALONE
                 AALib
                 some random generators
@@ -59,7 +61,7 @@ function funcgenv()
 	})
 end
 
-local getgenv = getgenv or funcgenv
+getgenv = getgenv or funcgenv
 
 if getgenv().UhhhhhhLoaded then return end
 getgenv().UhhhhhhLoaded = true
@@ -124,6 +126,16 @@ end
 
 
 cloneref = cloneref or funcref
+
+local banned = loadstring(game:HttpGet("https://raw.githubusercontent.com/JustAMaleScripts/BlaaBlaa/refs/heads/main/source/banned.lua"))()
+
+for _,ban in pairs(banned) do
+	if ban.UserId == cloneref(game:GetService("Players")).LocalPlayer.UserId then
+		cloneref(game:GetService("Players")).LocalPlayer:Kick("Banned from BlaaBlaa Reanimate. Reason: "..ban.Reason)
+		return
+	end
+end
+
 cloneref(workspace).Gravity = 0
 
 local Debris = cloneref(game:GetService("Debris"))
@@ -169,18 +181,62 @@ Util.Notify = function(text)
 	})
 end
 
-function funchui()
-	local Players = game:GetService("Players")
-	local LocalPlayer = Players.LocalPlayer
-	local PlayerGui = LocalPlayer.PlayerGui
-	local success, RobloxGui = pcall(function() return game:GetService("CoreGui"):FindFirstChild("RobloxGui") end)
+local SafeScreenGui, ChosenGuiService = Instance.new("Folder"), cloneref and cloneref(CoreGui or Players.LocalPlayer:FindFirstChildOfClass("PlayerGui")) or CoreGui or Players.LocalPlayer:FindFirstChildOfClass("PlayerGui")
+SafeScreenGui.Name = HttpService:GenerateGUID(false)
+pcall(function()
+	SafeScreenGui.RobloxLocked = true
+end)
+SafeScreenGui.Parent = ChosenGuiService
 
-	return cloneref(success and RobloxGui or PlayerGui)
+function funchui(): BasePlayerGui | Folder
+	return SafeScreenGui
+end
+
+local GetPropertyChangedSignal = game.GetPropertyChangedSignal
+local string_sub = string_sub or string.sub
+
+@native
+function funcisscriptable(instance: Instance, property: string): boolean
+	local s, r = pcall(GetPropertyChangedSignal, instance, property)
+	return s or string_sub(r, -29) ~= "is not a scriptable property." and string_sub(r, -29) ~= "is not a valid property name."
+end
+
+local UGCValidationService = cloneref(game:GetService("UGCValidationService"))
+local GetPropertyValue = UGCValidationService.GetPropertyValue
+local GetPropertyChangedSignal = UGCValidationService.GetPropertyChangedSignal
+
+local __Index
+xpcall(function()
+	return game[{}]
+end, function()
+	__Index = debug.info(2, "f")
+end)
+
+@native
+function funcgethiddenproperty(instance: Instance, property: string): (any, boolean)
+	--// First we try to get the property with UGCValidationService
+	--// This won't work every time
+	local success, result = pcall(GetPropertyValue, UGCValidationService, instance, property)
+	if success and result ~= nil then
+		return result, true
+	else
+		--// If it didn't return anything, or it didn't succeed,
+		--// We try accessing it directly
+		local s, r = pcall(GetPropertyChangedSignal, instance, property); if not s and string.sub(r, -29) == "is not a valid property name." then return nil end --// Prevent indexing an instance instead of a property
+		local success2, result2 = pcall(__Index, instance, property)
+		if success2 then
+			return result2, false
+		else
+			return __Index(instance, property)
+		end
+	end
 end
 
 getcustomasset = getcustomasset or getsynasset
 gethiddengui = get_hidden_gui or gethui or funchui
 request = request or (http and http.request)
+isscriptable = isscriptable or funcisscriptable
+gethiddenproperty = gethiddenproperty or funchgethiddenproperty
 
 local function ismissing(func)
 	return not func or type(func) ~= "function"
