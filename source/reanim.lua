@@ -66,7 +66,7 @@ getgenv = getgenv or funcgenv
 if getgenv().UhhhhhhLoaded then return end
 getgenv().UhhhhhhLoaded = true
 
-UhhhhhhVersion = "1.0.4 ALPHA"
+UhhhhhhVersion = "1.0.6 ALPHA"
 
 function funcref(object)
 	local proxy = newproxy(true)
