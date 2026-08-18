@@ -487,6 +487,8 @@ HiddenGui -- the reference to the ScreenGui Uhhhhhh uses
 FallenPartsDestroyHeight -- self explanatory
 ```
 
+See [`docs/ANIMATION_API.md`](docs/ANIMATION_API.md) for the complete extended animation API, state-machine example, compatibility notes, and patch details.
+
 ## "i dont understand all this"
 That's why I have made (in v1.0.3) the stuff that gives Empyrean Reanimate (emper chill lowkirkenuinly) the ability to be used in require script convertions!
 `_G.Uhhhhhh` which contains `.Character` and `.Fling`, but using this might make you rejoin just to stop everything...
