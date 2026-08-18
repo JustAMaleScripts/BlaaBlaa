@@ -443,7 +443,7 @@ HatReanimator
 		-- recommended to use ipairs when looping through table
 	.GetHatCFrameMeshAndTexture(mesh, tex) -- pass in mesh id and texture id to get hat cframe
 	.GetAttachmentCFrame(name) -- attachment by name
-ReanimateShowHitboxes() -- function to show hitboxes
+ReanimateShowHitboxes() -- refreshes the persistent reanimate hitboxes when their GUI toggle is enabled
 ReanimateFling(target, duration) -- fling target
 -- target can be model, part, Vector3 or CFrame
 -- duration can be 0 for fling to last a frame
@@ -461,12 +461,29 @@ SetOverrideDanceMusicSpeed(speed)
 
 AnimLib -- Uhhhhhh's animation library
 	.Track -- track util
+		.new(name) -- creates an empty track
+		.validate(track) -- returns valid, reason
+		.clone(track) -- deep copy
+		.getDuration(track) -- recalculates duration
+		.sort(track) -- sort keyframes and update duration
+		.addKeyframe(track, time, poses) / .removeKeyframe(track, index)
+		.findKeyframes(track, starttime, endtime)
+		.addMarker(track, time, name, value?) / .removeMarker(track, index)
+		.getMarkers(track, name?) / .getMarkersBetween(track, starttime, endtime, includeStart?)
 		.fromfile(path) -- loads animation from file, must be in STEVE's KeyframeSequence file format
+		.fromfilecached(path, refresh) -- cached load that returns an independent clone
+		.clearfilecache(path?) -- clear one or all cached tracks
 		.frominstance(ks) -- loads animation from a KeyframeSequence
 		.paste(target, source, timeoffset) -- pastes keyframes from source to target, with a time offset
+		.append(target, source, gap) -- paste after target duration
+		.scaleTime(track, factor) -- change timing in place
+		.reverse(track) -- returns a reversed clone
+		.slice(track, starttime, endtime) -- returns a time excerpt
 		.getPoses(track, time, looped) -- used by Animator
 	.Animator -- animator
 		.new() -- creates an animator
+		.fromTrack(rig, track, options) -- configured animator
+			:ApplyDefaults() -- refresh defaults from the Animation Options page
 			.rig -- the character model
 			.track -- the animation track
 			.map -- map input time to animation time
@@ -474,6 +491,57 @@ AnimLib -- Uhhhhhh's animation library
 			.speed -- input time multiplication
 			.weight -- use to blend with other animators, or smoothen animation
 			:Step(time) -- apply pose
+			:Update(dt) -- managed-time playback
+			:Play(starttime?) / :Pause() / :Resume() / :Stop(resetpose?)
+			:Seek(time) / :AdjustSpeed(speed) / :AdjustWeight(weight)
+			:SetTime(time) / :GetTimePosition() / :GetTimeLength() / :GetPlaybackSpeed() / :IsPlaying()
+			:Configure({UseGlobalPlaybackSpeed = false}) -- optional per-animator menu-speed opt-out
+			:LoadAnimation(trackOrPath) / :LoadSequence(keyframeSequence) / :GetPose(time?)
+			:SetJointMask(mask, mode) / :GetJointMask() / :ClearJointMask()
+			:SetFilter(filter, type) / :ClearFilter()
+			:SyncToSound(sound, offset?) / :ClearSoundSync() / :GetSyncedSound()
+			:FadeTo(weight, duration) / :FadeIn(duration, weight?) / :FadeOut(duration, resetpose?)
+			:GetMarkerReachedSignal(name) / .MarkerReached / .Finished
+			:ResetPose() / :Destroy(resetpose?)
+			:Bind(signal?) / :Unbind() / :GetBoundSignal() / :PlayAndBind(signal?, starttime?)
+	.DanceQueue -- sequential Theo-style emote playback
+		.new(rig)
+			:Enqueue(track, options?) / :Insert(index, track, options?) / :Remove(index)
+			:Count(includeCurrent?) / :GetCurrent() / :Skip(resetpose?) / :Clear(stopCurrent?)
+			:Play() / :Pause() / :Resume() / :Stop(clearQueue?, resetpose?) / :Update(dt)
+			:Bind(signal?) / :Unbind() / :PlayAndBind(signal?) / :Destroy(resetpose?)
+			.ItemStarted / .ItemFinished / .Finished
+	.Motor6D -- world-pose solving and application utilities
+		.Validate(motor)
+		.SolveWorldTransform(motor, target, reference)
+		.GetCurrentWorldTransform(motor) / .GetWorldCFrame(motor, transform?, reference?)
+		.RetargetTransform(sourceMotor, targetMotor)
+		.ToReplicationVectors(transform) / .TryHiddenReplication(motor, transform)
+		.ApplyTransform(motor, transform, options?) / .ApplyWorldPose(motor, target, reference, options?)
+		.Reset(motor, hiddenReplication?)
+	.RigMapper -- safe local Motor6D pose copying
+		.new(sourceRig, targetRig, aliases?)
+			:SetRigs(sourceRig, targetRig) / :SetAliases(table) / :SetPreset(name)
+			:SetMode("Transform" or "WorldCFrame") / :GetMode()
+			:SetHiddenReplication(enabled) / :IsHiddenReplicationAvailable()
+			:GetHiddenReplicationStatus()
+			:Refresh() / :CopyPose(weight?, scalePositions?) / :ResetTargetPose()
+			:GetMappedJointNames() / :Bind(signal?) / :Unbind() / :Destroy(resetpose?)
+	.ConnectionGroup -- reusable lifecycle cleanup
+		.new()
+			:Add(item) / :Remove(item, cleanup?) / :Count()
+			:LinkToInstance(instance) / :Cleanup() / :Destroy()
+	.StateMachine -- opt-in automatic locomotion controller
+		.new(rig)
+			:SetAnimation(state, track, options)
+			:GetAnimation(state) / :RemoveAnimation(state)
+			:SetPlaybackSpeed(state, speed) / :SetWeight(state, weight)
+			:SetAnimations(table)
+			:SetDirectionalAnimations(forward, backward, left, right, options)
+			:SetSprinting(enabled)
+			:ForceState(state) / :ClearForcedState()
+			:Bind(signal?) / :Unbind() / :StartAndBind(signal?)
+			:Update(dt) / :Pause() / :Resume() / :Stop(resetpose?) / :Destroy(resetpose?)
 
 -- utils for grabbing assets from Uhhhhhh/Content/...
 AssetGetPathFromFilename(filename) -- used for AnimLib.Track.fromfile
