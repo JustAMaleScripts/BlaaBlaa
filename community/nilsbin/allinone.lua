@@ -62,7 +62,7 @@ table.insert(modules,     function()
     	m.ModuleType  = "DANCE"
     	m.Name        = "24 Hours Cinderella"
     	m.Description = "Step and Go!"
-    	m.Assets = {"nil_Cinderella.anim@https://github.com/czmalio291/Mkaxss/blob/main/goodies/contents/nil_Cinderella.anim", "nil_Cinderella.mp3@https://github.com/czmalio291/Mkaxss/blob/main/goodies/contents/nil_Cinderella.mp3"}
+    	m.Assets = {"nil_Cinderella.anim@https://github.com/czmalio291/Mkaxss/raw/refs/heads/main/goodies/contents/nil_Cinderella.anim", "nil_Cinderella.mp3@https://github.com/czmalio291/Mkaxss/raw/refs/heads/main/goodies/contents/nil_Cinderella.mp3"}
     
     	m.Config = function(parent)
     		Util_CreateText(parent, "No settings.", 14, Enum.TextXAlignment.Center)
@@ -131,7 +131,6 @@ table.insert(modules,     function()
     	m.Update = function(dt, figure)
     	animator:Step(os.clock() - start)
     	local hum = figure:FindFirstChild("Humanoid")
-    	local hum = figure:FindFirstChild("Humanoid")
     		if not hum or not hum.RootPart then return end
     		hum.WalkSpeed = 0.05
     		if hum.MoveDirection.Magnitude > 0 then
@@ -148,7 +147,8 @@ table.insert(modules,     function()
     	
     	m.Destroy = function(figure)
     	animator = nil
-    	force:Destroy()
+    	if force then force:Destroy() end
+	    force = nil
     	if not figure then return end
     	local hum = figure:FindFirstChild("Humanoid")
     	if not hum or not hum.RootPart then return end
@@ -303,7 +303,7 @@ table.insert(modules,     function()
     	m.ModuleType  = "DANCE"
     	m.Name        = "Paranormal Swagtivity"
     	m.Description = "stop you're scaring everyone away"
-    	m.Assets = {"nil_Paranormal.anim@https://github.com/czmalio291/Mkaxss/blob/main/goodies/contents/nil_Paranormal.anim", "nil_Paranormal.mp3@https://github.com/czmalio291/Mkaxss/blob/main/goodies/contents/nil_Paranormal.mp3"}
+    	m.Assets = {"nil_Paranormal.anim@https://github.com/czmalio291/Mkaxss/raw/refs/heads/main/goodies/contents/nil_Paranormal.anim", "nil_Paranormal.mp3@https://github.com/czmalio291/Mkaxss/raw/refs/heads/main/goodies/contents/nil_Paranormal.mp3"}
     
     	m.Config = function(parent)
     		Util_CreateText(parent, "No settings.", 14, Enum.TextXAlignment.Center)
@@ -545,7 +545,7 @@ table.insert(modules,     function()
     	m.ModuleType  = "DANCE"
     	m.Name        = "Pirate"
     	m.Description = "the 1700s still hit hard"
-    	m.Assets = {"nil_Pirate.anim@https://github.com/czmalio291/Mkaxss/blob/main/goodies/contents/nil_Pirate.anim", "Pirate.mp3@https://github.com/czmalio291/Mkaxss/blob/main/goodies/contents/nil_Pirate.mp3"}
+    	m.Assets = {"nil_Pirate.anim@https://github.com/czmalio291/Mkaxss/raw/refs/heads/main/goodies/contents/nil_Pirate.anim", "Pirate.mp3@https://github.com/czmalio291/Mkaxss/raw/refs/heads/main/goodies/contents/nil_Pirate.mp3"}
     
     	m.Config = function(parent)
     		Util_CreateText(parent, "No settings.", 14, Enum.TextXAlignment.Center)
@@ -666,7 +666,7 @@ table.insert(modules,     function()
     	m.ModuleType  = "DANCE"
     	m.Name        = "운테르게임"
     	m.Description = "he so jolly"
-    	m.Assets = {"nil_Bong.anim@https://github.com/czmalio291/Mkaxss/blob/main/goodies/contents/nil_Bong.anim", "nil_Bong.mp3@https://github.com/czmalio291/Mkaxss/blob/main/goodies/contents/nil_Bong.mp3"}
+    	m.Assets = {"nil_Bong.anim@https://github.com/czmalio291/Mkaxss/raw/refs/heads/main/goodies/contents/nil_Bong.anim", "nil_Bong.mp3@https://github.com/czmalio291/Mkaxss/raw/refs/heads/main/goodies/contents/nil_Bong.mp3"}
     
     	m.Config = function(parent)
     		Util_CreateText(parent, "No settings.", 14, Enum.TextXAlignment.Center)
