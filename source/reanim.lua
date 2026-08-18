@@ -13462,7 +13462,6 @@ end
 UI.CreateText(MainPage, "",3, Enum.TextXAlignment.Center)
 UI.CreateSeparator(MainPage)
 do
-	do
 	UI.CreateText(MainPage, "Reanimate Character Settings", 15, Enum.TextXAlignment.Center)
 	UI.CreateSwitch(MainPage, "Infinite Jump", Reanimate.InfiniteJump).Changed:Connect(function(val)
 		Reanimate.InfiniteJump = val
