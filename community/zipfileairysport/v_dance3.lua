@@ -25,7 +25,7 @@ AddModule(function()
 	m.ModuleType = "DANCE"
 	m.Name = "i miss the quiet"
 	m.Description = "i cant deny it\n\ni forgot the rest\nrbxm is from"
-	m.Assets = {"imissthequiet.anim@MARKET/zipfileairysport/imissthequiet.anim", "imissthequiet.mp3@MARKET/zipfileairysport/imissthequiet.mp3","imissthequietfull.mp3@MARKET/zipfileairysport/imissthequietfull.mp3","imissthequietfull.anim@MARKET/zipfileairysport/imissthequietfull.anim"}
+	m.Assets = {"imissthequiet.anim@https://raw.githubusercontent.com/airy-one-1/Uhhhhhh-but-more-anims/main/content/imissthequiet.anim", "imissthequiet.mp3@https://raw.githubusercontent.com/airy-one-1/Uhhhhhh-but-more-anims/main/content/imissthequiet.mp3","imissthequietfull.mp3@MARKET/zipfileairysport/imissthequietfull.mp3","imissthequietfull.anim@MARKET/zipfileairysport/imissthequietfull.anim"}
 
 m.Alternative = false
 m.Config = function(parent: GuiBase2d)
