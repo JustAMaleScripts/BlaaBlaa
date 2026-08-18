@@ -25,12 +25,13 @@ AddModule(function()
 	m.Description = "I CANT FEEL MY FACE"
 	m.Assets = {}
 
-	local pose = 0
+	local startedAt = 0
 
 	m.Config = function(parent: GuiBase2d)
 	end
 
 	m.Init = function(figure: Model)
+		startedAt = os.clock()
 	  for i,v in figure:GetDescendants() do
 	    if v:IsA("Accessory") then
 	      for i,v in v:GetDescendants() do
@@ -40,17 +41,10 @@ AddModule(function()
 	      end
 	    end
 	  end
-	  task.spawn(function()
-	    while true do
-	      pose = 1
-	      wait(2)
-	      pose = 0
-	      wait(2)
-	    end
-	  end)
 	end
 	m.Update = function(dt: number, figure: Model)
-		local timingsine = os.clock(16)
+		local timingsine = os.clock()
+		local pose = math.floor((timingsine - startedAt) / 2) % 2 == 0 and 1 or 0
 		local rt, nt, rst, lst, rht, lht = CFrame.identity, CFrame.identity, CFrame.identity, CFrame.identity, CFrame.identity, CFrame.identity
 		
 		local hum = figure:FindFirstChild("Humanoid")
@@ -67,6 +61,8 @@ AddModule(function()
 		  rh = torso:FindFirstChild("Right Hip"),
 		  lh = torso:FindFirstChild("Left Hip")
 		}
+
+		if not (joints.r and joints.n and joints.rs and joints.ls and joints.rh and joints.lh) then return end
 		
 		local alpha = math.exp(-8*dt)
 		
@@ -96,6 +92,7 @@ AddModule(function()
 		joints.lh.C0 = lht:Lerp(joints.lh.C0, alpha)
 	end
 	m.Destroy = function(figure: Model?)
+		startedAt = 0
 	end
 	return m
 end)
