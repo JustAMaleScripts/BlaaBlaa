@@ -21,7 +21,7 @@ desc = Started this in regards to Melon's dance zip file. I couldn't be more pat
 cost = 41 KB
 file = valttaportslop/allinone.lua
 
-name = Awes' Two Dances
+name = Awes' Three Dances
 user = Awes, Botsl's Tech Support
 desc = Boiiii
 cost = $100
@@ -39,11 +39,11 @@ desc = it contains \nKJ Flexworks \nJK Flexworks \nMontagem Hikari \nChegou 3\nH
 cost = 32 KB
 file = theosdances/SomeRandomModule.lua.txt
 
-name = Noober dance pack
+name = Noober dances reborn
 user = Noober
-desc = Mega pack of 106 dances
-cost = 134 KB
-file = noobersdances/noobersdance.lua
+desc = Mega pack of 115 plus dances (it's higher than 115)
+type = folder
+file = noobersdances/
 
 name = Memeili's dance
 user = Memeili
@@ -83,7 +83,7 @@ path = Bryan/
 
 name = Cybop's/Melon's Mega Pack
 user = cybop_
-desc = holy 744MB, but splitted :zmile:
+desc = holy 800MB plus, e god put the full thing.
 type = folder
 path = Cybop/
 
@@ -92,3 +92,21 @@ user = JustAMale
 desc = made it myself with AI beep boop beep boop :shook:
 type = folder
 path = JustAGorilla/
+
+name = Sam's Epik Dancez Modded E God Port
+user = Sam
+desc = it is a port of e god's epik dancez modded but with a twist
+type = folder
+path = EGodMod/
+
+name = Jame's JJS Emotes
+user = Jame
+desc = it has some emotes and stuff from JJS I guess
+type = folder
+path = JameJJS/
+
+name = Dummy's Dances and Movesets
+user = Dummy
+desc = some cool forsaken and other emotes/movesets
+type = folder
+path = Dummy/

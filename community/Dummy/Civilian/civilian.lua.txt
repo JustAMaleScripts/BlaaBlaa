@@ -1,0 +1,605 @@
+-- civilian.lua
+-- Created with Moveset Creator V6
+-- Place in: UhhhhhhReanim/Modules/civilian.lua
+
+cloneref = cloneref or function(o) return o end
+
+local Debris     = cloneref(game:GetService("Debris"))
+local RunService = cloneref(game:GetService("RunService"))
+local Players    = cloneref(game:GetService("Players"))
+
+local Player = Players.LocalPlayer
+
+local modules = {}
+local function AddModule(m)
+    table.insert(modules, m)
+end
+
+-- san_lua: convert any string to a valid Lua identifier (no spaces)
+-- used only for table keys that are Lua identifiers (mode actions)
+local function san_lua(s)
+    return (s or ""):gsub("[^%w_]", "_")
+end
+
+AddModule(function()
+    local m = {}
+    m.ModuleType   = "MOVESET"
+    m.Name         = "Civilian"
+    m.Description  = "Robloxias only hope."
+    m.InternalName = "civilian"
+
+    m.Assets = {
+        "IdleDOD.anim",
+        "WalkDOD.anim",
+        "Jump.anim",
+        "RunDOD.anim",
+        "Punch.anim",
+        "BlockStart.anim",
+        "Taunt.anim",
+        "NewRevolver.anim",
+        "NewRevolverReload.anim",
+        "CaretakerHeal.anim",
+        "BonusPadIdle.anim",
+        "BananaUse.anim",
+        "Hotdog.anim",
+        "Cloak_1.anim",
+        "DashUse.anim",
+        "Punch.mp3.mp3.mpeg.mp3",
+        "BlockHit.mp3.mpeg.mp3",
+        "Yeah_come_get_some_ya_freakin_wuss.mp3.mpeg.mp3",
+        "RevolverShot.mp3",
+        "RevolverReload.mp3.mpeg.mp3",
+        "CaretakerSplash2.mp3",
+        "Ouch.mp3",
+        "BananaPeelReady.mp3",
+        "Hotdog_eat.MP3.mpeg.mp3",
+        "CloakUse.mp3",
+        "DashUsage.mp3.mpeg.mp3",
+        "Adrenaline.anim",
+        "AdrenalineStart.mp3.mpeg.mp3",
+    }
+
+    m.FlingEnabled = {
+        -- no default attacks
+    }
+
+    m.Config = function(parent)
+        Util_CreateText(parent, "Civilian", 18, Enum.TextXAlignment.Center)
+        Util_CreateSeparator(parent)
+    end
+
+    m.SaveConfig = function()
+        local t = {}
+        return t
+    end
+
+    m.LoadConfig = function(save)
+    end
+
+    -- STATE
+    local baseAnims    = {}
+    local actionAnims  = {}
+    local animJump     = nil
+    local actionStart  = {}
+    local currentBase   = "idle"
+    local currentAction = nil
+    local wasInAir      = false
+    local flingActive   = false
+    local touchConns    = {}
+    local allJoints     = {}
+    local figureRef     = nil
+    local SPEED_WALK    = 11
+    local SPEED_SPRINT  = 26
+    local isSprinting   = false
+    local currentMode   = 0
+    local modeAnims     = {}
+
+    -- HELPERS
+    local function makeSound(filename, parent, volume, looped)
+        local s = Instance.new("Sound")
+        s.SoundId = AssetGetContentId(filename)
+        s.Volume  = volume or 0.8
+        s.Looped  = looped or false
+        s.Parent  = parent
+        return s
+    end
+
+    local function loadAnim(fig, file, looped)
+        local a = AnimLib.Animator.new()
+        a.rig    = fig
+        a.track  = AnimLib.Track.fromfile(AssetGetPathFromFilename(file))
+        a.looped = looped or false
+        a.speed  = 1
+        a.weight = 0
+        return a
+    end
+
+    local function setSpeed(speed)
+        if not figureRef then return end
+        local hum = figureRef:FindFirstChildOfClass("Humanoid")
+        if hum then hum.WalkSpeed = speed end
+    end
+
+    local function clearBase()
+        for _, a in pairs(baseAnims) do a.weight = 0 end
+        for _, mt in ipairs(modeAnims) do for _, a in pairs(mt) do if type(a)=="table" and a.weight then a.weight=0 end end end
+        if animRageEntry then animRageEntry.weight = 0 end
+        if animRageIdle  then animRageIdle.weight  = 0 end
+        if animRageMove  then animRageMove.weight  = 0 end
+    end
+
+    local function setBase(state)
+        if currentBase == state then return end
+        currentBase = state
+        clearBase()
+        local mOver = modeAnims[currentMode]
+        if mOver and mOver[state] then
+            mOver[state].weight = 1
+            return
+        end
+        -- rage overrides locomotion anims
+        if isRaging and rageEntryTimer <= 0 then
+            if state == "idle" and animRageIdle  then animRageIdle.weight  = 1 return end
+            if state == "walk" and animRageMove  then animRageMove.weight  = 1 return end
+            if state == "sprint" and animRageMove then animRageMove.weight = 1 return end
+        end
+        if baseAnims[state] then baseAnims[state].weight = 1 end
+    end
+
+    local function stopAllAnimSounds()
+        -- no per-action sounds
+    end
+
+    local function stopAction()
+        for _, anim in pairs(actionAnims) do anim.weight = 0 end
+        for _, mt in ipairs(modeAnims) do for _, a in pairs(mt) do if type(a)=="table" and a.weight then a.weight=0 end end end
+        stopAllAnimSounds()
+        currentAction = nil
+        flingActive   = false
+    end
+
+    local function bindDefaultAttacks()
+        -- no default attacks
+    end
+    local function unbindDefaultAttacks()
+        -- no default attacks
+    end
+
+    local function playAction(name)
+        if currentAction then return end
+        local a = actionAnims[name]
+        if not a then return end
+        stopAction()
+        a.weight       = 1
+        actionStart[a] = os.clock()
+        currentAction  = name
+        flingActive    = m.FlingEnabled[name] == true
+        if isRaging then endRaging() end
+    end
+
+    local function playModeAction(modeIdx, name)
+        if currentAction then return end
+        local ma = modeAnims[modeIdx]
+        local a = ma and ma["action_"..san_lua(name)]
+        if not a then return end
+        stopAction()
+        a.weight = 1
+        actionStart[a] = os.clock()
+        currentAction = name
+        flingActive = true
+        if isRaging then endRaging() end
+
+    end
+
+    local isRaging = false
+    local rageTimer = 0
+    local RAGE_DURATION = 5
+    local animRageEntry = nil
+    local animRageIdle  = nil
+    local animRageMove  = nil
+    local sndRage       = nil
+    local rageEntryTimer = 0
+
+    local function endRaging()
+        if not isRaging then return end
+        isRaging = false
+        rageTimer = 0
+        rageEntryTimer = 0
+        if figureRef then
+            local hum = figureRef:FindFirstChildOfClass("Humanoid")
+            if hum then
+                hum.WalkSpeed = isSprinting and SPEED_SPRINT or SPEED_WALK
+            end
+        end
+        if animRageEntry then animRageEntry.weight = 0 end
+        if animRageIdle  then animRageIdle.weight  = 0 end
+        if animRageMove  then animRageMove.weight  = 0 end
+        if sndRage then sndRage:Stop() end
+        currentBase = "none"
+    end
+
+    local function startRaging()
+        if isRaging then return end
+        isRaging = true
+        rageTimer = RAGE_DURATION
+        rageEntryTimer = 0
+        if figureRef then
+            local hum = figureRef:FindFirstChildOfClass("Humanoid")
+            if hum then hum.WalkSpeed = 21 end
+        end
+        if sndRage then sndRage:Play() end
+        -- play entry anim; rageEntryTimer tracks when it finishes
+        if animRageEntry then
+            clearBase()
+            animRageEntry.weight = 1
+            actionStart[animRageEntry] = os.clock()
+            local entryDur = (animRageEntry.track and animRageEntry.track.Time or 1) / (animRageEntry.speed or 1)
+            rageEntryTimer = entryDur
+        end
+    end
+
+    local function toggleSprint()
+        isSprinting = not isSprinting
+        if isSprinting then
+            setSpeed(isRaging and 36 or  SPEED_SPRINT)
+            ContextActions:SetTitle("GM_Sprint", "Walk")
+        else
+            setSpeed(isRaging and 21 or  SPEED_WALK)
+            ContextActions:SetTitle("GM_Sprint", "Sprint")
+        end
+    end
+
+    local function setupFlingTouched(figure)
+        local function hookPart(part)
+            local conn = part.Touched:Connect(function(hit)
+                if not flingActive then return end
+                if not hit or not hit.Parent then return end
+                local target = hit.Parent
+                if target:IsA("Accessory") then target = target.Parent end
+                if target == figure then return end
+                if not target:FindFirstChildOfClass("Humanoid") then return end
+                ReanimateFling(target)
+            end)
+            table.insert(touchConns, conn)
+        end
+        for _, part in ipairs(figure:GetDescendants()) do
+            if part:IsA("BasePart") then hookPart(part) end
+        end
+        table.insert(touchConns, figure.DescendantAdded:Connect(function(part)
+            if part:IsA("BasePart") then hookPart(part) end
+        end))
+    end
+
+    -- INIT
+    m.Init = function(figure)
+        figureRef = figure
+        local hrp = figure:FindFirstChild("HumanoidRootPart") or figure
+        local hum = figure:FindFirstChildOfClass("Humanoid")
+
+        allJoints = {}
+        for _, v in ipairs(figure:GetDescendants()) do
+            if v:IsA("Motor6D") then table.insert(allJoints, v) end
+        end
+
+        baseAnims = {
+        idle = loadAnim(figure, "IdleDOD.anim", true),
+        walk = loadAnim(figure, "WalkDOD.anim", true),
+        jump = loadAnim(figure, "Jump.anim", true),
+        sprint = loadAnim(figure, "RunDOD.anim", true),
+        }
+        animJump = baseAnims.jump
+
+        -- mode animation tables
+        modeAnims[1] = {
+            action_Punch = loadAnim(figure, "Punch.anim", false),
+            action_Block = loadAnim(figure, "BlockStart.anim", false),
+            action_Taunt = loadAnim(figure, "Taunt.anim", false),
+            action_Revolver = loadAnim(figure, "NewRevolver.anim", false),
+            action_Reload = loadAnim(figure, "NewRevolverReload.anim", false),
+        }
+        modeAnims[2] = {
+            action_Caretaker = loadAnim(figure, "CaretakerHeal.anim", false),
+            action_BonusPad = loadAnim(figure, "BonusPadIdle.anim", false),
+            action_Banana_Peel = loadAnim(figure, "BananaUse.anim", false),
+        }
+        modeAnims[3] = {
+            action_Hotdog = loadAnim(figure, "Hotdog.anim", false),
+            action_Cloak = loadAnim(figure, "Cloak_1.anim", false),
+            action_Dash = loadAnim(figure, "DashUse.anim", false),
+        }
+
+        -- rage mode anims
+        animRageEntry = loadAnim(figure, "Adrenaline.anim", false)
+        animRageIdle  = loadAnim(figure, "IdleDOD.anim",  true)
+        animRageMove  = loadAnim(figure, "WalkDOD.anim",  true)
+        sndRage = makeSound("AdrenalineStart.mp3.mpeg.mp3", hrp, 1, false)
+
+        setSpeed(SPEED_WALK)
+        setBase("idle")
+        setupFlingTouched(figure)
+
+        ContextActions:BindAction("GM_Sprint", function(_, inputState, _)
+            if inputState == Enum.UserInputState.Begin then toggleSprint() end
+        end, true, Enum.KeyCode.LeftAlt)
+        ContextActions:SetTitle("GM_Sprint", "Sprint")
+        ContextActions:SetPosition("GM_Sprint", UDim2.new(1, -140, 1, -180))
+
+        ContextActions:BindAction("GM_Rage", function(_, inputState, _)
+            if inputState ~= Enum.UserInputState.Begin then return end
+            if not isRaging then startRaging() end
+        end, true, Enum.KeyCode.R)
+        ContextActions:SetTitle("GM_Rage", "Adrenaline")
+        ContextActions:SetPosition("GM_Rage", UDim2.new(1, -190, 1, -280))
+
+        bindDefaultAttacks()
+
+        ContextActions:BindAction("GM_Mode1", function(_, inputState, _)
+            if inputState ~= Enum.UserInputState.Begin then return end
+            if currentMode == 1 then
+                currentMode = 0
+                currentBase = "none"
+                clearBase()
+                ContextActions:SetTitle("GM_Mode1", "Sentinels")
+            ContextActions:UnbindAction("GM_M1_Punch")
+            ContextActions:UnbindAction("GM_M1_Block")
+            ContextActions:UnbindAction("GM_M1_Taunt")
+            ContextActions:UnbindAction("GM_M1_Revolver")
+            ContextActions:UnbindAction("GM_M1_Reload")
+                bindDefaultAttacks()
+            else
+                currentMode = 1
+                currentBase = "none"
+                clearBase()
+                ContextActions:SetTitle("GM_Mode1", "▶ Abilities 1")
+                unbindDefaultAttacks()
+            ContextActions:BindAction("GM_M1_Punch", function(_, inputState, _)
+                if inputState == Enum.UserInputState.Begin then playModeAction(1, "Punch") end
+            end, true, Enum.KeyCode.Z)
+            ContextActions:SetTitle("GM_M1_Punch", "Punch")
+            ContextActions:SetPosition("GM_M1_Punch", UDim2.new(1, -140, 1, -280))
+            ContextActions:BindAction("GM_M1_Block", function(_, inputState, _)
+                if inputState == Enum.UserInputState.Begin then playModeAction(1, "Block") end
+            end, true, Enum.KeyCode.Z)
+            ContextActions:SetTitle("GM_M1_Block", "Block")
+            ContextActions:SetPosition("GM_M1_Block", UDim2.new(1, -90, 1, -280))
+            ContextActions:BindAction("GM_M1_Taunt", function(_, inputState, _)
+                if inputState == Enum.UserInputState.Begin then playModeAction(1, "Taunt") end
+            end, true, Enum.KeyCode.Z)
+            ContextActions:SetTitle("GM_M1_Taunt", "Taunt")
+            ContextActions:SetPosition("GM_M1_Taunt", UDim2.new(1, -90, 1, -330))
+            ContextActions:BindAction("GM_M1_Revolver", function(_, inputState, _)
+                if inputState == Enum.UserInputState.Begin then playModeAction(1, "Revolver") end
+            end, true, Enum.KeyCode.Z)
+            ContextActions:SetTitle("GM_M1_Revolver", "Revolver")
+            ContextActions:SetPosition("GM_M1_Revolver", UDim2.new(1, -140, 1, -330))
+            ContextActions:BindAction("GM_M1_Reload", function(_, inputState, _)
+                if inputState == Enum.UserInputState.Begin then playModeAction(1, "Reload") end
+            end, true, Enum.KeyCode.Z)
+            ContextActions:SetTitle("GM_M1_Reload", "Reload")
+            ContextActions:SetPosition("GM_M1_Reload", UDim2.new(1, -190, 1, -330))
+            end
+        end, true, Enum.KeyCode.V)
+        ContextActions:SetTitle("GM_Mode1", "Sentinels")
+        ContextActions:SetPosition("GM_Mode1", UDim2.new(1, -140, 1, -230))
+
+        ContextActions:BindAction("GM_Mode2", function(_, inputState, _)
+            if inputState ~= Enum.UserInputState.Begin then return end
+            if currentMode == 2 then
+                currentMode = 0
+                currentBase = "none"
+                clearBase()
+                ContextActions:SetTitle("GM_Mode2", "Supports")
+            ContextActions:UnbindAction("GM_M2_Caretaker")
+            ContextActions:UnbindAction("GM_M2_BonusPad")
+            ContextActions:UnbindAction("GM_M2_Banana_Peel")
+                bindDefaultAttacks()
+            else
+                currentMode = 2
+                currentBase = "none"
+                clearBase()
+                ContextActions:SetTitle("GM_Mode2", "▶ Abilities 2")
+                unbindDefaultAttacks()
+            ContextActions:BindAction("GM_M2_Caretaker", function(_, inputState, _)
+                if inputState == Enum.UserInputState.Begin then playModeAction(2, "Caretaker") end
+            end, true, Enum.KeyCode.Z)
+            ContextActions:SetTitle("GM_M2_Caretaker", "Caretaker")
+            ContextActions:SetPosition("GM_M2_Caretaker", UDim2.new(1, -140, 1, -280))
+            ContextActions:BindAction("GM_M2_BonusPad", function(_, inputState, _)
+                if inputState == Enum.UserInputState.Begin then playModeAction(2, "BonusPad") end
+            end, true, Enum.KeyCode.Z)
+            ContextActions:SetTitle("GM_M2_BonusPad", "BonusPad")
+            ContextActions:SetPosition("GM_M2_BonusPad", UDim2.new(1, -90, 1, -280))
+            ContextActions:BindAction("GM_M2_Banana_Peel", function(_, inputState, _)
+                if inputState == Enum.UserInputState.Begin then playModeAction(2, "Banana Peel") end
+            end, true, Enum.KeyCode.Z)
+            ContextActions:SetTitle("GM_M2_Banana_Peel", "Banana Peel")
+            ContextActions:SetPosition("GM_M2_Banana_Peel", UDim2.new(1, -140, 1, -330))
+            end
+        end, true, Enum.KeyCode.V)
+        ContextActions:SetTitle("GM_Mode2", "Supports")
+        ContextActions:SetPosition("GM_Mode2", UDim2.new(1, -90, 1, -230))
+
+        ContextActions:BindAction("GM_Mode3", function(_, inputState, _)
+            if inputState ~= Enum.UserInputState.Begin then return end
+            if currentMode == 3 then
+                currentMode = 0
+                currentBase = "none"
+                clearBase()
+                ContextActions:SetTitle("GM_Mode3", "Survivalists")
+            ContextActions:UnbindAction("GM_M3_Hotdog")
+            ContextActions:UnbindAction("GM_M3_Cloak")
+            ContextActions:UnbindAction("GM_M3_Dash")
+                bindDefaultAttacks()
+            else
+                currentMode = 3
+                currentBase = "none"
+                clearBase()
+                ContextActions:SetTitle("GM_Mode3", "▶ Abilities 3")
+                unbindDefaultAttacks()
+            ContextActions:BindAction("GM_M3_Hotdog", function(_, inputState, _)
+                if inputState == Enum.UserInputState.Begin then playModeAction(3, "Hotdog") end
+            end, true, Enum.KeyCode.Z)
+            ContextActions:SetTitle("GM_M3_Hotdog", "Hotdog")
+            ContextActions:SetPosition("GM_M3_Hotdog", UDim2.new(1, -90, 1, -280))
+            ContextActions:BindAction("GM_M3_Cloak", function(_, inputState, _)
+                if inputState == Enum.UserInputState.Begin then playModeAction(3, "Cloak") end
+            end, true, Enum.KeyCode.Z)
+            ContextActions:SetTitle("GM_M3_Cloak", "Cloak")
+            ContextActions:SetPosition("GM_M3_Cloak", UDim2.new(1, -140, 1, -280))
+            ContextActions:BindAction("GM_M3_Dash", function(_, inputState, _)
+                if inputState == Enum.UserInputState.Begin then playModeAction(3, "Dash") end
+            end, true, Enum.KeyCode.Z)
+            ContextActions:SetTitle("GM_M3_Dash", "Dash")
+            ContextActions:SetPosition("GM_M3_Dash", UDim2.new(1, -140, 1, -330))
+            end
+        end, true, Enum.KeyCode.V)
+        ContextActions:SetTitle("GM_Mode3", "Survivalists")
+        ContextActions:SetPosition("GM_Mode3", UDim2.new(1, -90, 1, -180))
+    end
+
+    -- UPDATE
+    m.Update = function(dt, figure)
+        local hum = figure:FindFirstChildOfClass("Humanoid")
+        if not hum then return end
+        local inAir = hum.FloorMaterial == Enum.Material.Air
+
+        -- rage timer countdown
+        if isRaging then
+            rageTimer = rageTimer - dt
+            if rageEntryTimer > 0 then
+                rageEntryTimer = rageEntryTimer - dt
+                if rageEntryTimer <= 0 then
+                    -- entry anim finished, transition to rage idle/move
+                    if animRageEntry then animRageEntry.weight = 0 end
+                    currentBase = "none"
+                end
+            end
+            if rageTimer <= 0 then endRaging() end
+        end
+
+        -- auto-stop finished actions
+        if currentAction then
+            -- check mode action duration
+            if currentMode > 0 then
+                local ma = modeAnims[currentMode]
+                local ca = ma and ma["action_"..san_lua(currentAction)]
+                if ca and actionStart[ca] then
+                    local elapsed  = os.clock() - actionStart[ca]
+                    local duration = ca.track and ca.track.Time or 0
+                    if duration > 0 and elapsed >= duration / (ca.speed or 1) then
+                        ca.weight     = 0
+                        stopAllAnimSounds()
+                        currentAction = nil
+                        flingActive   = false
+                        currentBase   = "none"
+                    end
+                    return
+                end
+            end
+            local a = actionAnims[currentAction]
+            if a and actionStart[a] then
+                local elapsed  = os.clock() - actionStart[a]
+                local duration = a.track and a.track.Time or 0
+                if duration > 0 and elapsed >= duration / (a.speed or 1) then
+                    a.weight      = 0
+                    stopAllAnimSounds()
+                    currentAction = nil
+                    flingActive   = false
+                    currentBase   = "none"
+                end
+            end
+        end
+
+        -- locomotion state machine
+        if not currentAction then
+            -- skip locomotion while rage entry anim plays
+            if not (isRaging and rageEntryTimer > 0) then
+            if inAir then
+                if not wasInAir then
+                    clearBase()
+                    currentBase           = "jump"
+                    animJump.weight       = 1
+                    actionStart[animJump] = os.clock()
+                end
+            else
+                if wasInAir then animJump.weight = 0 end
+                local moving = hum.MoveDirection.Magnitude > 0.1
+                if moving then
+                    if isSprinting then setBase("sprint") else setBase("walk") end
+                else
+                    setBase("idle")
+                end
+            end
+            end
+        end
+
+        wasInAir = inAir
+        local now = os.clock()
+        for _, a in pairs(baseAnims) do if a.weight > 0 then a:Step(now) end end
+        for _, mt in ipairs(modeAnims) do for _, a in pairs(mt) do if type(a)=="table" and a.weight and a.weight > 0 then a:Step(now) end end end
+        if animRageEntry and animRageEntry.weight > 0 then animRageEntry:Step(now - (actionStart[animRageEntry] or now)) end
+        if animRageIdle  and animRageIdle.weight  > 0 then animRageIdle:Step(now) end
+        if animRageMove  and animRageMove.weight  > 0 then animRageMove:Step(now) end
+        for a, start in pairs(actionStart) do if a.weight > 0 then a:Step(now - start) end end
+    end
+
+    -- DESTROY
+    m.Destroy = function(figure)
+        ContextActions:UnbindAction("GM_Sprint")
+        ContextActions:UnbindAction("GM_Rage")
+        unbindDefaultAttacks()
+        ContextActions:UnbindAction("GM_Mode1")
+        ContextActions:UnbindAction("GM_Mode2")
+        ContextActions:UnbindAction("GM_Mode3")
+        ContextActions:UnbindAction("GM_M1_Punch")
+        ContextActions:UnbindAction("GM_M1_Block")
+        ContextActions:UnbindAction("GM_M1_Taunt")
+        ContextActions:UnbindAction("GM_M1_Revolver")
+        ContextActions:UnbindAction("GM_M1_Reload")
+        ContextActions:UnbindAction("GM_M2_Caretaker")
+        ContextActions:UnbindAction("GM_M2_BonusPad")
+        ContextActions:UnbindAction("GM_M2_Banana_Peel")
+        ContextActions:UnbindAction("GM_M3_Hotdog")
+        ContextActions:UnbindAction("GM_M3_Cloak")
+        ContextActions:UnbindAction("GM_M3_Dash")
+
+        for _, conn in ipairs(touchConns) do conn:Disconnect() end
+        table.clear(touchConns)
+
+        stopAllAnimSounds()
+        if isRaging then endRaging() end
+        if animRageEntry then animRageEntry.weight = 0 end
+        if animRageIdle  then animRageIdle.weight  = 0 end
+        if animRageMove  then animRageMove.weight  = 0 end
+        if sndRage then sndRage:Stop() sndRage:Destroy() sndRage = nil end
+
+        for _, joint in ipairs(allJoints) do
+            if joint and joint.Parent then joint.Transform = CFrame.identity end
+        end
+        allJoints = {}
+
+        for _, a in pairs(baseAnims)   do a.weight = 0 end
+        for _, a in pairs(actionAnims) do a.weight = 0 end
+
+        setSpeed(16)
+        actionStart   = {}
+        currentAction = nil
+        currentBase   = "idle"
+        wasInAir      = false
+        flingActive   = false
+        figureRef     = nil
+        animJump      = nil
+        baseAnims     = {}
+        actionAnims   = {}
+        isSprinting = false
+        isRaging = false
+        rageTimer = 0
+        rageEntryTimer = 0
+        currentMode = 0
+        modeAnims   = {}
+    end
+
+    return m
+end)
+
+return modules
