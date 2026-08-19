@@ -17,8 +17,7 @@ local banned = {
   {UserId = 8204209950, Reason = "Hacking the Game (Zombie Game UPD3). For Uhhhhhh Appeal: https://discord.gg/yCBNPnaymx"},
   {UserId = 9157307256, Reason = "Hacking the Game (Zombie Game UPD3). For Uhhhhhh Appeal: https://discord.gg/yCBNPnaymx"},
   {UserId = 2510070060, Reason = "Hacking the Game (Zombie Game UPD3). For Uhhhhhh Appeal: https://discord.gg/yCBNPnaymx"},
-  {UserId = 8866839839, Reason = "Hacking the Game (Zombie Game UPD3). For Uhhhhhh Appeal: https://discord.gg/yCBNPnaymx"},
-  {UserId = 3118918860, Reason = "Test"}
+  {UserId = 8866839839, Reason = "Hacking the Game (Zombie Game UPD3). For Uhhhhhh Appeal: https://discord.gg/yCBNPnaymx"}
 }
 
 return banned
