@@ -83,7 +83,7 @@ path = Bryan/
 
 name = Cybop's/Melon's Mega Pack
 user = cybop_
-desc = holy 800MB plus, e god put the full thing.
+desc = holy 800MB plus, e god put the full thing. (Update soon)
 type = folder
 path = Cybop/
 
@@ -110,3 +110,27 @@ user = Dummy
 desc = some cool forsaken and other emotes/movesets
 type = folder
 path = Dummy/
+
+name = lenny018577 dance pack
+user = lenny018577
+desc = dance pack! [ caution : moderation is not done for this module ]
+cost = ~18 MB
+file = lenny018577/allinone.lua
+
+name = Gatito 1x1x1x1 and PH0NKK1DD
+user = Berry / idkmanel9
+desc = JOIN ME- OWWWWW! , The mind of him
+cost = 10.59 MB
+file = GatitoandPh0nk1dd/allinone.lua
+
+name = Breys block tales movesets
+user = Brey_nananana
+desc = "Hey its me brey and this is honestly my best work so far thanks for using this"
+cost = ~3.84 MB
+file = alltheblocktalesmovesets/allinone.lua
+
+name = John Doe (Berry's version)
+user = Berry or idkmanel9
+desc = John doe (Berry's version)
+cost = 4.45 MB
+file = UpdatedJohndoe/allinone.lua
