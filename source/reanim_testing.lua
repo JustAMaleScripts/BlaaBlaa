@@ -59129,13 +59129,6 @@ Thou shalth not steal. Point at this source if you used a snippet here.
 
 -- BlaaBlaa Reanimate -- merged with the Uhhhhhh 1.1.0 DEV (Modded) runtime.
 
-if _G.UhhhhhhLoaded then
-	return
-end
-_G.UhhhhhhLoaded = true
-
-local UhhhhhhVersion = "1.0.9 TESTING"
-
 --// BlaaBlaa environment shim (ported from the BlaaBlaa main code)
 local suc,res = pcall(function()
 	_G.yes = print
@@ -59144,6 +59137,13 @@ end)
 if not suc then
 	_G = {}
 end
+
+if _G.UhhhhhhLoaded then
+	return
+end
+_G.UhhhhhhLoaded = true
+
+local UhhhhhhVersion = "1.0.9 TESTING"
 
 fenv = getfenv()
 
@@ -59244,12 +59244,6 @@ local Steve110 = loaderChunk()(STEVE110_ROOT)
 -- reproducible. Update this only after reviewing the replacement revision.
 local STEVE_AUDITED_REVISION = "df7c53b85910735dfe223b73a09ee819f8ba2fd4"
 
--- Some executors do not implement cloneref. Resolve the compatibility alias
--- before any service lookup instead of defining the fallback after first use.
-cloneref = cloneref or function(object)
-	return object
-end
-
 local Debris = cloneref(game:GetService("Debris"))
 local CoreGui = cloneref(game:GetService("CoreGui"))
 local Players = cloneref(game:GetService("Players"))
@@ -59264,8 +59258,6 @@ local TextChatService = cloneref(game:GetService("TextChatService"))
 local UserInputService = cloneref(game:GetService("UserInputService"))
 local AvatarEditorService = cloneref(game:GetService("AvatarEditorService"))
 local ContextActionService = cloneref(game:GetService("ContextActionService"))
-
-cloneref(workspace).Gravity = 0
 
 local Util = {}
 
@@ -59307,9 +59299,6 @@ function funchui(): BasePlayerGui | Folder
 	return SafeScreenGui
 end
 
-cloneref = cloneref or function(o)
-	return o
-end
 getcustomasset = getcustomasset or getsynasset
 gethiddengui = get_hidden_gui or gethui or funchui
 request = request
