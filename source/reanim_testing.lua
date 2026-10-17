@@ -25149,12 +25149,12 @@ if not StartupOk and UhhhhhhTBZRunActive() then
 	if not Global.UhhhhhhTBZGelatekControllerReady and type(Stop) == "function" then pcall(Stop) end
 end
 end)]==], "generation-scoped initialization error handoff")
-	(Config.CurrentAngleBodyChain == true)',
-            "retained root follows its controller through Head PD"source = replaceOnce(source,
-            'if not (Config.CurrentAngleBodyChain == true and IsPermaDeath == false)',
-            'if not)
-        return source
-    end
+	source = replaceOnce(source,
+        'if not (Config.CurrentAngleBodyChain == true and IsPermaDeath == false)',
+        'if not (Config.CurrentAngleBodyChain == true)',
+        "retained root follows its controller through Head PD")
+    return source
+end
 
     local function requestInternalStop(preserveController)
         local rig = backend.Rig
