@@ -1,0 +1,8 @@
+Name: Teapot 1x1x1x1
+Description: teapot guy
+Speed Walk: 8
+Speed Sprint: 27
+
+Falta Sonidos
+Falta Temas
+Falta Audio

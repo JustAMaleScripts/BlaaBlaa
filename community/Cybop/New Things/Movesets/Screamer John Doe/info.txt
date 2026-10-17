@@ -1,0 +1,5 @@
+Name: Screamer John Doe
+Description: Back for more.
+Speed Walk: 9
+Speed Run: 27.25
+

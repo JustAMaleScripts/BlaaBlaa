@@ -1,0 +1,3 @@
+This moveset was created using the Lua script from "Still Life" by dat_gweenguy (on Discord). 
+Many thanks to this creator for such a wonderful moveset! 
+And thank you for allowing me to modify this Lua script to create another moveset!

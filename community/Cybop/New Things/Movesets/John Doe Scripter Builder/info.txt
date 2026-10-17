@@ -1,0 +1,11 @@
+Name: Script Builder John Doe
+Description: Ahh, The Old Times. Isn't Little Jimmy?
+Speed Walk: 9
+Speed Sprint: 27.25
+
+Falta tema
+Sonidos
+Pasos
+
+
+

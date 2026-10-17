@@ -1,0 +1,11 @@
+Name: Monochrome 1x1x1x1
+Description: no not the fnf song
+Speed Walk: 8
+Speed Sprint: 27
+
+
+Falta Sonidos y Intro
+Falta Habilidades
+Falta Sonidos de Habilidades
+Falta Pasos
+

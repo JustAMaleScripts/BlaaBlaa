@@ -1,0 +1,11 @@
+Name: xX4ce0fSpadesXx 1x1x1x1
+Description: WE DONT HAVE TO REACH YOU
+Speed Walk: 8
+Speed Sprint: 27
+
+
+Falta Sonidos y Intro
+Falta Habilidades
+Falta Sonidos de Habilidades
+Falta Pasos
+

@@ -1,0 +1,10 @@
+Name: Living Legend John Doe
+Description: Legends Never Dies.
+Speed Walk: 9
+Speed Sprint: 27.25
+
+Falta sonidos
+Tema
+Pasos
+
+

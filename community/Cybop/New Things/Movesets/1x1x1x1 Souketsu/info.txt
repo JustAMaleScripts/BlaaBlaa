@@ -1,0 +1,11 @@
+Name: Souketsu 1x1x1x1
+Description: What if where hype moments and ufe aura
+Speed Walk: 8
+Speed Sprint: 27
+
+
+Falta Sonidos y Intro
+Falta Habilidades
+Falta Sonidos de Habilidades
+Falta Pasos
+

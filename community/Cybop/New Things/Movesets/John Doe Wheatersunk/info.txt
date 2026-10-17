@@ -1,0 +1,12 @@
+Name: Weather John Doe
+Description: Didn't you see the news today? I heard they said it looked like rain
+Speed Walk: 9
+Speed Sprint: 27.25
+
+Falta Sonidos de pasos
+Sonido de Tema
+Voces
+
+
+
+
