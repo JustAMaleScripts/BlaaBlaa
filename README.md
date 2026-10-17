@@ -1,4 +1,4 @@
-# <p align="center">STEVETHEREALONE (@steve_internal)'s Universal Hierarchical 6 Reanimator And JustAMaleScript (@JustAMaleYT)'s and E God's Modded Fork</p>
+# <p align="center">STEVETHEREALONE (@steve_internal)'s Universal Hierarchical 6 Reanimator And JustAMaleScript (@JustAMaleYT)'s and E Fred's Modded Fork</p>
 <p align="center">A really cool, optimised animation program and musics with demo scenes! Idea originated from a dream.</p>
 <p align="center">
 	<img src="./images/Showcase.gif" alt="drawing" width="45%"/>
@@ -33,6 +33,18 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/JustAMaleScripts/Blaa
 2. api loadstring (bypasses github cache)
 ```lua
 local a,b,c,g="/JustAMaleScripts/BlaaBlaa/","/source/reanim.lua",".github","https://"local d=request({Url=`{g}api{c}.com/repos{a}contents{b}`,Headers={Accept=`application/vnd{c}.VERSION.raw`}})if d.StatusCode~=200 then d.Body=game:HttpGet(`{g}raw{c}usercontent.com{a}main{b}`)end local e,f=loadstring(d.Body)if not e then warn(f)else e()end
+```
+
+THESE ARE FOR 1.1.0 DEV + SOMEWHAT REBUILD OF ANOTHER FORK TESTING:
+
+3. raw testing loadstring (cached by github)
+```lua
+loadstring(game:HttpGet("https://raw.githubusercontent.com/JustAMaleScripts/BlaaBlaa/refs/heads/main/source/reanim_testing.lua"))()
+```
+
+4. api testing loadstring (bypasses github cache)
+```lua
+local a,b,c,g="/JustAMaleScripts/BlaaBlaa/","/source/reanim_testing.lua",".github","https://"local d=request({Url=`{g}api{c}.com/repos{a}contents{b}`,Headers={Accept=`application/vnd{c}.VERSION.raw`}})if d.StatusCode~=200 then d.Body=game:HttpGet(`{g}raw{c}usercontent.com{a}main{b}`)end local e,f=loadstring(d.Body)if not e then warn(f)else e()end
 ```
 
 ## Features:
@@ -255,7 +267,7 @@ As for me adding support for your hats (since the hat database is very small), c
 # Uhhhhhh documentation
 
 ## Filesystem structure
-Uhhhhhh's filesystem is like this
+Uhhhhhh's filesystem is like this (This has changed a lot if using testing version and I don't want to fix it currently)
 ```txt
 Executor's workspace/
 | BlaaBlaaReanim/
