@@ -16,9 +16,10 @@
 				Uhhhhhh's pull requests
 				Awes (Some stuff from his fork of Uhhhhhh)
 				Awes Uhhhhhh fork pull requests (if any come to exist)
-				E God/Fred (Funni collaborator who is adding/updating stuff and also adding their own code too)
+				E Fred (Funni collaborator who is adding/updating stuff and also adding their own code too)
 				MrY7zz (ISC License)
-				mynxsty
+				mynxsty or whatever i forgot
+				Kimi K3 AI (an attempt at merging both BlaaBlaa and ^ this dudes fork which didnt work out fully but it will need to have some stuff manually added back i guess)
        GFX:     STEVETHEREALONE
                 AALib
                 some random generators
@@ -6284,7 +6285,7 @@ AddModule(function()
 				if sprinting and not persistentloadnotif then
 					persistentloadnotif = true
 					StarterGui:SetCore("SendNotification", {
-						Title = "Uhhhhhh",
+						Title = "BlaaBlaa",
 						Text = "Loaded: Sprint",
 						Duration = 5
 					})
@@ -16428,7 +16429,7 @@ AddModule(function()
 	local m = {}
 	m.ModuleType = "MOVESET"
 	m.Name = "Patchma Hub"
-	m.Description = "A port of MyWorld's hub to Uhhhhhh\nsee the configurations to set ur anims"
+	m.Description = "A port of MyWorld's hub to BlaaBlaa\nsee the configurations to set ur anims"
 	m.Assets = {}
 
 	local emptyfunction = function() end
@@ -17812,7 +17813,7 @@ AddModule(function()
 		btn("patchma hub lite")
 		lbl("real patchma hub by MyWorld")
 		lbl("their discord: discord.gg/QMy5f6DrbH")
-		lbl("ported to Uhhhhhh by STEVETHEREALONE")
+		lbl("ported to BlaaBlaa by STEVETHEREALONE")
 		animsel("creepy crawler")
 		animsel("nameless animations V8")
 		lbl("^ my personal favorite right here ^")
@@ -18572,7 +18573,7 @@ return modules
   "UhhhhhhSourcePath": "BlaaBlaaReanim/System/vendor/Uhhhhhh.lua",
   "GelatekSourcePath": "BlaaBlaaReanim/System/vendor/Gelatek.lua",
   "DefaultReanimator": 1,
-  "UhhhhhhVersion": "1.1.0 DEV (Modded)"
+  "UhhhhhhVersion": "1.0.9 TESTING"
 }
 ]=],
 	["BlaaBlaaReanim/System/launch.lua"] = [=[
@@ -18591,12 +18592,12 @@ local defaultPath = ROOT .. "/config.default.json"
 local raw = isfile(configPath) and readfile(configPath) or readfile(defaultPath)
 local ok, config = pcall(HttpService.JSONDecode, HttpService, raw)
 assert(ok and type(config) == "table", "Invalid bridge config")
-assert(isfile(config.UhhhhhhSourcePath), "Missing local Uhhhhhh source")
+assert(isfile(config.UhhhhhhSourcePath), "Missing local BlaaBlaa source")
 assert(isfile(config.GelatekSourcePath), "Missing local Gelatek source")
 
 local env = (getgenv and getgenv()) or shared or _G
 env.TheoBridgeConfig = config
-assert(not _G.UhhhhhhLoaded, "Uhhhhhh is already loaded; rejoin first")
+assert(not _G.UhhhhhhLoaded, "BlaaBlaa is already loaded; rejoin first")
 
 -- vendor/Uhhhhhh.lua contains the runtime changes directly.
 return compile(readfile(config.UhhhhhhSourcePath), "@Uhhhhhh")()
@@ -42844,7 +42845,7 @@ AddModule(function()
 	local m = {}
 	m.ModuleType = "MOVESET"
 	m.Name = "Patchma Hub"
-	m.Description = "A port of MyWorld's hub to Uhhhhhh\nsee the configurations to set ur anims"
+	m.Description = "A port of MyWorld's hub to BlaaBlaa\nsee the configurations to set ur anims"
 	m.Assets = {}
 
 	local emptyfunction = function() end
@@ -44228,7 +44229,7 @@ AddModule(function()
 		btn("patchma hub lite")
 		lbl("real patchma hub by MyWorld")
 		lbl("their discord: discord.gg/QMy5f6DrbH")
-		lbl("ported to Uhhhhhh by STEVETHEREALONE")
+		lbl("ported to BlaaBlaa by STEVETHEREALONE")
 		animsel("creepy crawler")
 		animsel("nameless animations V8")
 		lbl("^ my personal favorite right here ^")
@@ -55400,20 +55401,20 @@ end
 end
 end
 xpcall(callback, function(m)
-warn(Util.Traceback("Uhhhhhh :: Render Step Function Error", m, callback, 2))
+warn(Util.Traceback("BlaaBlaa :: Render Step Function Error", m, callback, 2))
 end, t, dt)
 end
 
 local callbackList = {}
 local _totalrendertime = 0
 RunService:BindToRenderStep("Uhhhhhh_Render" .. Util.RandomString(), Enum.RenderPriority.Last.Value - 69, function(dt)
-debug.profilebegin("Uhhhhhh :: Render Step")
+debug.profilebegin("BlaaBlaa :: Render Step")
 local t = _totalrendertime + dt
 _totalrendertime = t
 for _,func in callbackList do
 callCallback(func, t, dt)
 end
-debug.profileend("Uhhhhhh :: Render Step")
+debug.profileend("BlaaBlaa :: Render Step")
 end)
 
 return function(callback, linkToInstance, alwaysRun)
@@ -57897,18 +57898,18 @@ function M.report()
         {"request/http.request", M.request, "preferred; game:HttpGet fallback exists"},
         {"readfile", readfile, "required"}, {"writefile", writefile, "required"},
         {"isfile", isfile, "required"}, {"isfolder", isfolder, "required"},
-        {"makefolder", makefolder, "required"}, {"listfiles", listfiles, "required by Uhhhhhh"},
+        {"makefolder", makefolder, "required"}, {"listfiles", listfiles, "required by BlaaBlaa"},
         {"delfile", delfile, "required by Uhhhhhh"},
-        {"getcustomasset/getsynasset", M.getcustomasset, "required by Uhhhhhh music/assets"},
-        {"firetouchinterest", firetouchinterest, "required by current Uhhhhhh startup check"},
-        {"gethiddenproperty", M.gethiddenproperty, "required by current Uhhhhhh"},
-        {"sethiddenproperty", M.sethiddenproperty, "required by current Uhhhhhh and Gelatek"},
+        {"getcustomasset/getsynasset", M.getcustomasset, "required by BlaaBlaa music/assets"},
+        {"firetouchinterest", firetouchinterest, "required by current BlaaBlaa startup check"},
+        {"gethiddenproperty", M.gethiddenproperty, "required by current BlaaBlaa"},
+        {"sethiddenproperty", M.sethiddenproperty, "required by current BlaaBlaa and Gelatek"},
         {"InstanceHandle.new", InstanceHandle and InstanceHandle.new, "PhysicsRepRootRef; existing physics stays active if unsupported"},
         {"setscriptable", setscriptable, "Gelatek fallback path"},
         {"isnetworkowner", isnetworkowner, "Gelatek legacy diagnostic/ownership path"},
         {"identifyexecutor", M.identifyexecutor, "diagnostics"},
     }
-    print("===== Uhhhhhh Reanimate Modded v24 RootRef capability report =====")
+    print("===== BlaaBlaa Reanimate v24 RootRef capability report =====")
     for _, row in ipairs(rows) do
         print((isFunction(row[2]) and "[OK] " or "[--] ") .. row[1] .. " - " .. row[3])
     end
@@ -59103,8 +59104,10 @@ warn("Reanimated in " .. string.sub(tostring(tick()-Speed),1,string.find(tostrin
 				Uhhhhhh's pull requests
 				Awes (Some stuff from his fork of Uhhhhhh)
 				Awes Uhhhhhh fork pull requests (if any come to exist)
-				E God/Fred (Funni collaborator who is adding/updating stuff and also adding their own code too)
+				E Fred (Funni collaborator who is adding/updating stuff and also adding their own code too)
 				MrY7zz (ISC License)
+				mxystry or whatever i forgot
+				Kimi K3 AI (an attempt at merging both BlaaBlaa and ^ this dudes fork which didnt work out fully but it will need to have some stuff manually added back i guess)
        GFX:     STEVETHEREALONE
                 AALib
                 some random generators
@@ -59131,7 +59134,7 @@ if _G.UhhhhhhLoaded then
 end
 _G.UhhhhhhLoaded = true
 
-local UhhhhhhVersion = "1.1.0 DEV (Modded)"
+local UhhhhhhVersion = "1.0.9 TESTING"
 
 --// BlaaBlaa environment shim (ported from the BlaaBlaa main code)
 local suc,res = pcall(function()
@@ -59846,7 +59849,7 @@ do
 			PhysicsRepRootPartFling = 1 / 20,
 			CharacterScale = 1,
 			NoSmoothCam = false,
-			UITheme = 15,
+			UITheme = 12,
 			P2PCollision = false,
 			ScaleGravityEnabled = true,
 			ShiftlockDisabled = false,
@@ -60022,16 +60025,16 @@ local DamageMethod = nil
 do
 	local ok, source = pcall(readfile, DamageMethodPath)
 	if ok and type(source) == "string" then
-		local chunk, compileError = loadstring(source, "Uhhhhhh :: DamageMethod")
+		local chunk, compileError = loadstring(source, "BlaaBlaa :: DamageMethod")
 		if chunk then
 			local ran, result = pcall(chunk)
 			if ran and type(result) == "function" then
 				DamageMethod = result
 			else
-				warn("Uhhhhhh DamageMethod must return a function")
+				warn("BlaaBlaa DamageMethod must return a function")
 			end
 		else
-			warn("Uhhhhhh DamageMethod compile failed: " .. tostring(compileError))
+			warn("BlaaBlaa DamageMethod compile failed: " .. tostring(compileError))
 		end
 	end
 end
@@ -60041,7 +60044,7 @@ local function RunDamageMethod(...)
 	end
 	local ok, reason = pcall(DamageMethod, ...)
 	if not ok then
-		warn("Uhhhhhh DamageMethod failed: " .. tostring(reason))
+		warn("BlaaBlaa DamageMethod failed: " .. tostring(reason))
 	end
 	return ok
 end
@@ -60949,7 +60952,7 @@ table.insert(DevTheme.Themes, {
 SaveData.UITheme = math.clamp(tonumber(SaveData.UITheme) or 1, 1, #DevTheme.Themes + 1)
 SetUITheme(SaveData.UITheme)
 
-local CracktroFrameText = "Uhhhhhh Reanimate V" .. UhhhhhhVersion
+local CracktroFrameText = "BlaaBlaa Reanimate V" .. UhhhhhhVersion
 local closedPosition = UDim2.new(0.5, 0, 0.9, 0)
 if type(SaveData.WindowClosedPosition) == "table" and #SaveData.WindowClosedPosition == 4 then
     local valid, position = pcall(UDim2.new, unpack(SaveData.WindowClosedPosition))
@@ -61082,21 +61085,21 @@ do -- homepage
 	Util.SetTextColor(text1, UITextColor.Value, 0)
 	Util.SetTextColor(text2, UITextColor.Value, 0)
 	local quotes = {
-		'"EVERY CLIENT ORBITS A SERVER..."',
+		'"EVERY PRO CLIENT ORBITS A NOOB SERVER..."',
 		Player.Name .. ", how is your " .. os.date("%A") .. "?",
-		"A great " .. os.date("%A") .. " today, eh?",
-		"Hello, " .. Player.Name .. ".",
+		"A good " .. os.date("%A") .. " today, don't you say?",
+		"Hello, " .. Player.Name .. ", how are you?",
 		"What makes you play at " .. os.date("%I %p") .. "?",
-		"You are going to love Uhhhhhh, I just know it.",
-		'This script is very "verbose".',
-		"Written mostly on a mobile phone.",
+		"You are going to love BlaaBlaa, I just know it.",
+		'This script is very "OP".',
+		"Written mostly on a mobile phone. - Uhhhhhh",
 		"I am pretty new in this community! :D",
-		'"Dreams come true!"',
-		"Idea originated from a dream.",
-		"If you love this program, join my Discord!",
-		"boredgal was here..",
-		"gugu gaga ultimate",
-		"Kleiner me to start!",
+		'"Dreams come true!" - Steve 202?',
+		"Idea originated from a dream. (ok)",
+		"If you love this program, join Uhhhhhhh's Discord!",
+		"Villager was here..",
+		"baby ultimate",
+		"Doomer me to start!",
 		"Spongebob squarepants",
 		"I'm a Razor 1911 'fan' btw!",
 	}
@@ -61390,13 +61393,13 @@ task.spawn(function()
 			"ationan'   .JTTVV|;;;;;;;;;;;;;|VVVVm>   'nimatio",
 			"nanima'   _mQc;~~|.............|~~+jQmc   'ionani",
 			"matio'   _QQQQg, |             |  jQQQQc.  'imati",
-			"onan'   <QQQQQQm;|   Uhhhhhh   |.wQQQQWQa,  'onan",
+			"onan'   <QQQQQQm;|   BlaBlaa   |.wQQQQWQa,  'onan",
 			"ima'   jWQQQQQQQQ|             |mQQQQQQQQg,  'mat",
 		},
 		{
 			"fore! It is really great! Good product! Feel alive, NO",
 			"st part^ '' '  \"\"*E! (excluding taxes and the bills) N",
-			"r seu- . Uhhhhhh .-|u ihis! It has become something ne",
+			"r seu- . BlaaBlaa .-|u ihis! It has become something ne",
 			"rse! We ,... . ,.-rs of yellow-orange shiny triangles.",
 			"ns at a really stable framerate, so optimised it handl",
 			"ow, BUY OUR PRODUCT FOR FREE! We know you like it! We ",
@@ -61405,28 +61408,28 @@ task.spawn(function()
 			"....... gmWWWQQQQQQPg ..............................",
 			":;:;:; qm#WWNWQQWQWWmp ;:;:;:.                  .;:;",
 			"!!?!!?.WX##: W#W :###W.?!!?:.  hi im steve!      .:!",
-			"lilili:ZSXS: XSX :X##Z:ilil!. welcome to Uhhhhhh .!i",
+			"lilili:ZSXS: XSX :X##Z:ilil!. welcome to BlaBlaa .!i",
 			"EEEEEE:YLkk2S2SXSXSXZP:EEEEEi:                  :iEE",
 			"%%%%%%%;vnvkkkk2S2vnv;%%%%%%%%%oooooooooooooooo%%%%%",
 		},
 		{
-			"  Get Uhhhhhh today! Feel the difference!       ",
+			"  Get BlaaBlaa today! Feel the difference!       ",
 			"           (-_-)         EPIC!    (^~^)   .vv=E ",
 			"       ()-(:::::)-()         .()-(:::::)-()'    ",
 			"LAME!  || |.....| ||      3=^^'  /...../        ",
 			"       YP |     | YP            (     )   COOL! ",
-			"      Without Uhhhhhh   vs.   With Uhhhhhh      ",
+			"      Without BlaaBlaa   vs.   With BlaaBlaa      ",
 		},
 		{
 			"55 68 68 68 68 68 68 55 68 68 68 68 68 68",
 			"68 68 68 68 68 68 55 68 68 68 68 68 68 55",
 			"68 68 68 68 68 55 68 68 68 68 68 68 55 68",
-			"68 68 68 68 Uhhhhhh  68 68 68 68 55 68 68",
+			"68 68 68 68 BlaaBlaa 68 68 68 68 55 68 68",
 			"68 68 68 55 68 68 68 68 68 68 55 68 68 68",
 			"68 68 55 68 68 68 68 68 68 55 68 68 68 68",
 		},
 		{
-			"  Uhhhhhh          ",
+			"  BlaaBlaa          ",
 			"  01010101         ",
 			"   01101000        ",
 			"    01101000       ",
@@ -61434,10 +61437,10 @@ task.spawn(function()
 			"      01101000     ",
 			"       01101000    ",
 			"        01101000   ",
-			"         Uhhhhhh   ",
+			"         BlaaBlaa   ",
 		},
 		{
-			"+-[ Uhhhhhh Reanimate ]-----------------[#]-+",
+			"+-[ BlaaBlaa Reanimate ]-----------------[#]-+",
 			"|    ___                                    |",
 			"|   / o \\   Hello, world! Programmed to     |",
 			"|   \\ l /   work and not to feel.           |",
@@ -61447,7 +61450,7 @@ task.spawn(function()
 		{
 			"       cIyyyyyyF0\\ `TFyyyyyyq8_                 ",
 			"           i+`}0v       V!'xD~                  ",
-			"           &x~[.        W|11   --Uhhhhhh--      ",
+			"           &x~[.        W|11   --BlaaBlaa--      ",
 			"          ~W,          }D                       ",
 			"        <d$-         tg3`                       ",
 			"   \".''   ......             '.      \"`   ;     ",
@@ -61456,7 +61459,7 @@ task.spawn(function()
 			"    ~1}`  `}\\    ;*111*; ^[; .^    +\\    `x     ",
 		},
 		{
-			"  local oldsec = 0          .-+=* Uhhhhhh *=+-. ",
+			"  local oldsec = 0          .-+=* BlaaBlaa *=+-. ",
 			"  while i < #keyframes do     (code-ception!)   ",
 			"      local k = keyframes[i]                    ",
 			"      local sec = k.Time // self._optimiser     ",
@@ -61467,7 +61470,7 @@ task.spawn(function()
 			"er failed to process http://assetgame.roblox.com/as",
 			"er failed to process http://assetgame.roblox.com/as",
 			"--------------------------------------------       ",
-			"so, Uhhhhhh...                                     ",
+			"so, BlaaBlaa...                                    ",
 			"--------------------------------------------       ",
 			"er failed to process http://assetgame.roblox.com/as",
 			"er failed to process http://assetgame.roblox.com/as",
@@ -61476,7 +61479,7 @@ task.spawn(function()
 		{
 			"usage: clone this repo and change the token and the",
 			"(unless you like chaos) also make sure you have all",
-			"the dev portal cuz Uhhhhhh.                        ",
+			"the dev portal cuz BlaaBlaa.                        ",
 			"                                                   ",
 			"\"it's not fast it's shit\"                          ",
 			"Believe me friend, its fuckingly fast, you don't ev",
@@ -61484,10 +61487,10 @@ task.spawn(function()
 		{
 			"Uhhhhhh  https://discord.gg/NASNUKRBVM  Uhhhhhh",
 			"Uhhhhhh Uhhhhhh Uhhhhhh Uhhhhhh STEVETHEREALONE",
-			"Uhhhhhh Uhhhhhh Uhhhhhh STEVETHEREALONE Uhhhhhh",
-			"Uhhhhhh Uhhhhhh STEVETHEREALONE Uhhhhhh Uhhhhhh",
-			"Uhhhhhh STEVETHEREALONE Uhhhhhh Uhhhhhh Uhhhhhh",
-			"STEVETHEREALONE Uhhhhhh Uhhhhhh Uhhhhhh Uhhhhhh",
+			"UBlaahh Uhhhhhh Uhhhhhh STEVETHEREALONE Uhhhhhh",
+			"Uhhhhhh UhBlaah STEVETHEREALONE Uhhhhhh Uhhhhhh",
+			"Uhhhhhh STEVETHEREALONE UhhhhEh UhFredh Uhhhhhh",
+			"STEVETHEREALONE UJusthh UhhAhhh UhMaleh Uhhhhhh",
 		},
 	}
 	AsciiText.Text = table.concat(AsciiTextarts[math.random(1, #AsciiTextarts)], "\n")
@@ -61699,7 +61702,7 @@ UI.CreateSwitch(MainPage, "Mute Sounds", SaveData.MuteUISound).Changed:Connect(f
 	UISound.Click.Volume = value and 0 or 1
 end)
 UI.CreateSeparator(MainPage)
-UI.CreateText(MainPage, `Reanimate V{UhhhhhhVersion}, By STEVE :D`, 15, Enum.TextXAlignment.Right)
+UI.CreateText(MainPage, `Reanimate V{UhhhhhhVersion}, By STEVE,JustAMale,E Fred :D`, 15, Enum.TextXAlignment.Right)
 UI.CreateSeparator(MainPage)
 UI.CreateButton(MainPage, " &lt; Back to cool scene", 20).Activated:Connect(function()
 	UI.IntroScene.Enter()
@@ -66525,7 +66528,7 @@ local function RecordContentFailure(kind, name, source, reason)
         Util.CommunityDiagnostics.Report(kind, name, source, reason)
         return
     end
-    warn(("Uhhhhhh %s: %s (%s): %s"):format(
+    warn(("BlaaBlaa %s: %s (%s): %s"):format(
         tostring(kind), tostring(name), tostring(source), tostring(reason)))
 end
 
@@ -69373,9 +69376,9 @@ end
 
 local function Notice(text, duration)
     text = tostring(text)
-    warn("Uhhhhhh :: Server Reanim :: " .. text)
+    warn("BlaaBlaa :: Server Reanim :: " .. text)
     pcall(StarterGui.SetCore, StarterGui, "SendNotification", {
-        Title = "Uhhhhhh Server Reanim",
+        Title = "BlaaBlaa Server Reanim",
         Text = text,
         Duration = tonumber(duration) or 7,
     })
@@ -69519,9 +69522,9 @@ local function BuildPatchSource()
     return ([=[
 local Players = game:GetService("Players")
 local player = Players:GetPlayerByUserId(%d)
-assert(player, "Uhhhhhh: player left")
+assert(player, "BlaaBlaa: player left")
 local character = player.Character
-assert(character, "Uhhhhhh: character missing")
+assert(character, "BlaaBlaa: character missing")
 
 local owned, claimedAssemblies, failedAssemblies = 0, 0, 0
 local seen = {}
@@ -69593,7 +69596,7 @@ local function BuildFakeCharSource()
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local player = Players:GetPlayerByUserId(%d)
-assert(player, "Uhhhhhh: player left")
+assert(player, "BlaaBlaa: player left")
 
 local runtimeName = "UhhhhhhRuntime_%d"
 local old = ReplicatedStorage:FindFirstChild(runtimeName)
@@ -69836,7 +69839,7 @@ title.Parent.Name = "server reanim remote scanner"
 
 UI.CreateText(
     ServerReanimPage.List,
-    "Select a server-code remote, choose how to call it, and tell Uhhhhhh where $CODE belongs in its arguments. Nothing is fired while scanning.",
+    "Select a server-code remote, choose how to call it, and tell BlaaBlaa where $CODE belongs in its arguments. Nothing is fired while scanning.",
     11,
     Enum.TextXAlignment.Center
 )
@@ -70175,7 +70178,7 @@ actionButton.Activated:Connect(function()
             )
 
         if not ok then
-            warn("Uhhhhhh :: Server Reanim dispatch failed\n" .. tostring(result))
+            warn("BlaaBlaa :: Server Reanim dispatch failed\n" .. tostring(result))
             Notice("Remote dispatch failed. Check the console.")
         elseif result == false then
             Notice("The selected RemoteFunction returned false.")
@@ -70219,7 +70222,7 @@ removeButton.Activated:Connect(function()
         )
 
     if not ok then
-        warn("Uhhhhhh :: Server Reanim cleanup failed\n" .. tostring(result))
+        warn("BlaaBlaa :: Server Reanim cleanup failed\n" .. tostring(result))
         Notice("Cleanup dispatch failed. Check the console.")
     elseif result ~= false then
         Notice("Server FakeChar cleanup dispatched.")
@@ -70402,7 +70405,7 @@ do
 	local actions, actionsmap = ContextActions._Actions, ContextActions._ActionsMap
 	function ContextActions:RunBinding(caac, input)
 		local s, result = xpcall(caac.Callback, function(m)
-			warn(debug.traceback("Uhhhhhh :: Custom ContextActions Error - " .. m))
+			warn(debug.traceback("BlaaBlaa :: Custom ContextActions Error - " .. m))
 		end, caac.Name, input.UserInputState, input)
 		if s then
 			if result == Enum.ContextActionResult.Sink then
@@ -71885,7 +71888,7 @@ UI.CreateText(
 	Enum.TextXAlignment.Center
 )
 UI.CreateText(CreditsPage, "tho im considered a LAMER with no scene ID loool", 12, Enum.TextXAlignment.Center)
-UI.CreateText(CreditsPage, "so uhhhhhh....", 12, Enum.TextXAlignment.Center)
+UI.CreateText(CreditsPage, "so blaablaa....", 12, Enum.TextXAlignment.Center)
 UI.CreateText(CreditsPage, "...greetings to lamers and fuckings to elites?", 12, Enum.TextXAlignment.Center)
 UI.CreateText(CreditsPage, "<b>github.com</b>", 14, Enum.TextXAlignment.Center)
 UI.CreateText(CreditsPage, "YES!! KEEP SAVING ME FROM MY DATA CORRUPTION!!!", 12, Enum.TextXAlignment.Center)
@@ -71979,7 +71982,7 @@ do
 		"imagine getting ur script mogged by a script written and tested mostly on a mobile phone LOL",
 		"shownskid",
 		"this script mogs genesis", -- true-untrue though
-		'"Tired of your hats phasing through people? Uhhhhhh turns that fact upside-down!"',
+		'"Tired of your hats phasing through people? BlaaBlaa turns that fact upside-down!"',
 		'"The best part? It is FREE!! (excluding the taxes and bills) Now, BUY OUR PRODUCT FOR FREE! We know you like it! We know you do."',
 		"Does anyone ever physically look upwards when they think of ideas? I definitely don't.",
 		"\"It's not even another Reanimate; it just uses Emper Reanimate. So you can change the name to 'uhhhh hub', that's it.\"",
@@ -72014,7 +72017,7 @@ UI.CreateText(
 )
 UI.CreateText(
 	CreditsPage,
-	'If you want to add content to Uhhhhhh, like Dances or Movesets, go to <font color="#4444FF">this thing</font>.',
+	'If you want to add content to BlaaBlaa, like Dances or Movesets, go to <font color="#4444FF">this thing</font>.',
 	15,
 	Enum.TextXAlignment.Center
 ).InputBegan
@@ -72301,7 +72304,7 @@ local function ForceModuleReload(force)
 		if not HttpBodyIsUsable(content) then
 			return false, "empty or HTML response"
 		end
-		local chunk, compileFailure = loadstring(content, "Uhhhhhh :: DOWNLOAD CHECK " .. filename)
+		local chunk, compileFailure = loadstring(content, "BlaaBlaa :: DOWNLOAD CHECK " .. filename)
 		if type(chunk) ~= "function" then
 			return false, tostring(compileFailure)
 		end
@@ -72379,7 +72382,7 @@ local function ForceModuleReload(force)
 		task.wait()
 		InitLogsText.Text ..= "\n[LOG] Loadstringing VANILLA " .. x .. "..."
 		xpcall(function()
-			local func, comperr = loadstring(data, "Uhhhhhh :: VANILLA " .. x)
+			local func, comperr = loadstring(data, "BlaaBlaa :: VANILLA " .. x)
 			if func then
 				GiveFunctionsToFunction(func)
 				local names, logging = AddModules(func())
@@ -72428,7 +72431,7 @@ local function ForceModuleReload(force)
 				InitLogsText.Text ..= "\n[LOG] Reading local USER " .. x .. "..."
 				local data = readfile(path)
 				InitLogsText.Text ..= "\n[LOG] Loadstringing USER " .. x .. "..."
-				local func, comperr = CompileAnimationModule(data, "Uhhhhhh :: " .. x)
+				local func, comperr = CompileAnimationModule(data, "BlaaBlaa :: " .. x)
 				if func then
                     local context = ReadMarketContext(data)
                     GiveFunctionsToFunction(func, context)
