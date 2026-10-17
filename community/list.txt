@@ -83,7 +83,7 @@ path = Bryan/
 
 name = Cybop's/Melon's Mega Pack
 user = cybop_
-desc = holy 800MB plus, e god put the full thing. (Update soon)
+desc = holy 1GB plus, e fred put the full thing.
 type = folder
 path = Cybop/
 
@@ -93,9 +93,9 @@ desc = made it myself with AI beep boop beep boop :shook:
 type = folder
 path = JustAGorilla/
 
-name = Sam's Epik Dancez Modded E God Port
+name = Sam's Epik Dancez Modded E Fred Port
 user = Sam
-desc = it is a port of e god's epik dancez modded but with a twist
+desc = it is a port of e fred's epik dancez modded but with a twist
 type = folder
 path = EGodMod/
 
@@ -123,14 +123,50 @@ desc = JOIN ME- OWWWWW! , The mind of him
 cost = 10.59 MB
 file = GatitoandPh0nk1dd/allinone.lua
 
-name = Breys block tales movesets
-user = Brey_nananana
-desc = "Hey its me brey and this is honestly my best work so far thanks for using this"
-cost = ~3.84 MB
-file = alltheblocktalesmovesets/allinone.lua
-
 name = John Doe (Berry's version)
 user = Berry or idkmanel9
 desc = John doe (Berry's version)
 cost = 4.45 MB
 file = UpdatedJohndoe/allinone.lua
+
+name = MrClown's Dances and Moveset
+user = MrClown
+desc = includes dances and then a multi people moveset
+type = folder
+path = MrClown/
+
+name = Rob's Movesets
+user = Rob
+desc = includes a bunch of movesets related to certain sb scripts and more
+type = folder
+path = RobMovesets/
+
+name = Still Life Moveset
+user = Clorophy
+desc = Cool moveset
+type = folder
+path = StillLife/
+
+name = Insoni V3
+user = Yolehn
+desc = A moveset or something
+type = folder
+path = Insoni/
+
+name = LonelyMoon's Dances
+user = LonelyMoon
+desc = Multiple cool dances I guess
+type = folder
+path = LonelyMoon/
+
+name = Caducus
+user = Restlessman
+desc = An sb script moveset i guess
+type = folder
+path = Caducus/
+
+name = Neptunian V
+user = Restlessman or Tory idk
+desc = Another sb script conversion moveset
+type = folder
+path = NeptV/
